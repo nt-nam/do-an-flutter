@@ -1,4 +1,5 @@
 import 'package:do_an_flutter/firebase_options.dart';
+import 'package:do_an_flutter/screens/auth/register_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,12 @@ class _LoginScreenState extends State<LoginScreen> {
         _errorMessage = e.message ?? 'Đăng nhập thất bại!';
       });
     }
+  }
+  void _goToRegisterScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RegisterScreen()),
+    );
   }
 
   @override
@@ -80,6 +87,18 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: _login,
               child: Text('Đăng nhập'),
             ),
+            SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Chưa có tài khoản?'),
+                TextButton(
+                  onPressed: _goToRegisterScreen,
+                  child: Text('Đăng ký'),
+                ),
+              ],
+            ),
+
           ],
         ),
       ),
