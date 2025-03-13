@@ -52,112 +52,72 @@ Quản lý kho hàng
 
 
 lib/
-│── main.dart                # Điểm khởi chạy ứng dụng
-│── app.dart                 # Cấu hình chính của ứng dụng
-│── dependencies.dart        # Cấu hình các dependency (BLoC, Repositories, Services)
-│
-├── core/                    # Chứa cấu hình chung & tiện ích hệ thống
-│   ├── config/              
-│   │   ├── api_config.dart  # URL API & các endpoint quan trọng
-│   │   ├── app_theme.dart   # Cấu hình giao diện (theme)
-│   │   ├── app_constants.dart # Các hằng số dùng chung
-│   │
-│   ├── services/            # Dịch vụ hỗ trợ API, Database, Local Storage
-│   │   ├── api_service.dart  # Kết nối với API backend
-│   │   ├── local_storage.dart # Lưu trữ dữ liệu cục bộ (SharedPreferences, Hive)
-│   │   ├── auth_service.dart  # Xác thực đăng nhập, đăng ký
-│   │   ├── notification_service.dart # Xử lý thông báo đẩy (Firebase)
-│   │   ├── location_service.dart # Lấy vị trí giao hàng
-│   │
-│   ├── utils/               # Các hàm tiện ích chung
-│   │   ├── validators.dart  # Kiểm tra tính hợp lệ của dữ liệu đầu vào
-│   │   ├── formatters.dart  # Định dạng số, tiền tệ, thời gian
-│   │   ├── logger.dart      # Ghi log lỗi
-│   │   ├── network_checker.dart # Kiểm tra kết nối mạng
-│
-├── data/                    # Xử lý dữ liệu (Models, Repositories)
-│   ├── models/              
-│   │   ├── user_model.dart  
-│   │   ├── product_model.dart
-│   │   ├── order_model.dart   
-│   │   ├── cart_model.dart    
-│   │   ├── review_model.dart  
-│   │
-│   ├── repositories/        # Xử lý logic dữ liệu giữa API & BLoC
-│   │   ├── product_repository.dart
-│   │   ├── order_repository.dart
-│   │   ├── cart_repository.dart
-│   │   ├── user_repository.dart
-│   │   ├── review_repository.dart
-│   │   ├── auth_repository.dart
-│   │   ├── payment_repository.dart  # Xử lý thanh toán (VNPay, Momo, PayPal)
-│
-├── logic/                   # BLoC quản lý trạng thái
-│   ├── authentication/
-│   │   ├── auth_bloc.dart
-│   │   ├── auth_event.dart
-│   │   ├── auth_state.dart
-│   │
-│   ├── products/
-│   │   ├── product_bloc.dart
-│   │   ├── product_event.dart
-│   │   ├── product_state.dart
-│   │
-│   ├── cart/
-│   │   ├── cart_bloc.dart
-│   │   ├── cart_event.dart
-│   │   ├── cart_state.dart
-│   │
-│   ├── orders/
-│   │   ├── order_bloc.dart
-│   │   ├── order_event.dart
-│   │   ├── order_state.dart
-│   │
-│   ├── reviews/
-│   │   ├── review_bloc.dart
-│   │   ├── review_event.dart
-│   │   ├── review_state.dart
-│   │
-│   ├── notifications/
-│   │   ├── notification_bloc.dart
-│   │   ├── notification_event.dart
-│   │   ├── notification_state.dart
-│
-├── presentation/            # Giao diện (UI)
-│   ├── screens/
-│   │   ├── home_screen.dart
-│   │   ├── product_detail_screen.dart
-│   │   ├── cart_screen.dart
-│   │   ├── checkout_screen.dart
-│   │   ├── order_screen.dart
-│   │   ├── profile_screen.dart
-│   │   ├── login_screen.dart
-│   │   ├── register_screen.dart
-│   │   ├── review_screen.dart
-│   │   ├── notification_screen.dart
-│   │
-│   ├── widgets/             # Các widget tái sử dụng
-│   │   ├── product_card.dart
-│   │   ├── cart_item.dart
-│   │   ├── order_item.dart
-│   │   ├── rating_stars.dart
-│   │   ├── custom_button.dart
-│   │   ├── input_field.dart
-│   │   ├── empty_state.dart  # Widget hiển thị khi không có dữ liệu
-│
-├── routes/                  
-│   ├── app_routes.dart       # Điều hướng giữa các màn hình
-│
+├── main.dart                # Điểm khởi chạy ứng dụng
+├── app.dart                 # Cấu hình chính của ứng dụng
+├── dependencies.dart        # Cấu hình dependency injection
+├── services/                # Các dịch vụ chung
+│   ├── api_service.dart     # Kết nối API backend
+│   ├── auth_service.dart    # Xác thực
+│   ├── local_storage.dart   # Lưu trữ cục bộ (token)
+│   ├── notification_service.dart # Thông báo đẩy
+│   ├── location_service.dart # Vị trí giao hàng
+├── models/                  # Các model dữ liệu
+│   ├── user_model.dart
+│   ├── product_model.dart
+│   ├── order_model.dart
+│   ├── cart_model.dart
+│   ├── review_model.dart
+│   ├── delivery_model.dart  
+│   ├── inventory_model.dart 
+│   ├── promotion_model.dart 
+├── blocs/                   # Quản lý trạng thái (gộp BLoC và repository)
+│   ├── auth_bloc.dart       # Xác thực (đăng nhập, đăng ký)
+│   ├── product_bloc.dart    # Sản phẩm
+│   ├── cart_bloc.dart       # Giỏ hàng
+│   ├── order_bloc.dart      # Đơn hàng
+│   ├── review_bloc.dart     # Đánh giá
+│   ├── notification_bloc.dart # Thông báo
+│   ├── delivery_bloc.dart   # Giao hàng
+│   ├── inventory_bloc.dart  # Kho hàng
+│   ├── promotion_bloc.dart  # Ưu đãi
+├── screens/                 # Các màn hình giao diện
+│   ├── login_screen.dart
+│   ├── register_screen.dart
+│   ├── home_screen.dart
+│   ├── product_detail_screen.dart
+│   ├── cart_screen.dart
+│   ├── checkout_screen.dart
+│   ├── order_screen.dart
+│   ├── profile_screen.dart
+│   ├── review_screen.dart
+│   ├── notification_screen.dart
+│   ├── delivery_tracking_screen.dart
+│   ├── inventory_screen.dart       
+│   ├── promotion_screen.dart       
+├── widgets/                 # Các widget tái sử dụng
+│   ├── product_card.dart
+│   ├── cart_item.dart
+│   ├── order_item.dart
+│   ├── rating_stars.dart
+│   ├── custom_button.dart
+│   ├── input_field.dart
+│   ├── empty_state.dart
+├── utils/                   # Công cụ hỗ trợ
+│   ├── app_theme.dart       # Theme ứng dụng
+│   ├── app_constants.dart   # Hằng số
+│   ├── validators.dart      # Kiểm tra dữ liệu
+│   ├── formatters.dart      # Định dạng
+│   ├── logger.dart          # Ghi log
+│   ├── network_checker.dart # Kiểm tra mạng
+├── routes.dart              # Điều hướng (gộp từ app_routes.dart)
 ├── localization/            # Đa ngôn ngữ
 │   ├── app_localization.dart
-│   ├── en.json               # Ngôn ngữ tiếng Anh
-│   ├── vi.json               # Ngôn ngữ tiếng Việt
-│
-├── assets/                  # Tài nguyên (hình ảnh, icon, fonts)
+│   ├── en.json
+│   ├── vi.json
+├── assets/                  # Tài nguyên
 │   ├── images/
 │   │   ├── logo.png
 │   │   ├── banner.jpg
-│   │
 │   ├── fonts/
 │   │   ├── Roboto-Regular.ttf
 │   │   ├── Roboto-Bold.ttf

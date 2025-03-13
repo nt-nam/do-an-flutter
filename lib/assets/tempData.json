@@ -1,0 +1,566 @@
+{
+  "danhgia": [
+    {
+      "MaDG": 1,
+      "MaTK": 1,
+      "MaSP": 1,
+      "Diem": 4.5,
+      "NhanXet": "Bình gas chất lượng, giao nhanh",
+      "NgayDanhGia": "2025-03-03"
+    },
+    {
+      "MaDG": 2,
+      "MaTK": 2,
+      "MaSP": 2,
+      "Diem": 4,
+      "NhanXet": "Van gas an toàn, giá tốt",
+      "NgayDanhGia": "2025-03-04"
+    },
+    {
+      "MaDG": 3,
+      "MaTK": 3,
+      "MaSP": 3,
+      "Diem": 5,
+      "NhanXet": "Dây dẫn bền, đáng tiền",
+      "NgayDanhGia": "2025-03-05"
+    },
+    {
+      "MaDG": 4,
+      "MaTK": 4,
+      "MaSP": 4,
+      "Diem": 3.5,
+      "NhanXet": "Bếp gas âm ổn, cần cải thiện lắp đặt",
+      "NgayDanhGia": "2025-03-06"
+    },
+    {
+      "MaDG": 5,
+      "MaTK": 5,
+      "MaSP": 5,
+      "Diem": 4.8,
+      "NhanXet": "Bếp gas dương đẹp, tiết kiệm gas",
+      "NgayDanhGia": "2025-03-07"
+    },
+    {
+      "MaDG": 6,
+      "MaTK": 6,
+      "MaSP": 6,
+      "Diem": 4.2,
+      "NhanXet": "Bình gas 6kg nhỏ gọn, tiện dụng",
+      "NgayDanhGia": "2025-03-08"
+    },
+    {
+      "MaDG": 7,
+      "MaTK": 7,
+      "MaSP": 7,
+      "Diem": 4.7,
+      "NhanXet": "Đầu đốt tốt, thay thế dễ dàng",
+      "NgayDanhGia": "2025-03-09"
+    },
+    {
+      "MaDG": 8,
+      "MaTK": 8,
+      "MaSP": 8,
+      "Diem": 4,
+      "NhanXet": "Bình gas 45kg bền, giao chậm",
+      "NgayDanhGia": "2025-03-10"
+    },
+    {
+      "MaDG": 9,
+      "MaTK": 9,
+      "MaSP": 9,
+      "Diem": 4.9,
+      "NhanXet": "Dây dẫn 2m an toàn, chất lượng cao",
+      "NgayDanhGia": "2025-03-11"
+    },
+    {
+      "MaDG": 10,
+      "MaTK": 10,
+      "MaSP": 10,
+      "Diem": 4.3,
+      "NhanXet": "Bếp gas đôi tốt, dễ sử dụng",
+      "NgayDanhGia": "2025-03-12"
+    }
+  ],
+  "donhang": [
+    {
+      "MaDH": 1,
+      "MaTK": 1,
+      "NgayDat": "2025-03-01",
+      "TongTien": 350000,
+      "TrangThai": "Chờ xử lý",
+      "DiaChiGiao": "123 Đường Gas, Hà Nội",
+      "MaUD": 1
+    },
+    {
+      "MaDH": 2,
+      "MaTK": 2,
+      "NgayDat": "2025-03-02",
+      "TongTien": 150000,
+      "TrangThai": "Đã giao",
+      "DiaChiGiao": "456 Đường Bếp, TP.HCM",
+      "MaUD": null
+    },
+    {
+      "MaDH": 3,
+      "MaTK": 3,
+      "NgayDat": "2025-03-03",
+      "TongTien": 80000,
+      "TrangThai": "Chờ xử lý",
+      "DiaChiGiao": "789 Đường Gas, Đà Nẵng",
+      "MaUD": 2
+    },
+    {
+      "MaDH": 4,
+      "MaTK": 4,
+      "NgayDat": "2025-03-04",
+      "TongTien": 2500000,
+      "TrangThai": "Đang giao",
+      "DiaChiGiao": "101 Đường Bếp, Cần Thơ",
+      "MaUD": null
+    },
+    {
+      "MaDH": 5,
+      "MaTK": 5,
+      "NgayDat": "2025-03-05",
+      "TongTien": 1800000,
+      "TrangThai": "Hoàn thành",
+      "DiaChiGiao": "202 Đường Gas, Hải Phòng",
+      "MaUD": 1
+    },
+    {
+      "MaDH": 6,
+      "MaTK": 6,
+      "NgayDat": "2025-03-06",
+      "TongTien": 200000,
+      "TrangThai": "Chờ xử lý",
+      "DiaChiGiao": "303 Đường Bếp, Huế",
+      "MaUD": null
+    },
+    {
+      "MaDH": 7,
+      "MaTK": 7,
+      "NgayDat": "2025-03-07",
+      "TongTien": 300000,
+      "TrangThai": "Đã giao",
+      "DiaChiGiao": "404 Đường Gas, Nha Trang",
+      "MaUD": 2
+    },
+    {
+      "MaDH": 8,
+      "MaTK": 8,
+      "NgayDat": "2025-03-08",
+      "TongTien": 120000,
+      "TrangThai": "Chờ xử lý",
+      "DiaChiGiao": "505 Đường Bếp, Vũng Tàu",
+      "MaUD": null
+    },
+    {
+      "MaDH": 9,
+      "MaTK": 9,
+      "NgayDat": "2025-03-09",
+      "TongTien": 2200000,
+      "TrangThai": "Đang giao",
+      "DiaChiGiao": "606 Đường Gas, Bình Dương",
+      "MaUD": 1
+    },
+    {
+      "MaDH": 10,
+      "MaTK": 10,
+      "NgayDat": "2025-03-10",
+      "TongTien": 900000,
+      "TrangThai": "Hoàn thành",
+      "DiaChiGiao": "707 Đường Bếp, Long An",
+      "MaUD": null
+    }
+  ],
+  "giohang": [
+    {
+      "MaGH": 1,
+      "MaTK": 1,
+      "MaSP": 1,
+      "SoLuong": 2,
+      "NgayThem": "2025-03-01"
+    },
+    {
+      "MaGH": 2,
+      "MaTK": 2,
+      "MaSP": 2,
+      "SoLuong": 1,
+      "NgayThem": "2025-03-02"
+    },
+    {
+      "MaGH": 3,
+      "MaTK": 3,
+      "MaSP": 3,
+      "SoLuong": 3,
+      "NgayThem": "2025-03-03"
+    },
+    {
+      "MaGH": 4,
+      "MaTK": 4,
+      "MaSP": 4,
+      "SoLuong": 1,
+      "NgayThem": "2025-03-04"
+    },
+    {
+      "MaGH": 5,
+      "MaTK": 5,
+      "MaSP": 5,
+      "SoLuong": 2,
+      "NgayThem": "2025-03-05"
+    },
+    {
+      "MaGH": 6,
+      "MaTK": 6,
+      "MaSP": 6,
+      "SoLuong": 1,
+      "NgayThem": "2025-03-06"
+    },
+    {
+      "MaGH": 7,
+      "MaTK": 7,
+      "MaSP": 7,
+      "SoLuong": 2,
+      "NgayThem": "2025-03-07"
+    },
+    {
+      "MaGH": 8,
+      "MaTK": 8,
+      "MaSP": 8,
+      "SoLuong": 1,
+      "NgayThem": "2025-03-08"
+    },
+    {
+      "MaGH": 9,
+      "MaTK": 9,
+      "MaSP": 9,
+      "SoLuong": 3,
+      "NgayThem": "2025-03-09"
+    },
+    {
+      "MaGH": 10,
+      "MaTK": 10,
+      "MaSP": 10,
+      "SoLuong": 1,
+      "NgayThem": "2025-03-10"
+    }
+  ],
+  "nguoidung": [
+    {
+      "MaND": 1,
+      "MaTK": 1,
+      "HoTen": "Nguyen Van A",
+      "SDT": "0901234567",
+      "DiaChi": "123 Đường Láng, Hà Nội"
+    },
+    {
+      "MaND": 2,
+      "MaTK": 2,
+      "HoTen": "Tran Van B",
+      "SDT": "0912345678",
+      "DiaChi": "45 Lê Lợi, TP.HCM"
+    },
+    {
+      "MaND": 3,
+      "MaTK": 3,
+      "HoTen": "Le Thi C",
+      "SDT": "0923456789",
+      "DiaChi": "78 Nguyễn Huệ, Huế"
+    },
+    {
+      "MaND": 4,
+      "MaTK": 4,
+      "HoTen": "Pham Van D",
+      "SDT": "0934567890",
+      "DiaChi": "12 Trần Phú, Đà Nẵng"
+    },
+    {
+      "MaND": 5,
+      "MaTK": 5,
+      "HoTen": "Hoang Thi E",
+      "SDT": "0945678901",
+      "DiaChi": "56 Hùng Vương, Nha Trang"
+    },
+    {
+      "MaND": 6,
+      "MaTK": 6,
+      "HoTen": "Dang Van F",
+      "SDT": "0956789012",
+      "DiaChi": "89 Bạch Đằng, Hải Phòng"
+    },
+    {
+      "MaND": 7,
+      "MaTK": 7,
+      "HoTen": "Bui Tran G",
+      "SDT": "0967890123",
+      "DiaChi": "34 Lý Thường Kiệt, Cần Thơ"
+    },
+    {
+      "MaND": 8,
+      "MaTK": 8,
+      "HoTen": "Vu Thi H",
+      "SDT": "0978901234",
+      "DiaChi": "67 Pasteur, Vũng Tàu"
+    },
+    {
+      "MaND": 9,
+      "MaTK": 9,
+      "HoTen": "Ngo Thi I",
+      "SDT": "0989012345",
+      "DiaChi": "90 Nguyễn Trãi, Thanh Hóa"
+    },
+    {
+      "MaND": 10,
+      "MaTK": 10,
+      "HoTen": "Ly Van K",
+      "SDT": "0990123456",
+      "DiaChi": "23 Điện Biên Phủ, Vinh"
+    }
+  ],
+  "sanpham": [
+    {
+      "MaSP": 1,
+      "TenSP": "Bình gas 12kg Rồng Đỏ",
+      "MoTa": "Bình gas 12kg chính hãng, an toàn cao",
+      "Gia": 350000,
+      "SoLuong": 100,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/gas12kg.jpg"
+    },
+    {
+      "MaSP": 2,
+      "TenSP": "Van gas tự ngắt an toàn",
+      "MoTa": "Van gas tự ngắt khi rò rỉ",
+      "Gia": 150000,
+      "SoLuong": 50,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/vangas.jpg"
+    },
+    {
+      "MaSP": 3,
+      "TenSP": "Dây dẫn gas cao cấp 1.5m",
+      "MoTa": "Dây dẫn gas chịu nhiệt, độ bền cao",
+      "Gia": 80000,
+      "SoLuong": 200,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/daygas.jpg"
+    },
+    {
+      "MaSP": 4,
+      "TenSP": "Bếp gas âm Rinnai RVB-2",
+      "MoTa": "Bếp gas âm 2 lò, tiết kiệm nhiên liệu",
+      "Gia": 2500000,
+      "SoLuong": 30,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/bepgasam.jpg"
+    },
+    {
+      "MaSP": 5,
+      "TenSP": "Bếp gas dương Sunhouse SHB903",
+      "MoTa": "Bếp gas dương 3 lò, dễ sử dụng",
+      "Gia": 1800000,
+      "SoLuong": 40,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/bepgasduong.jpg"
+    },
+    {
+      "MaSP": 6,
+      "TenSP": "Bình gas 6kg Petrovietnam",
+      "MoTa": "Bình gas mini 6kg, phù hợp gia đình nhỏ",
+      "Gia": 200000,
+      "SoLuong": 80,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/gas6kg.jpg"
+    },
+    {
+      "MaSP": 7,
+      "TenSP": "Đầu đốt bếp gas Rinnai",
+      "MoTa": "Đầu đốt thay thế, chịu nhiệt tốt",
+      "Gia": 300000,
+      "SoLuong": 60,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/daudot.jpg"
+    },
+    {
+      "MaSP": 8,
+      "TenSP": "Bình gas 45kg công nghiệp",
+      "MoTa": "Bình gas lớn cho nhà hàng, quán ăn",
+      "Gia": 900000,
+      "SoLuong": 20,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/gas45kg.jpg"
+    },
+    {
+      "MaSP": 9,
+      "TenSP": "Dây dẫn gas chống cháy 2m",
+      "MoTa": "Dây dẫn gas an toàn, chống cháy nổ",
+      "Gia": 120000,
+      "SoLuong": 150,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/daygas2m.jpg"
+    },
+    {
+      "MaSP": 10,
+      "TenSP": "Bếp gas đôi Electrolux",
+      "MoTa": "Bếp gas đôi hiện đại, tiết kiệm gas",
+      "Gia": 2200000,
+      "SoLuong": 35,
+      "TrangThai": "Còn hàng",
+      "HinhAnh": "https://example.com/bepgasdoi.jpg"
+    }
+  ],
+  "taikhoan": [
+    {
+      "MaTK": 1,
+      "Email": "nguyenvana@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword1",
+      "VaiTro": 1,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 2,
+      "Email": "tranvanb@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword2",
+      "VaiTro": 1,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 3,
+      "Email": "lethic@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword3",
+      "VaiTro": 2,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 4,
+      "Email": "phamvand@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword4",
+      "VaiTro": 1,
+      "TrangThai": 0
+    },
+    {
+      "MaTK": 5,
+      "Email": "hoangthie@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword5",
+      "VaiTro": 1,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 6,
+      "Email": "dangvanf@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword6",
+      "VaiTro": 2,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 7,
+      "Email": "buitrang@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword7",
+      "VaiTro": 1,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 8,
+      "Email": "vuthih@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword8",
+      "VaiTro": 1,
+      "TrangThai": 1
+    },
+    {
+      "MaTK": 9,
+      "Email": "ngothii@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword9",
+      "VaiTro": 2,
+      "TrangThai": 0
+    },
+    {
+      "MaTK": 10,
+      "Email": "lyvank@gmail.com",
+      "MatKhau": "$2b$10$hashedpassword10",
+      "VaiTro": 1,
+      "TrangThai": 1
+    }
+  ],
+  "uudai": [
+    {
+      "MaUD": 1,
+      "TenUD": "Giảm giá 10% gas",
+      "MucGiam": 0.1,
+      "NgayBatDau": "2025-03-01",
+      "NgayKetThuc": "2025-03-31",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 2,
+      "TenUD": "Giảm 50.000 VNĐ cho bếp gas",
+      "MucGiam": 50000,
+      "NgayBatDau": "2025-03-01",
+      "NgayKetThuc": "2025-03-15",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 3,
+      "TenUD": "Giảm 15% phụ kiện gas",
+      "MucGiam": 0.15,
+      "NgayBatDau": "2025-03-10",
+      "NgayKetThuc": "2025-04-10",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 4,
+      "TenUD": "Giảm 100.000 VNĐ bình gas",
+      "MucGiam": 100000,
+      "NgayBatDau": "2025-03-05",
+      "NgayKetThuc": "2025-03-20",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 5,
+      "TenUD": "Giảm 20% sinh nhật gas",
+      "MucGiam": 0.2,
+      "NgayBatDau": "2025-03-01",
+      "NgayKetThuc": "2025-03-31",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 6,
+      "TenUD": "Giảm 30.000 VNĐ dây dẫn",
+      "MucGiam": 30000,
+      "NgayBatDau": "2025-03-15",
+      "NgayKetThuc": "2025-03-30",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 7,
+      "TenUD": "Giảm 12% bếp gas",
+      "MucGiam": 0.12,
+      "NgayBatDau": "2025-03-01",
+      "NgayKetThuc": "2025-04-01",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 8,
+      "TenUD": "Giảm 70.000 VNĐ van gas",
+      "MucGiam": 70000,
+      "NgayBatDau": "2025-03-10",
+      "NgayKetThuc": "2025-03-25",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 9,
+      "TenUD": "Giảm 25% gas công nghiệp",
+      "MucGiam": 0.25,
+      "NgayBatDau": "2025-03-01",
+      "NgayKetThuc": "2025-03-15",
+      "TrangThai": "Hoạt động"
+    },
+    {
+      "MaUD": 10,
+      "TenUD": "Giảm 40.000 VNĐ phụ kiện",
+      "MucGiam": 40000,
+      "NgayBatDau": "2025-03-20",
+      "NgayKetThuc": "2025-03-31",
+      "TrangThai": "Hoạt động"
+    }
+  ]
+}
