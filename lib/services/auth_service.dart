@@ -1,34 +1,38 @@
 // lib/services/auth_service.dart
 import '../models/user_model.dart';
-
+import 'package:http/http.dart' as http; // Import thư viện http
+import 'dart:convert'; // Import để sử dụng jsonEncode và jsonDecode
 class AuthService {
   Future<UserModel> login(String email, String password) async {
-    // Mock data thay vì gọi API
-    await Future.delayed(Duration(seconds: 1)); // Giả lập thời gian chờ
-    if (email == 'test@example.com' && password == '123456') {
-      return UserModel(
-        id: 1,
-        email: email,
-        role: 'customer',
-        isActive: true,
-        fullName: 'Nguyen Van A',
-        phone: '0901234567',
-        address: '123 Đường Láng, Hà Nội',
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost/gas_api/auth/login.php'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({'email': email, 'password': password}),
       );
-    } else {
-      throw Exception('Sai email hoặc mật khẩu');
-    }
 
-    // Khi dùng API thật (PHP/phpMyAdmin):
-    // final response = await http.post(
-    //   Uri.parse('http://your-php-server/auth/login.php'),
-    //   body: {'email': email, 'password': password},
-    // );
-    // if (response.statusCode == 200) {
-    //   return UserModel.fromJson(jsonDecode(response.body));
-    // } else {
-    //   throw Exception('Đăng nhập thất bại');
-    // }
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Decoded data: $data');
+
+        if (data['status'] == 'success') {
+          // Kiểm tra xem dữ liệu người dùng có nằm trong một trường con không
+          final userData = data['user'] ?? data['data'] ?? data;
+          print('User data: $userData');
+          return UserModel.fromJson(userData);
+        } else {
+          throw Exception(data['message'] ?? 'Đăng nhập thất bại');
+        }
+      } else {
+        throw Exception('Đăng nhập thất bại: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Login error: $e');
+      rethrow; // Ném lại lỗi để xử lý ở UI
+    }
   }
 
   Future<UserModel> register({

@@ -1,4 +1,3 @@
-// lib/models/user_model.dart
 class UserModel {
   final int id;
   final String email;
@@ -20,10 +19,10 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: json['MaTK'],
-      email: json['Email'],
-      role: _mapRole(json['VaiTro']),
-      isActive: json['TrangThai'] == 1,
+      id: json['MaTK'] ?? 0, // Xử lý null bằng cách cung cấp giá trị mặc định
+      email: json['Email'] ?? '',
+      role: _mapRole(json['VaiTro'] ?? 0), // Xử lý trường hợp VaiTro là null
+      isActive: (json['TrangThai'] ?? 0) == 1,
       fullName: json['HoTen'],
       phone: json['SDT'],
       address: json['DiaChi'],
