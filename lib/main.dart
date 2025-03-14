@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
         BlocProvider(create: (_) => di.sl<ProductBloc>()),
         BlocProvider(create: (_) => di.sl<CartBloc>()),
-        // BlocProvider(create: (_) => di.sl<OrderBloc>()),
+        BlocProvider(create: (_) => di.sl<OrderBloc>()),
         // BlocProvider(create: (_) => di.sl<ReviewBloc>()),
         // BlocProvider(create: (_) => di.sl<NotificationBloc>()),
         // BlocProvider(create: (_) => di.sl<DeliveryBloc>()),

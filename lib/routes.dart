@@ -43,10 +43,10 @@ class AppRoutes {
           //   return ProductDetailScreen();
           case '/cart':
             return CartScreen();
-          // case '/checkout':
-          //   return CheckoutScreen();
-          // case '/orders':
-          //   return OrderScreen();
+          case '/checkout':
+            return CheckoutScreen();
+          case '/orders':
+            return OrderScreen();
           // case '/profile':
           //   return ProfileScreen();
           // case '/reviews':

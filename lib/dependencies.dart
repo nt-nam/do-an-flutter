@@ -18,7 +18,7 @@ Future<void> init() async {
   sl.registerFactory(() => AuthBloc(sl()));
   sl.registerFactory(() => ProductBloc());
   sl.registerFactory(() => CartBloc());
-  // sl.registerFactory(() => OrderBloc());
+  sl.registerFactory(() => OrderBloc());
   // sl.registerFactory(() => ReviewBloc());
   // sl.registerFactory(() => NotificationBloc());
   // sl.registerFactory(() => DeliveryBloc());
