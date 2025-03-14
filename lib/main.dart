@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<OrderBloc>()),
         // BlocProvider(create: (_) => di.sl<ReviewBloc>()),
         // BlocProvider(create: (_) => di.sl<NotificationBloc>()),
-        // BlocProvider(create: (_) => di.sl<DeliveryBloc>()),
+        BlocProvider(create: (_) => di.sl<DeliveryBloc>()),
         // BlocProvider(create: (_) => di.sl<InventoryBloc>()),
         // BlocProvider(create: (_) => di.sl<PromotionBloc>()),
       ],

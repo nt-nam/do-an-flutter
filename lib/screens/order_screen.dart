@@ -33,6 +33,7 @@ class OrderScreen extends StatelessWidget {
                     trailing: Text(order.createdAt.toString().substring(0, 10)),
                     onTap: () {
                       // Có thể thêm chi tiết đơn hàng sau
+                      Navigator.pushNamed(context, '/delivery', arguments: order.id);
                     },
                   );
                 },

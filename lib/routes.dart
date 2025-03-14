@@ -32,7 +32,8 @@ class AppRoutes {
               switch (authState.user.role) {
                 case 'admin':
                   return InventoryScreen();
-                case 'delivery':
+                case '/delivery':
+                  final orderId = settings.arguments as int?; // Nhận orderId từ Navigator
                   return DeliveryTrackingScreen();
                 default:
                   return HomeScreen();
@@ -53,8 +54,9 @@ class AppRoutes {
           //   return ReviewScreen();
           // case '/notifications':
           //   return NotificationScreen();
-          // case '/delivery':
-          //   return DeliveryTrackingScreen();
+          case '/delivery':
+            final orderId = settings.arguments as int?;
+            return DeliveryTrackingScreen(orderId: orderId);
           // case '/inventory':
           //   return InventoryScreen();
           // case '/promotions':
