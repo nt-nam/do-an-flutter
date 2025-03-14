@@ -27,22 +27,22 @@ class AppRoutes {
             return LoginScreen();
           // case '/register':
           //   return RegisterScreen();
-          // case '/home':
-          //   if (authState is AuthAuthenticated) {
-          //     switch (authState.user.role) {
-          //       case 'admin':
-          //         return InventoryScreen();
-          //       case 'delivery':
-          //         return DeliveryTrackingScreen();
-          //       default:
-          //         return HomeScreen();
-          //     }
-          //   }
-          //   return LoginScreen(); // Chuyển về login nếu chưa xác thực
+          case '/home':
+            if (authState is AuthAuthenticated) {
+              switch (authState.user.role) {
+                case 'admin':
+                  return InventoryScreen();
+                case 'delivery':
+                  return DeliveryTrackingScreen();
+                default:
+                  return HomeScreen();
+              }
+            }
+            return LoginScreen(); // Chuyển về login nếu chưa xác thực
           // case '/product_detail':
           //   return ProductDetailScreen();
-          // case '/cart':
-          //   return CartScreen();
+          case '/cart':
+            return CartScreen();
           // case '/checkout':
           //   return CheckoutScreen();
           // case '/orders':

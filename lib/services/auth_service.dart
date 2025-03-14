@@ -4,6 +4,24 @@ import 'package:http/http.dart' as http; // Import thư viện http
 import 'dart:convert'; // Import để sử dụng jsonEncode và jsonDecode
 class AuthService {
   Future<UserModel> login(String email, String password) async {
+    await Future.delayed(Duration(seconds: 1)); // Giả lập thời gian chờ
+
+    //TODO Mock data
+    // if (email == 'test' && password == '123') {
+    //   return UserModel(
+    //     id: 1,
+    //     email: 'test@example.com',
+    //     role: 'delivery', // customer, admin, delivery.
+    //     isActive: true,
+    //     fullName: 'Nguyen Van A',
+    //     phone: '0901234567',
+    //     address: '123 Đường Láng, Hà Nội',
+    //   );
+    // } else {
+    //   throw Exception('Sai email hoặc mật khẩu');
+    // }
+
+    //TODO Call API
     try {
       final response = await http.post(
         Uri.parse('http://localhost/gas_api/auth/login.php'),
