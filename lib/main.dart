@@ -28,13 +28,15 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<ProductBloc>()),
         BlocProvider(create: (_) => di.sl<CartBloc>()),
         BlocProvider(create: (_) => di.sl<OrderBloc>()),
-        // BlocProvider(create: (_) => di.sl<ReviewBloc>()),
-        // BlocProvider(create: (_) => di.sl<NotificationBloc>()),
+        BlocProvider(create: (_) => di.sl<ReviewBloc>()),
+        BlocProvider(create: (_) => di.sl<NotificationBloc>()),
         BlocProvider(create: (_) => di.sl<DeliveryBloc>()),
         BlocProvider(create: (_) => di.sl<InventoryBloc>()),
-        // BlocProvider(create: (_) => di.sl<PromotionBloc>()),
+        BlocProvider(create: (_) => di.sl<PromotionBloc>()),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        // debugShowMaterialGrid: true,
         title: 'Gas Delivery App',
         theme: appTheme, // Sử dụng appTheme từ utils/app_theme.dart
         initialRoute: '/',

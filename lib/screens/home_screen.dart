@@ -15,6 +15,11 @@ class HomeScreen extends StatelessWidget {
         title: Text('Trang chủ'),
         actions: [
           IconButton(
+            icon: Icon(Icons.person),
+            onPressed: () => Navigator.pushNamed(context, '/profile'),
+            tooltip: 'Hồ sơ',
+          ),
+          IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
               Navigator.pushNamed(context, '/cart');
@@ -34,7 +39,22 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.store),
             onPressed: () => Navigator.pushNamed(context, '/inventory'),
             tooltip: 'Quản lý kho',
+          ),IconButton(
+            icon: Icon(Icons.local_offer),
+            onPressed: () => Navigator.pushNamed(context, '/promotions'),
+            tooltip: 'Ưu đãi',
           ),
+          IconButton(
+            icon: Icon(Icons.rate_review),
+            onPressed: () => Navigator.pushNamed(context, '/reviews', arguments: 1),
+            tooltip: 'Đánh giá',
+          ),
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () => Navigator.pushNamed(context, '/notifications'),
+            tooltip: 'Thông báo',
+          ),
+
         ],
       ),
       body: BlocBuilder<ProductBloc, ProductState>(
@@ -49,7 +69,14 @@ class HomeScreen extends StatelessWidget {
             return ListView.builder(
               itemCount: state.products.length,
               itemBuilder: (context, index) {
-                return ProductCard(product: state.products[index]);
+                final product = state.products[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/product_detail', arguments: product);
+                  },
+                  child: ProductCard(product: product),
+                );
+                // return ProductCard(product: state.products[index]);
               },
             );
           }

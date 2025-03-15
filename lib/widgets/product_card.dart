@@ -12,55 +12,22 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hình ảnh sản phẩm (nếu có)
             product.imageUrl != null
-                ? Image.network(
-              product.imageUrl!,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Icon(Icons.image_not_supported, size: 80),
-            )
-                : Icon(Icons.image, size: 80), // Placeholder nếu không có hình ảnh
+                ? Image.network(product.imageUrl!, width: 60, height: 60, fit: BoxFit.cover)
+                : Icon(Icons.image, size: 60),
             SizedBox(width: 16),
-            // Thông tin sản phẩm
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    product.name,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    product.description,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Giá: ${product.price.toStringAsFixed(0)} VNĐ',
-                    style: TextStyle(fontSize: 16, color: Colors.green),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Số lượng: ${product.quantity}',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Trạng thái: ${product.status}',
-                    style: TextStyle(fontSize: 14, color: product.status == 'Còn hàng' ? Colors.blue : Colors.red),
-                  ),
+                  Text(product.name, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text('Giá: ${product.price} VNĐ'),
+                  Text('Trạng thái: ${product.status}'),
                 ],
               ),
             ),
