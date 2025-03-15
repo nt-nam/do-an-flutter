@@ -57,8 +57,8 @@ class AppRoutes {
           case '/delivery':
             final orderId = settings.arguments as int?;
             return DeliveryTrackingScreen(orderId: orderId);
-          // case '/inventory':
-          //   return InventoryScreen();
+          case '/inventory':
+            return InventoryScreen();
           // case '/promotions':
           //   return PromotionScreen();
           default:

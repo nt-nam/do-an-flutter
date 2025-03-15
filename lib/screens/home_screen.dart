@@ -30,6 +30,11 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.local_shipping),
             onPressed: () => Navigator.pushNamed(context, '/delivery', arguments: 1), // Mock orderId
           ),
+          IconButton(
+            icon: Icon(Icons.store),
+            onPressed: () => Navigator.pushNamed(context, '/inventory'),
+            tooltip: 'Quản lý kho',
+          ),
         ],
       ),
       body: BlocBuilder<ProductBloc, ProductState>(
