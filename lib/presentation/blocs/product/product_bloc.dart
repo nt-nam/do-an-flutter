@@ -19,7 +19,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     try {
       final products = await getProductsUseCase(
         categoryId: event.categoryId,
-        onlyAvailable: event.onlyAvailable,
       );
       emit(ProductLoaded(products));
     } catch (e) {

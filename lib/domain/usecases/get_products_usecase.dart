@@ -7,7 +7,11 @@ class GetProductsUseCase {
 
   GetProductsUseCase(this.repository);
 
-  Future<List<Product>> call({int page = 1, int limit = 10, int? categoryId, String? searchQuery}) async {
+  Future<List<Product>> call(
+      {int page = 1,
+      int limit = 10,
+      int? categoryId,
+      String? searchQuery}) async {
     try {
       final productModels = categoryId != null
           ? await repository.getProductsByCategory(categoryId)
