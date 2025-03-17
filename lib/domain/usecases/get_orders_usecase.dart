@@ -7,8 +7,12 @@ class GetOrdersUseCase {
 
   GetOrdersUseCase(this.repository);
 
-  Future<List<Order>> call(int accountId, {String? status, int page = 1, int limit = 10}) async {
+  Future<List<Order>> call(int? accountId, {String? status, int page = 1, int limit = 10}) async {
     try {
+      if (accountId == null) {
+        // Trường hợp null: trả về danh sách trống hoặc logic khác tùy yêu cầu
+        return [];
+      }
       final orderModels = await repository.getOrdersByAccount(accountId);
       var filteredOrders = orderModels;
       if (status != null) {

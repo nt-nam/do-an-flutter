@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://your-php-api-domain.com/api'; // Thay bằng URL thực tế của API PHP
+  static const String baseUrl = 'http://localhost/api'; // Thay bằng URL thực tế của API PHP
 
   // Headers mặc định, có thể thêm token sau khi xác thực
   Map<String, String> _getHeaders({String? token}) {
