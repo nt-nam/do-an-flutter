@@ -1,4 +1,5 @@
 import '../../../domain/entities/order.dart';
+import '../../../domain/entities/order_detail.dart';
 
 abstract class OrderState {
   const OrderState();
@@ -28,6 +29,12 @@ class OrderStatusUpdated extends OrderState {
   final Order order;
 
   const OrderStatusUpdated(this.order);
+}
+
+class OrderDetailsLoaded extends OrderState {
+  final List<OrderDetail> details;
+
+  const OrderDetailsLoaded(this.details);
 }
 
 class OrderError extends OrderState {

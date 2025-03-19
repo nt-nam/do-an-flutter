@@ -14,7 +14,6 @@ class ProductLoading extends ProductState {
 
 class ProductLoaded extends ProductState {
   final List<Product> products;
-
   const ProductLoaded(this.products);
 }
 

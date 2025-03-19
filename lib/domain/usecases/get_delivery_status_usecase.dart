@@ -22,7 +22,7 @@ class GetDeliveryStatusUseCase {
       orderId: model.maDH,
       staffId: model.maNVG,
       deliveryDate: model.ngayGiao,
-      status: model.trangThai,
+      status: DeliveryStatus.notDelivered,
     );
   }
 }

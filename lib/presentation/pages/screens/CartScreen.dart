@@ -36,13 +36,13 @@ class CartScreen extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.remove),
                         onPressed: () {
-                          context.read<CartBloc>().add(UpdateCartQuantityEvent(item.id, item.quantity - 1));
+                          // context.read<CartBloc>().add(UpdateCartQuantityEvent(item.id, item.quantity - 1));
                         },
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete),
                         onPressed: () {
-                          context.read<CartBloc>().add(RemoveFromCartEvent(item.id));
+                          // context.read<CartBloc>().add(RemoveFromCartEvent(item.id));
                         },
                       ),
                     ],
