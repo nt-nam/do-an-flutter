@@ -29,7 +29,7 @@ class LogActionUseCase {
       accountId: model.maTK,
       description: model.moTa,
       timestamp: model.thoiGian,
-      type: model.loai,
+      type: LogType.login,
     );
   }
 }

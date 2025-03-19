@@ -11,13 +11,14 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   final AddToCartUseCase addToCartUseCase;
   final RemoveFromCartUseCase removeFromCartUseCase;
   final UpdateCartQuantityUseCase updateCartQuantityUseCase;
+  int? _accountId; // Lưu trữ accountId
 
-  CartBloc(
-      this.getCartUseCase,
-      this.addToCartUseCase,
-      this.removeFromCartUseCase,
-      this.updateCartQuantityUseCase,
-      ) : super(const CartInitial()) {
+  CartBloc({
+    required this.getCartUseCase,
+    required this.addToCartUseCase,
+    required this.removeFromCartUseCase,
+    required this.updateCartQuantityUseCase,
+  }) : super(const CartInitial()) {
     on<FetchCartEvent>(_onFetchCart);
     on<AddToCartEvent>(_onAddToCart);
     on<RemoveFromCartEvent>(_onRemoveFromCart);
@@ -27,8 +28,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onFetchCart(FetchCartEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
-      final cartItems = await getCartUseCase(event.accountId);
-      emit(CartLoaded(cartItems));
+      final (cart, cartDetails) = await getCartUseCase(event.accountId);
+      _accountId = cart.accountId; // Lưu accountId khi lấy giỏ hàng
+      emit(CartLoaded(cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
     }
@@ -37,11 +39,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onAddToCart(AddToCartEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
-      final cartItem = await addToCartUseCase(event.accountId, event.productId, event.quantity);
-      emit(CartItemAdded(cartItem));
-      // Sau khi thêm, tải lại giỏ hàng
-      final cartItems = await getCartUseCase(event.accountId);
-      emit(CartLoaded(cartItems));
+      final cartDetail = await addToCartUseCase(event.accountId, event.productId, event.quantity);
+      emit(CartItemAdded(cartDetail));
+      _accountId ??= event.accountId; // Lưu accountId nếu chưa có
+      final (_, cartDetails) = await getCartUseCase(_accountId!);
+      emit(CartLoaded(cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
     }
@@ -50,11 +52,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onRemoveFromCart(RemoveFromCartEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
-      await removeFromCartUseCase(event.cartId);
+      await removeFromCartUseCase(event.cartId, event.productId);
       emit(CartItemRemoved(event.cartId));
-      // Tải lại giỏ hàng sau khi xóa
-      final cartItems = await getCartUseCase((state as CartLoaded).cartItems.first.accountId!);
-      emit(CartLoaded(cartItems));
+      if (_accountId != null) {
+        final (_, cartDetails) = await getCartUseCase(_accountId!);
+        emit(CartLoaded(cartDetails));
+      }
     } catch (e) {
       emit(CartError(e.toString()));
     }
@@ -63,11 +66,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onUpdateCartQuantity(UpdateCartQuantityEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
-      final cartItem = await updateCartQuantityUseCase(event.cartId, event.newQuantity);
-      emit(CartItemUpdated(cartItem));
-      // Tải lại giỏ hàng sau khi cập nhật
-      final cartItems = await getCartUseCase((state as CartLoaded).cartItems.first.accountId!);
-      emit(CartLoaded(cartItems));
+      final cartDetail = await updateCartQuantityUseCase(event.cartId, event.productId, event.newQuantity);
+      emit(CartItemUpdated(cartDetail));
+      if (_accountId != null) {
+        final (_, cartDetails) = await getCartUseCase(_accountId!);
+        emit(CartLoaded(cartDetails));
+      }
     } catch (e) {
       emit(CartError(e.toString()));
     }

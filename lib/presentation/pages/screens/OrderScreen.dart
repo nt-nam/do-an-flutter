@@ -31,13 +31,13 @@ class OrderScreen extends StatelessWidget {
                   title: Text('Order ID: ${order.id}'),
                   subtitle: Text('Status: ${order.status} - Total: ${order.totalAmount}'),
                   trailing: DropdownButton<String>(
-                    value: order.status,
+                    // value: order.status,
                     items: ['Chờ xác nhận', 'Đang giao', 'Đã giao', 'Hủy']
                         .map((status) => DropdownMenuItem(value: status, child: Text(status)))
                         .toList(),
                     onChanged: (newStatus) {
                       if (newStatus != null) {
-                        context.read<OrderBloc>().add(UpdateOrderStatusEvent(order.id, newStatus));
+                        // context.read<OrderBloc>().add(UpdateOrderStatusEvent(order.id, newStatus));
                       }
                     },
                   ),
@@ -57,13 +57,13 @@ class OrderScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.read<OrderBloc>().add(
-            const CreateOrderEvent(
-              1, // accountId
-              [(101, 2, 100.0)], // items: (productId, quantity, price)
-              '123 Main St', // deliveryAddress
-            ),
-          );
+          // context.read<OrderBloc>().add(
+          //   const CreateOrderEvent(
+          //     1, // accountId
+          //     [(101, 2, 100.0)], // items: (productId, quantity, price)
+          //     '123 Main St', // deliveryAddress
+          //   ),
+          // );
         },
         child: const Icon(Icons.add),
       ),

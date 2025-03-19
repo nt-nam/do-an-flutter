@@ -1,3 +1,6 @@
+import '../../../domain/entities/cart_detail.dart';
+import '../../../domain/entities/order.dart' as entity;
+
 abstract class OrderEvent {
   const OrderEvent();
 }
@@ -12,16 +15,23 @@ class FetchOrdersEvent extends OrderEvent {
 
 class CreateOrderEvent extends OrderEvent {
   final int accountId;
-  final List<(int productId, int quantity, double price)> items;
+  final int? cartId;
+  final List<CartDetail> items;
   final String deliveryAddress;
   final int? offerId;
 
-  const CreateOrderEvent(this.accountId, this.items, this.deliveryAddress, {this.offerId});
+  const CreateOrderEvent(this.accountId, this.items, this.deliveryAddress, {this.offerId, this.cartId});
 }
 
 class UpdateOrderStatusEvent extends OrderEvent {
   final int orderId;
-  final String newStatus;
+  final entity.OrderStatus newStatus;
 
   const UpdateOrderStatusEvent(this.orderId, this.newStatus);
+}
+
+class FetchOrderDetailsEvent extends OrderEvent {
+  final int orderId;
+
+  const FetchOrderDetailsEvent(this.orderId);
 }

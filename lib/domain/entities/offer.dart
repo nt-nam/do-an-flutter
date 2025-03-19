@@ -1,10 +1,14 @@
+enum OfferStatus {
+  active,
+  expired,
+}
 class Offer {
   final int id;
   final String name;
   final double discountAmount; // % hoặc số tiền giảm
   final DateTime startDate;
   final DateTime endDate;
-  final String status; // 'Hoạt động', 'Hết hạn'
+  final OfferStatus status; // 'Hoạt động', 'Hết hạn'
 
   Offer({
     required this.id,

@@ -6,6 +6,7 @@ class ProductModel {
   final int? maLoai; // Có thể null
   final String? hinhAnh; // Có thể null
   final String trangThai; // ENUM: 'Còn hàng', 'Hết hàng'
+  final int soLuongTon; // Thêm stock
 
   ProductModel({
     required this.maSP,
@@ -15,6 +16,7 @@ class ProductModel {
     this.maLoai,
     this.hinhAnh,
     required this.trangThai,
+    required this.soLuongTon,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class ProductModel {
       maLoai: json['MaLoai'] as int?,
       hinhAnh: json['HinhAnh'] as String?,
       trangThai: json['TrangThai'] as String,
+      soLuongTon: json['SoLuongTon'] as int,
     );
   }
 
@@ -38,6 +41,7 @@ class ProductModel {
       'MaLoai': maLoai,
       'HinhAnh': hinhAnh,
       'TrangThai': trangThai,
+      'SoLuongTon': soLuongTon,
     };
   }
 }

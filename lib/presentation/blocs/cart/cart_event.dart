@@ -18,13 +18,15 @@ class AddToCartEvent extends CartEvent {
 
 class RemoveFromCartEvent extends CartEvent {
   final int cartId;
+  final int productId;
 
-  const RemoveFromCartEvent(this.cartId);
+  const RemoveFromCartEvent(this.cartId, this.productId);
 }
 
 class UpdateCartQuantityEvent extends CartEvent {
   final int cartId;
+  final int productId;
   final int newQuantity;
 
-  const UpdateCartQuantityEvent(this.cartId, this.newQuantity);
+  const UpdateCartQuantityEvent(this.cartId, this.productId, this.newQuantity);
 }

@@ -1,10 +1,11 @@
 class ReviewModel {
   final int maDG;
-  final int? maTK; // Có thể null nếu tài khoản bị xóa
-  final int? maSP; // Có thể null nếu sản phẩm bị xóa
-  final double diem; // CHECK: BETWEEN 1 AND 5
-  final String? nhanXet; // Có thể null
+  final int? maTK;
+  final int? maSP;
+  final double diem;
+  final String? nhanXet;
   final DateTime ngayDanhGia;
+  final int? maDH;
 
   ReviewModel({
     required this.maDG,
@@ -13,6 +14,7 @@ class ReviewModel {
     required this.diem,
     this.nhanXet,
     required this.ngayDanhGia,
+    required this.maDH,
   });
 
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class ReviewModel {
       diem: (json['Diem'] as num).toDouble(),
       nhanXet: json['NhanXet'] as String?,
       ngayDanhGia: DateTime.parse(json['NgayDanhGia'] as String),
+      maDH: json['MaDH'] as int?, // Sửa từ MaHD thành MaDH
     );
   }
 
@@ -34,6 +37,7 @@ class ReviewModel {
       'Diem': diem,
       'NhanXet': nhanXet,
       'NgayDanhGia': ngayDanhGia.toIso8601String(),
+      'MaDH': maDH,
     };
   }
 }

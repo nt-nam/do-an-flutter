@@ -1,3 +1,4 @@
+import '../models/order_detail_model.dart';
 import '../models/order_model.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -35,5 +36,25 @@ class OrderRepositoryImpl implements OrderRepository {
     final token = await authService.getToken();
     final data = await apiService.get('donhang?MaTK=$accountId', token: token);
     return (data as List).map((json) => OrderModel.fromJson(json)).toList();
+  }
+
+  @override
+  Future<List<OrderDetailModel>> getOrderDetails(int orderId) async {
+    final token = await authService.getToken();
+    final data = await apiService.get('chitietdonhang?MaDH=$orderId', token: token);
+    return (data as List).map((json) => OrderDetailModel.fromJson(json)).toList();
+  }
+
+  @override
+  Future<OrderDetailModel> createOrderDetail(OrderDetailModel detailModel) async {
+    final token = await authService.getToken();
+    final data = await apiService.post('chitietdonhang', detailModel.toJson(), token: token);
+    return OrderDetailModel.fromJson(data);
+  }
+
+  @override
+  Future<OrderModel> getOrderById(int orderId) async {
+    final response = await apiService.get('/orders/$orderId');
+    return OrderModel.fromJson(response);
   }
 }

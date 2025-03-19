@@ -1,10 +1,12 @@
+import 'package:do_an_flutter/domain/entities/offer.dart'; // Import OfferStatus từ domain
+
 class OfferModel {
   final int maUD;
   final String tenUD;
-  final double mucGiam; // % hoặc số tiền giảm
+  final double mucGiam;
   final DateTime ngayBatDau;
   final DateTime ngayKetThuc;
-  final String trangThai; // ENUM: 'Hoạt động', 'Hết hạn'
+  final OfferStatus trangThai; // Dùng OfferStatus từ domain
 
   OfferModel({
     required this.maUD,
@@ -17,12 +19,12 @@ class OfferModel {
 
   factory OfferModel.fromJson(Map<String, dynamic> json) {
     return OfferModel(
-      maUD: json['MaUD'] as int,
-      tenUD: json['TenUD'] as String,
-      mucGiam: (json['MucGiam'] as num).toDouble(),
-      ngayBatDau: DateTime.parse(json['NgayBatDau'] as String),
-      ngayKetThuc: DateTime.parse(json['NgayKetThuc'] as String),
-      trangThai: json['TrangThai'] as String,
+      maUD: json['MaUD'],
+      tenUD: json['TenUD'],
+      mucGiam: json['MucGiam'].toDouble(),
+      ngayBatDau: DateTime.parse(json['NgayBatDau']),
+      ngayKetThuc: DateTime.parse(json['NgayKetThuc']),
+      trangThai: OfferStatus.values.firstWhere((e) => e.name == json['TrangThai']),
     );
   }
 
@@ -33,7 +35,7 @@ class OfferModel {
       'MucGiam': mucGiam,
       'NgayBatDau': ngayBatDau.toIso8601String(),
       'NgayKetThuc': ngayKetThuc.toIso8601String(),
-      'TrangThai': trangThai,
+      'TrangThai': trangThai.name,
     };
   }
 }

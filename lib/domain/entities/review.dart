@@ -5,6 +5,7 @@ class Review {
   final double rating; // Từ 1 đến 5
   final String? comment; // Có thể null
   final DateTime reviewDate;
+  final int? orderId; // Liên kết với đơn hàng đã giao
 
   Review({
     required this.id,
@@ -13,5 +14,6 @@ class Review {
     required this.rating,
     this.comment,
     required this.reviewDate,
+    this.orderId,
   });
 }
