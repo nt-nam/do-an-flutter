@@ -21,4 +21,10 @@ class NotificationRepositoryImpl implements NotificationRepository {
     final token = await authService.getToken();
     await apiService.put('thongbao/$notificationId', {'TrangThai': 'Đã đọc'}, token: token);
   }
+
+  @override
+  Future<void> updateNotification(NotificationModel notification) {
+    // TODO: implement updateNotification
+    throw UnimplementedError();
+  }
 }

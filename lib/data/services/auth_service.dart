@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart'; // Để lưu token cục bộ
 
 class AuthService {
-  static const String baseUrl = 'http://your-php-api-domain.com/api'; // Thay bằng URL thực tế
+  static const String baseUrl = 'http://localhost/gas_api/'; // Thay bằng URL thực tế
   static const String loginEndpoint = '/login'; // Endpoint đăng nhập
   static const String _tokenKey = 'auth_token'; // Key để lưu token trong SharedPreferences
 
