@@ -9,10 +9,16 @@ class LoginUseCase {
 
   Future<(String, Account)> call(String email, String password) async {
     try {
-      final token = await authService.login(email, password);
-      // Giả định API trả về cả thông tin tài khoản sau khi đăng nhập
-      final accountData = {'MaTK': 1, 'Email': email, 'VaiTro': 'Khách hàng', 'TrangThai': true};
-      final accountModel = AccountModel.fromJson(accountData);
+      final response = await authService.login(email, password);
+      final token = response['token'] as String? ?? ''; // Giả định API trả về token
+      final userData = response['user'] as Map<String, dynamic>?;
+
+      if (userData == null) {
+        throw Exception('User data not found in API response');
+      }
+
+      // Dữ liệu từ API đã được ánh xạ đúng trong AccountModel.fromJson
+      final accountModel = AccountModel.fromJson(userData);
       return (token, _mapToEntity(accountModel));
     } catch (e) {
       throw Exception('Login failed: $e');
@@ -22,9 +28,9 @@ class LoginUseCase {
   Account _mapToEntity(AccountModel model) {
     return Account(
       id: model.maTK,
-      email: model.email,
+      email: model.email, // Đã đảm bảo không null trong AccountModel
       password: '', // Không cần trả mật khẩu
-      role: model.vaiTro,
+      role: model.vaiTro, // Đã đảm bảo không null trong AccountModel
       isActive: model.trangThai,
     );
   }
