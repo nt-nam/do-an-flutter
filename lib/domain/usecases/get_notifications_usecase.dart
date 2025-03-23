@@ -30,7 +30,7 @@ class GetNotificationsUseCase {
       accountId: model.maTK,
       content: model.noiDung,
       sentDate: model.ngayGui,
-      status: model.trangThai,
+      status: NotificationStatus.unread,
     );
   }
 }

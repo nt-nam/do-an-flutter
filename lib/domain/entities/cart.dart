@@ -1,15 +1,13 @@
 class Cart {
   final int id;
-  final int? accountId; // Có thể null nếu tài khoản bị xóa
-  final int? productId; // Có thể null nếu sản phẩm bị xóa
-  final int quantity;
+  final int? accountId;
   final DateTime addedDate;
+  final String status; // 'Đang hoạt động', 'Đã thanh toán'
 
   Cart({
     required this.id,
     this.accountId,
-    this.productId,
-    required this.quantity,
     required this.addedDate,
+    required this.status,
   });
 }

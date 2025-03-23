@@ -1,7 +1,7 @@
-import '../entities/cart.dart';
+import '../entities/cart_detail.dart';
 import '../repositories/cart_repository.dart';
 import '../repositories/product_repository.dart';
-import '../../data/models/cart_model.dart';
+import '../../data/models/cart_detail_model.dart';
 
 class AddToCartUseCase {
   final CartRepository cartRepository;
@@ -9,34 +9,26 @@ class AddToCartUseCase {
 
   AddToCartUseCase(this.cartRepository, this.productRepository);
 
-  Future<Cart> call(int accountId, int productId, int quantity) async {
+  Future<CartDetail> call(int accountId, int productId, int quantity) async {
     try {
       if (quantity <= 0) throw Exception('Quantity must be positive');
-      // Kiểm tra sản phẩm (giả định cần thêm logic kiểm tra số lượng tồn kho)
       final product = await productRepository.getProductById(productId);
       if (product.trangThai == 'Hết hàng') throw Exception('Product out of stock');
 
-      final cartModel = CartModel(
-        maGH: 0,
-        maTK: accountId,
+      final cart = await cartRepository.getCart(accountId);
+      final cartDetailModel = CartDetailModel(
+        maGH: cart.maGH,
         maSP: productId,
         soLuong: quantity,
-        ngayThem: DateTime.now(),
       );
-      final result = await cartRepository.addToCart(cartModel);
-      return _mapToEntity(result);
+      final result = await cartRepository.addToCart(cartDetailModel);
+      return CartDetail(
+        cartId: result.maGH,
+        productId: result.maSP,
+        quantity: result.soLuong,
+      );
     } catch (e) {
       throw Exception('Failed to add to cart: $e');
     }
-  }
-
-  Cart _mapToEntity(CartModel model) {
-    return Cart(
-      id: model.maGH,
-      accountId: model.maTK,
-      productId: model.maSP,
-      quantity: model.soLuong,
-      addedDate: model.ngayThem,
-    );
   }
 }

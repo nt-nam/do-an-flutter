@@ -7,15 +7,24 @@ class AddOfferUseCase {
 
   AddOfferUseCase(this.repository);
 
-  Future<Offer> call(String name, double discountAmount, DateTime startDate, DateTime endDate) async {
+  Future<Offer> call(
+      String name,
+      double discountAmount,
+      DateTime startDate,
+      DateTime endDate,
+      ) async {
+    if (name.isEmpty) throw Exception('Offer name cannot be empty');
+    if (discountAmount <= 0) throw Exception('Discount amount must be positive');
+    if (endDate.isBefore(startDate)) throw Exception('End date must be after start date');
+
     try {
       final offerModel = OfferModel(
-        maUD: 0, // API sẽ sinh
+        maUD: 0,
         tenUD: name,
         mucGiam: discountAmount,
         ngayBatDau: startDate,
         ngayKetThuc: endDate,
-        trangThai: 'Hoạt động', // Mặc định khi tạo
+        trangThai: endDate.isBefore(DateTime.now()) ? OfferStatus.expired : OfferStatus.active,
       );
       final result = await repository.createOffer(offerModel);
       return Offer(

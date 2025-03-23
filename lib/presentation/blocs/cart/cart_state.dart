@@ -1,4 +1,4 @@
-import '../../../domain/entities/cart.dart';
+import '../../../domain/entities/cart_detail.dart';
 
 abstract class CartState {
   const CartState();
@@ -13,13 +13,13 @@ class CartLoading extends CartState {
 }
 
 class CartLoaded extends CartState {
-  final List<Cart> cartItems;
+  final List<CartDetail> cartItems;
 
   const CartLoaded(this.cartItems);
 }
 
 class CartItemAdded extends CartState {
-  final Cart cartItem;
+  final CartDetail cartItem;
 
   const CartItemAdded(this.cartItem);
 }
@@ -31,7 +31,7 @@ class CartItemRemoved extends CartState {
 }
 
 class CartItemUpdated extends CartState {
-  final Cart cartItem;
+  final CartDetail cartItem;
 
   const CartItemUpdated(this.cartItem);
 }
