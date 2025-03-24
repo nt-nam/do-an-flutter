@@ -43,9 +43,9 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       final accountModel = await accountRepository.getAccountById(event.accountId);
       final account = Account(
         id: accountModel.maTK,
-        email: accountModel.email,
+        email: accountModel.email, // Đã đảm bảo không null
         password: '', // Không cần trả mật khẩu
-        role: accountModel.vaiTro,
+        role: accountModel.vaiTro, // Đã đảm bảo không null
         isActive: accountModel.trangThai,
       );
       emit(AccountProfileLoaded(account));
@@ -59,17 +59,17 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     try {
       final accountModel = AccountModel(
         maTK: event.accountId,
-        email: event.email,
+        email: event.email ?? '', // Đảm bảo không null
         matKhau: '', // Giả định không cập nhật mật khẩu ở đây
-        vaiTro: event.role,
+        vaiTro: event.role ?? 'Khách hàng', // Đảm bảo không null
         trangThai: event.isActive,
       );
       final updatedAccountModel = await accountRepository.updateAccount(accountModel);
       final updatedAccount = Account(
         id: updatedAccountModel.maTK,
-        email: updatedAccountModel.email,
+        email: updatedAccountModel.email, // Đã đảm bảo không null
         password: '',
-        role: updatedAccountModel.vaiTro,
+        role: updatedAccountModel.vaiTro, // Đã đảm bảo không null
         isActive: updatedAccountModel.trangThai,
       );
       emit(AccountUpdated(updatedAccount));

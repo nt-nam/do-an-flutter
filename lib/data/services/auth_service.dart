@@ -1,33 +1,39 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart'; // Để lưu token cục bộ
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://your-php-api-domain.com/api'; // Thay bằng URL thực tế
-  static const String loginEndpoint = '/login'; // Endpoint đăng nhập
+  static const String baseUrl = 'http://localhost/gas_api/'; // Thay bằng URL thực tế
+  static const String loginEndpoint = '/auth/login'; // Endpoint đăng nhập
   static const String _tokenKey = 'auth_token'; // Key để lưu token trong SharedPreferences
 
   final http.Client _client;
 
   AuthService({http.Client? client}) : _client = client ?? http.Client();
 
-  // Đăng nhập và lấy token
-  Future<String> login(String email, String password) async {
+  // Đăng nhập và trả về toàn bộ phản hồi từ API
+  Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await _client.post(
         Uri.parse('$baseUrl$loginEndpoint'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'Email': email,
-          'MatKhau': password,
+          'email': email, // API mong đợi 'email', không phải 'Email'
+          'password': password, // API mong đợi 'password', không phải 'MatKhau'
         }),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final token = data['token'] as String; // Giả định API trả về trường 'token'
-        await _saveToken(token); // Lưu token
-        return token;
+        if (data['status'] == 'success') {
+          // API không trả về token, nhưng nếu có token trong tương lai, bạn có thể lưu nó ở đây
+          if (data['token'] != null) {
+            await _saveToken(data['token']);
+          }
+          return data; // Trả về toàn bộ dữ liệu từ API
+        } else {
+          throw Exception('Login failed: ${data['message']}');
+        }
       } else {
         throw Exception('Login failed: ${response.body}');
       }
