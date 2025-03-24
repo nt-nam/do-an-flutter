@@ -4,24 +4,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
 import '../../blocs/account/account_state.dart';
-import 'RegisterScreen.dart'; // Import RegisterScreen
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
-  LoginScreen({super.key});
+  RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('Register')),
       body: BlocListener<AccountBloc, AccountState>(
         listener: (context, state) {
-          if (state is AccountLoggedIn) {
+          if (state is AccountRegistered) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Logged in as ${state.account.email}')),
+              SnackBar(content: Text('Registered successfully as ${state.account.email}')),
             );
+            // Chuyển về màn hình đăng nhập sau khi đăng ký thành công
+            Navigator.pop(context);
           } else if (state is AccountError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -41,28 +43,37 @@ class LoginScreen extends StatelessWidget {
                 decoration: const InputDecoration(labelText: 'Password'),
                 obscureText: true,
               ),
-              const SizedBox(height: 16.0), // Thêm khoảng cách
+              TextField(
+                controller: confirmPasswordController,
+                decoration: const InputDecoration(labelText: 'Confirm Password'),
+                obscureText: true,
+              ),
+              const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
+                  // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp không
+                  if (passwordController.text != confirmPasswordController.text) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Passwords do not match')),
+                    );
+                    return;
+                  }
                   context.read<AccountBloc>().add(
-                    LoginEvent(
+                    RegisterEvent(
                       emailController.text,
                       passwordController.text,
                     ),
                   );
                 },
-                child: const Text('Login'),
+                child: const Text('Register'),
               ),
-              const SizedBox(height: 16.0), // Thêm khoảng cách
+              const SizedBox(height: 16.0),
               TextButton(
                 onPressed: () {
-                  // Chuyển đến RegisterScreen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterScreen()),
-                  );
+                  // Quay lại màn hình đăng nhập
+                  Navigator.pop(context);
                 },
-                child: const Text('Don\'t have an account? Register'),
+                child: const Text('Already have an account? Login'),
               ),
             ],
           ),

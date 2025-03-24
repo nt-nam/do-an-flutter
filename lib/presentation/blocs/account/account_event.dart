@@ -27,3 +27,10 @@ class UpdateAccountEvent extends AccountEvent {
 class LogoutEvent extends AccountEvent {
   const LogoutEvent();
 }
+
+class RegisterEvent extends AccountEvent {
+  final String email;
+  final String password;
+
+  const RegisterEvent(this.email, this.password);
+}

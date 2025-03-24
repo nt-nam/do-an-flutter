@@ -8,6 +8,7 @@ import 'data/services/api_service.dart';
 import 'data/services/auth_service.dart';
 import 'domain/usecases/get_user_profile_usecase.dart';
 import 'domain/usecases/login_usecase.dart';
+import 'domain/usecases/register_use_case.dart'; // Thêm import cho RegisterUseCase
 
 void main() {
   final apiService = ApiService();
@@ -15,12 +16,14 @@ void main() {
   final accountRepository = AccountRepositoryImpl(apiService, authService);
   final userRepository = UserRepositoryImpl(apiService, authService);
   final loginUseCase = LoginUseCase(authService);
+  final registerUseCase = RegisterUseCase(authService); // Khởi tạo RegisterUseCase
   final getUserProfileUseCase = GetUserProfileUseCase(userRepository);
 
   runApp(
     BlocProvider(
       create: (context) => AccountBloc(
         loginUseCase,
+        registerUseCase, // Thêm RegisterUseCase
         getUserProfileUseCase,
         accountRepository,
         authService,

@@ -1,4 +1,3 @@
-
 import '../../../domain/entities/account.dart';
 
 abstract class AccountState {
@@ -40,4 +39,10 @@ class AccountError extends AccountState {
   final String message;
 
   const AccountError(this.message);
+}
+
+class AccountRegistered extends AccountState {
+  final Account account;
+
+  const AccountRegistered(this.account);
 }
