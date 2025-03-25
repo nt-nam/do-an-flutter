@@ -7,7 +7,8 @@ class GetNotificationsUseCase {
 
   GetNotificationsUseCase(this.repository);
 
-  Future<List<Notification>> call(int? accountId, {bool onlyUnread = false, int page = 1, int limit = 10}) async {
+  Future<List<Notification>> call(int? accountId,
+      {bool onlyUnread = false, int page = 1, int limit = 10}) async {
     try {
       if (accountId == null) {
         // Trường hợp null: trả về danh sách trống hoặc logic khác tùy yêu cầu
@@ -16,7 +17,9 @@ class GetNotificationsUseCase {
       final notificationModels = await repository.getNotifications(accountId);
       var filteredNotifications = notificationModels;
       if (onlyUnread) {
-        filteredNotifications = notificationModels.where((model) => model.trangThai == 'Chưa đọc').toList();
+        filteredNotifications = notificationModels
+            .where((model) => model.trangThai == 'Chưa đọc')
+            .toList();
       }
       return filteredNotifications.map(_mapToEntity).toList();
     } catch (e) {
@@ -34,3 +37,4 @@ class GetNotificationsUseCase {
     );
   }
 }
+

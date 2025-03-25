@@ -5,8 +5,7 @@ import 'notification_event.dart';
 import 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-  final GetNotificationsUseCase getNotificationsUseCase;
-  final MarkNotificationAsReadUseCase markNotificationAsReadUseCase;
+  final GetNotificationsUseCase getNotificationsUseCase, markNotificationAsReadUseCase;
 
   NotificationBloc(
       this.getNotificationsUseCase,

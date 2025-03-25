@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
 import '../../blocs/account/account_state.dart';
+import 'HomeScreen.dart';
 import 'RegisterScreen.dart'; // Import RegisterScreen
 
 class LoginScreen extends StatelessWidget {
@@ -21,6 +22,11 @@ class LoginScreen extends StatelessWidget {
           if (state is AccountLoggedIn) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Logged in as ${state.account.email}')),
+            );
+            // Điều hướng sang HomeScreen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
             );
           } else if (state is AccountError) {
             ScaffoldMessenger.of(context).showSnackBar(
