@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart'; // Import để sử dụng BlocProvider
+import '../../blocs/category/category_bloc.dart'; // Import CategoryBloc
+import '../../blocs/category/category_event.dart'; // Import CategoryEvent
 import '../../widgets/CategoryButton.dart';
 import '../../widgets/FeaturedCard.dart';
 import '../../widgets/RecipeCard.dart';
+import 'category/CategoryScreen.dart'; // Import CategoryScreen với đường dẫn chính xác
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -36,9 +39,18 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const Icon(Icons.arrow_back, color: Colors.black),
-        actions: const [
-          Icon(Icons.shopping_cart, color: Colors.black),
-          SizedBox(width: 16),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.category, color: Colors.black), // Nút điều hướng tới CategoryScreen
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CategoryScreen()),
+              );
+            },
+          ),
+          const Icon(Icons.shopping_cart, color: Colors.black),
+          const SizedBox(width: 16),
         ],
       ),
       body: SingleChildScrollView(
