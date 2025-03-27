@@ -17,7 +17,7 @@ void main() {
   final authService = AuthService();
   final accountRepository = AccountRepositoryImpl(apiService, authService);
   final userRepository = UserRepositoryImpl(apiService, authService);
-  final loginUseCase = LoginUseCase(authService);
+  final loginUseCase = LoginUseCase(authService,userRepository);
   final registerUseCase = RegisterUseCase(authService);
   final getUserProfileUseCase = GetUserProfileUseCase(userRepository);
 
@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
           // Nếu trạng thái là đăng nhập thành công, chuyển sang HomeScreen

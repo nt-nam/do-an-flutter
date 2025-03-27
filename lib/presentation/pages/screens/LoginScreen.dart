@@ -52,8 +52,10 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () {
                   context.read<AccountBloc>().add(
                     LoginEvent(
-                      emailController.text,
-                      passwordController.text,
+                      // emailController.text,
+                      // passwordController.text,
+                      "test1@mail.xx",
+                      "123"
                     ),
                   );
                 },
