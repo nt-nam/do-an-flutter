@@ -10,32 +10,30 @@ import '../../widgets/FeaturedCard.dart';
 import '../../widgets/RecipeCard.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
+  HomeScreen({super.key});
+  static final String linkImage = "https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
   // Sample data for featured items
-  final List<Map<String, String>> featuredItems = const [
+  final List<Map<String, String>> featuredItems = [
     {
       'title': 'Asian white noodle\nwith extra seafood',
       'author': 'James Spader',
       'time': '20 Min',
-      'imageUrl':
-          'https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'imageUrl': linkImage,
+
       // Replace with actual image URL
     },
     {
       'title': 'Spicy Thai Curry\nwith Shrimp',
       'author': 'Anna Smith',
       'time': '25 Min',
-      'imageUrl':
-          'https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'imageUrl': linkImage,
       // Replace with actual image URL
     },
     {
       'title': 'Grilled Salmon\nwith Lemon',
       'author': 'John Doe',
       'time': '15 Min',
-      'imageUrl':
-          'https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+      'imageUrl': linkImage,
       // Replace with actual image URL
     },
   ];
@@ -73,7 +71,7 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Good Morning',
+                            'Kinh chào',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
@@ -95,7 +93,7 @@ class HomeScreen extends StatelessWidget {
 
                 // Featured Section
                 const Text(
-                  'Featured',
+                  'Yêu thích',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -125,7 +123,7 @@ class HomeScreen extends StatelessWidget {
 
                 // Category Section
                 const Text(
-                  'Category',
+                  'Loại',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -153,21 +151,21 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
+                  children: [
                     RecipeCard(
                       title: 'Healthy Taco Salad',
                       calories: '120 Kcal',
-                      imageUrl: 'https://via.placeholder.com/150',
+                      imageUrl: linkImage,
                     ),
                     RecipeCard(
                       title: 'Japanese-style Pancakes',
                       calories: '84 Kcal',
-                      imageUrl: 'https://via.placeholder.com/150',
+                      imageUrl: linkImage,
                     ),
                     RecipeCard(
                       title: 'Japanese-style Pancakes',
                       calories: '84 Kcal',
-                      imageUrl: 'https://via.placeholder.com/150',
+                      imageUrl: linkImage,
                     ),
                   ],
                 ),
@@ -207,12 +205,12 @@ class HomeScreen extends StatelessWidget {
               },
               items: [
                 BottomNavigationBarItem(
+                  label: '__',
                   icon: Icon(Icons.home),
-                  label: 'Home', // Ẩn nhãn
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.search),
                   label: 'Sreach',
+                  icon: Icon(Icons.search),
                 ),
                 BottomNavigationBarItem(
                   icon: Container(
@@ -230,12 +228,12 @@ class HomeScreen extends StatelessWidget {
                   label: 'Star',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.notifications_none),
                   label: 'Notification',
+                  icon: Icon(Icons.notifications_none),
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.person_outline),
                   label: 'Person',
+                  icon: Icon(Icons.person_outline),
                 ),
               ],
             ),

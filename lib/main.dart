@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         builder: (context, state) {
           // Nếu trạng thái là đăng nhập thành công, chuyển sang HomeScreen
           if (state is AccountLoggedIn) {
-            return const HomeScreen();
+            return HomeScreen();
           }
           // Mặc định hiển thị LoginScreen
           return LoginScreen();

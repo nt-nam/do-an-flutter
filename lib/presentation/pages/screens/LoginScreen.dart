@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
             // Điều hướng sang HomeScreen
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => HomeScreen()),
             );
           } else if (state is AccountError) {
             ScaffoldMessenger.of(context).showSnackBar(
