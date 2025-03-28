@@ -1,3 +1,4 @@
+import '../../../data/models/user_model.dart';
 import '../../../domain/entities/account.dart';
 
 abstract class AccountState {
@@ -15,8 +16,9 @@ class AccountLoading extends AccountState {
 class AccountLoggedIn extends AccountState {
   final String token;
   final Account account;
+  final UserModel? user;
 
-  const AccountLoggedIn(this.token, this.account);
+  const AccountLoggedIn(this.token, this.account, this.user);
 }
 
 class AccountProfileLoaded extends AccountState {

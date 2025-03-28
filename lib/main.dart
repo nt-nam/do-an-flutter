@@ -23,7 +23,7 @@ void main() {
   final authService = AuthService();
   final accountRepository = AccountRepositoryImpl(apiService, authService);
   final userRepository = UserRepositoryImpl(apiService, authService);
-  final loginUseCase = LoginUseCase(authService);
+  final loginUseCase = LoginUseCase(authService,userRepository);
   final registerUseCase = RegisterUseCase(authService);
   final getUserProfileUseCase = GetUserProfileUseCase(userRepository);
 
@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
         builder: (context, state) {
           // Nếu trạng thái là đăng nhập thành công, chuyển sang HomeScreen
           if (state is AccountLoggedIn) {
-            return const HomeScreen();
+            return HomeScreen();
           }
           // Mặc định hiển thị LoginScreen
           return LoginScreen();

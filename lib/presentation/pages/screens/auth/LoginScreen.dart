@@ -26,7 +26,7 @@ class LoginScreen extends StatelessWidget {
             // Điều hướng sang HomeScreen
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const HomeScreen()),
+              MaterialPageRoute(builder: (context) => HomeScreen()),
             );
           } else if (state is AccountError) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -52,8 +52,10 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () {
                   context.read<AccountBloc>().add(
                     LoginEvent(
-                      emailController.text,
-                      passwordController.text,
+                      // emailController.text,
+                      // passwordController.text,
+                      "test1@mail.xx",
+                      "123"
                     ),
                   );
                 },

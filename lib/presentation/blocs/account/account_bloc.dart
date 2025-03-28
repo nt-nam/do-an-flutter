@@ -34,8 +34,8 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   Future<void> _onLogin(LoginEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
-      final (token, account) = await loginUseCase(event.email, event.password);
-      emit(AccountLoggedIn(token, account));
+      final (token, account, user) = await loginUseCase(event.email, event.password);
+      emit(AccountLoggedIn(token, account, user ));
     } catch (e) {
       emit(AccountError(e.toString()));
     }

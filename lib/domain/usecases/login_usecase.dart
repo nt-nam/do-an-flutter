@@ -1,25 +1,38 @@
 import '../entities/account.dart';
 import '../../data/models/account_model.dart';
+import '../../data/models/user_model.dart'; // Thêm import
 import '../../data/services/auth_service.dart';
+import '../repositories/user_repository.dart';
 
 class LoginUseCase {
   final AuthService authService;
+  final UserRepository userRepository;
 
-  LoginUseCase(this.authService);
+  LoginUseCase(this.authService, this.userRepository);
 
-  Future<(String, Account)> call(String email, String password) async {
+  Future<(String, Account, UserModel?)> call(String email, String password) async {
     try {
       final response = await authService.login(email, password);
-      final token = response['token'] as String? ?? ''; // Giả định API trả về token
+      final token = response['token'] as String? ?? '';
       final userData = response['user'] as Map<String, dynamic>?;
 
       if (userData == null) {
         throw Exception('User data not found in API response');
       }
 
-      // Dữ liệu từ API đã được ánh xạ đúng trong AccountModel.fromJson
       final accountModel = AccountModel.fromJson(userData);
-      return (token, _mapToEntity(accountModel));
+      final account = _mapToEntity(accountModel);
+
+      // Lấy UserModel dựa trên maTK (account.id)
+      UserModel? user;
+      try {
+        user = await userRepository.getUserByAccountId(account.id); // Dùng maTK thay vì userId
+      } catch (e) {
+        // Nếu không tìm thấy nguoidung tương ứng, user sẽ là null
+        user = null;
+      }
+
+      return (token, account, user);
     } catch (e) {
       throw Exception('Login failed: $e');
     }
@@ -28,9 +41,9 @@ class LoginUseCase {
   Account _mapToEntity(AccountModel model) {
     return Account(
       id: model.maTK,
-      email: model.email, // Đã đảm bảo không null trong AccountModel
-      password: '', // Không cần trả mật khẩu
-      role: model.vaiTro, // Đã đảm bảo không null trong AccountModel
+      email: model.email,
+      password: '',
+      role: model.vaiTro,
       isActive: model.trangThai,
     );
   }
