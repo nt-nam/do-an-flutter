@@ -1,6 +1,6 @@
 class Account {
   final int id;
-  final int? userId; // Tham chiếu đến User
+  final int? userId;
   final String email;
   final String password;
   final String role; // 'Khách hàng', 'Nhân viên', 'Quản trị'

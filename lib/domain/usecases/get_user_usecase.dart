@@ -15,6 +15,7 @@ class GetUsersUseCase {
         fullName: modelUser.hoTen,
         phoneNumber: modelUser.sdt,
         address: modelUser.diaChi,
+        email: modelUser.email, // Thêm email
       )).toList();
     } catch (e) {
       throw Exception('Failed to get users: $e');

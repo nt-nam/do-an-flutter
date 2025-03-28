@@ -23,6 +23,7 @@ class GetUserProfileUseCase {
       fullName: model.hoTen,
       phoneNumber: model.sdt,
       address: model.diaChi,
+      email: model.email, // Thêm email
     );
   }
 }

@@ -1,7 +1,7 @@
 class AccountModel {
   final int maTK;
-  final String email; // Không cần String? vì không bao giờ null
-  final String matKhau; // Không cần String? vì không bao giờ null
+  final String email;
+  final String matKhau;
   final String vaiTro; // ENUM: 'Khách hàng', 'Nhân viên', 'Quản trị'
   final bool trangThai;
 
@@ -23,7 +23,7 @@ class AccountModel {
       case 3:
         return 'Quản trị';
       default:
-        return 'Khách hàng'; // Giá trị mặc định
+        return 'Khách hàng';
     }
   }
 

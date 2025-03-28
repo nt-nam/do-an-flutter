@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   static const String baseUrl = 'http://localhost/gas_api/'; // Thay bằng URL thực tế
   static const String loginEndpoint = '/auth/login'; // Endpoint đăng nhập
+  static const String registerEndpoint = '/auth/register'; // Endpoint đăng ký
   static const String _tokenKey = 'auth_token'; // Key để lưu token trong SharedPreferences
 
   final http.Client _client;
@@ -39,6 +40,37 @@ class AuthService {
       }
     } catch (e) {
       throw Exception('Error during login: $e');
+    }
+  }
+
+  // Đăng ký và trả về toàn bộ phản hồi từ API
+  Future<Map<String, dynamic>> register(String email, String password) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$baseUrl$registerEndpoint'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': email, // API mong đợi 'email'
+          'password': password, // API mong đợi 'password'
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['status'] == 'success') {
+          // Nếu API trả về token (trong trường hợp đăng ký tự động đăng nhập), lưu token
+          if (data['token'] != null) {
+            await _saveToken(data['token']);
+          }
+          return data; // Trả về toàn bộ dữ liệu từ API
+        } else {
+          throw Exception('Registration failed: ${data['message']}');
+        }
+      } else {
+        throw Exception('Registration failed: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error during registration: $e');
     }
   }
 

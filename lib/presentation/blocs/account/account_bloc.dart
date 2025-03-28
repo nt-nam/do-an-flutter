@@ -1,26 +1,31 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../data/models/account_model.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../domain/entities/account.dart';
 import '../../../domain/repositories/account_repository.dart';
 import '../../../domain/usecases/get_user_profile_usecase.dart';
 import '../../../domain/usecases/login_usecase.dart';
+import '../../../domain/usecases/register_use_case.dart';
 import 'account_event.dart';
 import 'account_state.dart';
 
 class AccountBloc extends Bloc<AccountEvent, AccountState> {
   final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
   final GetUserProfileUseCase getUserProfileUseCase;
   final AccountRepository accountRepository;
   final AuthService authService;
 
   AccountBloc(
       this.loginUseCase,
+      this.registerUseCase,
       this.getUserProfileUseCase,
       this.accountRepository,
       this.authService,
       ) : super(const AccountInitial()) {
     on<LoginEvent>(_onLogin);
+    on<RegisterEvent>(_onRegister);
     on<FetchAccountProfileEvent>(_onFetchAccountProfile);
     on<UpdateAccountEvent>(_onUpdateAccount);
     on<LogoutEvent>(_onLogout);
@@ -29,8 +34,18 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   Future<void> _onLogin(LoginEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
-      final (token, account) = await loginUseCase(event.email, event.password);
-      emit(AccountLoggedIn(token, account));
+      final (token, account, user) = await loginUseCase(event.email, event.password);
+      emit(AccountLoggedIn(token, account, user ));
+    } catch (e) {
+      emit(AccountError(e.toString()));
+    }
+  }
+
+  Future<void> _onRegister(RegisterEvent event, Emitter<AccountState> emit) async {
+    emit(const AccountLoading());
+    try {
+      final account = await registerUseCase(event.email, event.password);
+      emit(AccountRegistered(account));
     } catch (e) {
       emit(AccountError(e.toString()));
     }

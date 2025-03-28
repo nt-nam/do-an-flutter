@@ -19,7 +19,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<ProductModel> getProductById(int id) async {
     final token = await authService.getToken();
-    final data = await apiService.get('sanpham/$id', token: token);
+    final data = await apiService.get('sanpham?id=$id', token: token);
     return ProductModel.fromJson(data);
   }
 

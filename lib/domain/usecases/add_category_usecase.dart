@@ -9,12 +9,19 @@ class AddCategoryUseCase {
 
   Future<Category> call(String name) async {
     try {
-      if (name.isEmpty) throw Exception('Category name cannot be empty');
-      final categoryModel = CategoryModel(maLoai: 0, tenLoai: name); // maLoai = 0 vì API sẽ tự sinh
-      final result = await repository.createCategory(categoryModel);
-      return Category(id: result.maLoai, name: result.tenLoai);
+      // Ánh xạ từ name sang CategoryModel
+      final categoryModel = CategoryModel(
+        maLoai: 0, // maLoai sẽ được tạo tự động bởi API, nên đặt tạm là 0
+        tenLoai: name,
+      );
+      final createdModel = await repository.createCategory(categoryModel);
+      return _mapToEntity(createdModel);
     } catch (e) {
       throw Exception('Failed to add category: $e');
     }
+  }
+
+  Category _mapToEntity(CategoryModel model) {
+    return Category(id: model.maLoai, name: model.tenLoai);
   }
 }
