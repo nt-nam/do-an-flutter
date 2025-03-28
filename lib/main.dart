@@ -7,8 +7,8 @@ import 'package:do_an_flutter/presentation/blocs/category/category_bloc.dart';
 import 'package:do_an_flutter/presentation/blocs/category/category_event.dart';
 import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
 import 'package:do_an_flutter/presentation/blocs/product/product_event.dart';
-import 'package:do_an_flutter/presentation/pages/screens/LoginScreen.dart';
-import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart'; // Thêm import HomeScreen
+import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
+import 'package:do_an_flutter/presentation/pages/screens/auth/LoginScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'data/repositories/account_repository_impl.dart';
@@ -17,7 +17,6 @@ import 'data/repositories/product_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'data/services/api_service.dart';
 import 'data/services/auth_service.dart';
-import 'domain/repositories/product_repository.dart';
 import 'domain/usecases/add_product_usecase.dart';
 import 'domain/usecases/delete_product_usecase.dart';
 import 'domain/usecases/get_categories_usecase.dart';
