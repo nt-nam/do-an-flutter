@@ -9,7 +9,7 @@ class CategoryModel {
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      maLoai: json['MaLoai'] as int,
+      maLoai: int.tryParse(json['maLoai'].toString()) ?? 0,
       tenLoai: json['TenLoai'] as String,
     );
   }

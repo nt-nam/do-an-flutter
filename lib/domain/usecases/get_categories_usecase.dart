@@ -17,6 +17,7 @@ class GetCategoriesUseCase {
   }
 
   Category _mapToEntity(CategoryModel model) {
-    return Category(id: model.maLoai, name: model.tenLoai);
+    final id = int.tryParse(model.maLoai.toString()) ?? 0;
+    return Category(id: id, name: model.tenLoai);
   }
 }

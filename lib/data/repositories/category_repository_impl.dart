@@ -11,15 +11,14 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
   @override
   Future<List<CategoryModel>> getCategories() async {
-    final token = await authService.getToken();
-    final data = await apiService.get('loaisanpham', token: token);
+    final data = await apiService.get('loaisanpham');
+    print('Dữ liệu từ API /loaisanpham/ : $data');
     return (data as List).map((json) => CategoryModel.fromJson(json)).toList();
   }
 
   @override
   Future<CategoryModel> getCategoryById(int id) async {
-    final token = await authService.getToken();
-    final data = await apiService.get('loaisanpham/$id', token: token);
+    final data = await apiService.get('loaisanpham/$id');
     return CategoryModel.fromJson(data);
   }
 

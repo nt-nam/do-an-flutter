@@ -10,7 +10,7 @@ class AddCategoryUseCase {
   Future<Category> call(String name) async {
     try {
       if (name.isEmpty) throw Exception('Category name cannot be empty');
-      final categoryModel = CategoryModel(maLoai: 0, tenLoai: name); // maLoai = 0 vì API sẽ tự sinh
+      final categoryModel = CategoryModel(maLoai: 0, tenLoai: name);
       final result = await repository.createCategory(categoryModel);
       return Category(id: result.maLoai, name: result.tenLoai);
     } catch (e) {

@@ -130,7 +130,7 @@ class HomeScreen extends StatelessWidget {
                       title: item['title']!,
                       author: item['author']!,
                       time: item['time']!,
-                      imageUrl: item['imageUrl']!,
+                      imageUrl: item['imageUrl']!, onTap: () {  },
                     ),
                   );
                 },

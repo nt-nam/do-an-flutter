@@ -6,6 +6,7 @@ class FeaturedCard extends StatelessWidget {
   final String author;
   final String time;
   final String imageUrl;
+  final VoidCallback? onTap;
 
   const FeaturedCard({
     super.key,
@@ -13,6 +14,7 @@ class FeaturedCard extends StatelessWidget {
     required this.author,
     required this.time,
     required this.imageUrl,
+    required this.onTap,
   });
 
   @override

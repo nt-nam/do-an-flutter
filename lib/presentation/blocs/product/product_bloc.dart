@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/product.dart';
+import '../../../domain/usecases/delete_product_usecase.dart';
 import '../../../domain/usecases/get_products_usecase.dart';
 import '../../../domain/usecases/add_product_usecase.dart';
 import '../../../domain/usecases/update_product_usecase.dart';
@@ -11,12 +12,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final GetProductsUseCase getProductsUseCase;
   final AddProductUseCase addProductUseCase;
   final UpdateProductUseCase updateProductUseCase;
+  final DeleteProductUseCase deleteProductUseCase;
   final ProductRepository productRepository; // Để xóa sản phẩm
 
   ProductBloc({
     required this.getProductsUseCase,
     required this.addProductUseCase,
     required this.updateProductUseCase,
+    required this.deleteProductUseCase,
     required this.productRepository,
   }) : super(const ProductInitial()) {
     on<FetchProductsEvent>(_onFetchProducts);
@@ -26,7 +29,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<DeleteProductEvent>(_onDeleteProduct);
   }
 
-  Future<void> _onFetchProducts(FetchProductsEvent event, Emitter<ProductState> emit) async {
+  Future<void> _onFetchProducts(
+      FetchProductsEvent event, Emitter<ProductState> emit) async {
     emit(const ProductLoading());
     try {
       final products = await getProductsUseCase(
@@ -39,10 +43,12 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
   }
 
-  Future<void> _onFetchProductDetails(FetchProductDetailsEvent event, Emitter<ProductState> emit) async {
+  Future<void> _onFetchProductDetails(
+      FetchProductDetailsEvent event, Emitter<ProductState> emit) async {
     emit(const ProductLoading());
     try {
-      final productModel = await productRepository.getProductById(event.productId);
+      final productModel =
+          await productRepository.getProductById(event.productId);
       final product = Product(
         id: productModel.maSP,
         name: productModel.tenSP,
@@ -50,7 +56,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         price: productModel.gia,
         categoryId: productModel.maLoai,
         imageUrl: productModel.hinhAnh,
-        status: productModel.trangThai == 'Còn hàng' ? ProductStatus.inStock : ProductStatus.outOfStock,
+        status: productModel.trangThai == 'Còn hàng'
+            ? ProductStatus.inStock
+            : ProductStatus.outOfStock,
         stock: productModel.soLuongTon,
       );
       emit(ProductDetailsLoaded(product));
@@ -59,7 +67,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
   }
 
-  Future<void> _onAddProduct(AddProductEvent event, Emitter<ProductState> emit) async {
+  Future<void> _onAddProduct(
+      AddProductEvent event, Emitter<ProductState> emit) async {
     emit(const ProductLoading());
     try {
       final product = await addProductUseCase(
@@ -76,7 +85,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
   }
 
-  Future<void> _onUpdateProduct(UpdateProductEvent event, Emitter<ProductState> emit) async {
+  Future<void> _onUpdateProduct(
+      UpdateProductEvent event, Emitter<ProductState> emit) async {
     emit(const ProductLoading());
     try {
       final product = await updateProductUseCase(
@@ -94,10 +104,11 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
   }
 
-  Future<void> _onDeleteProduct(DeleteProductEvent event, Emitter<ProductState> emit) async {
+  Future<void> _onDeleteProduct(
+      DeleteProductEvent event, Emitter<ProductState> emit) async {
     emit(const ProductLoading());
     try {
-      await productRepository.deleteProduct(event.productId);
+      deleteProductUseCase(event.productId);
       emit(ProductDeleted(event.productId));
       final products = await getProductsUseCase();
       emit(ProductLoaded(products));

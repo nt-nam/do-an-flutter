@@ -1,9 +1,13 @@
+import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
 import '../../blocs/account/account_state.dart';
+import '../../blocs/category/category_bloc.dart';
+import '../../blocs/category/category_state.dart';
+import '../../blocs/product/product_state.dart';
 import '../../widgets/CategoryButton.dart';
 import '../../widgets/CustomShapeWidget.dart';
 import '../../widgets/FeaturedCard.dart';
@@ -12,29 +16,24 @@ import '../../widgets/RecipeCard.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
   static final String linkImage = "https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
-  // Sample data for featured items
   final List<Map<String, String>> featuredItems = [
     {
-      'title': 'Asian white noodle\nwith extra seafood',
+      'name': 'Asian white noodle\nwith extra seafood',
       'author': 'James Spader',
       'time': '20 Min',
       'imageUrl': linkImage,
-
-      // Replace with actual image URL
     },
     {
-      'title': 'Spicy Thai Curry\nwith Shrimp',
+      'name': 'Spicy Thai Curry\nwith Shrimp',
       'author': 'Anna Smith',
       'time': '25 Min',
       'imageUrl': linkImage,
-      // Replace with actual image URL
     },
     {
-      'title': 'Grilled Salmon\nwith Lemon',
+      'name': 'Grilled Salmon\nwith Lemon',
       'author': 'John Doe',
       'time': '15 Min',
       'imageUrl': linkImage,
-      // Replace with actual image URL
     },
   ];
 
@@ -45,9 +44,21 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const Icon(Icons.arrow_back, color: Colors.black),
-        actions: const [
-          Icon(Icons.shopping_cart, color: Colors.black),
-          SizedBox(width: 16),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_rounded, color: Colors.black),
+            onPressed: () {
+              // TODO: Điều hướng đến màn hình đơn hàng
+            },
+          ),
+          const SizedBox(width: 16),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            onPressed: () {
+              _showLogoutConfirmationDialog(context); // Hiển thị hộp thoại xác nhận
+            },
+          ),
+          const SizedBox(width: 16),
         ],
       ),
       body: BlocBuilder<AccountBloc, AccountState>(
@@ -71,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Kinh chào',
+                            'Kính chào',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey,
@@ -100,24 +111,51 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: featuredItems.length,
-                    itemBuilder: (context, index) {
-                      final item = featuredItems[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 16.0),
-                        child: FeaturedCard(
-                          title: item['title']!,
-                          author: item['author']!,
-                          time: item['time']!,
-                          imageUrl: item['imageUrl']!,
+                // SizedBox(
+                //   height: 200,
+                //   child: ListView.builder(
+                //     scrollDirection: Axis.horizontal,
+                //     itemCount: featuredItems.length,
+                //     itemBuilder: (context, index) {
+                //       final item = featuredItems[index];
+                //       return Padding(
+                //         padding: const EdgeInsets.only(right: 16.0),
+                //         child: FeaturedCard(
+                //           title: item['name']!,
+                //           author: item['author']!,
+                //           time: item['time']!,
+                //           imageUrl: item['imageUrl']!,
+                //         ),
+                //       );
+                //     },
+                //   ),
+                // ),
+                BlocBuilder<ProductBloc, ProductState>(
+                  builder: (context, state) {
+                    if (state is ProductLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is ProductLoaded) {
+                      final products = state.products;
+                      if (products.isEmpty) {
+                        return const Text('Không có Sản phẩm nào.');
+                      }
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: products.map((product) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: CategoryButton(label: product.name),
+                            );
+                          }).toList(),
                         ),
                       );
-                    },
-                  ),
+                    } else if (state is ProductError) {
+                      return Text('Lỗi: ${state.message}');
+                    }
+                    return const SizedBox.shrink(); // Trạng thái ban đầu hoặc không xác định
+                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -130,13 +168,32 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    CategoryButton(label: 'Bình'),
-                    CategoryButton(label: 'Bếp'),
-                    CategoryButton(label: 'Phụ kiện'),
-                  ],
+                BlocBuilder<CategoryBloc, CategoryState>(
+                  builder: (context, state) {
+                    if (state is CategoryLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is CategoryLoaded) {
+                      final categories = state.categories;
+                      if (categories.isEmpty) {
+                        return const Text('Không có danh mục nào.');
+                      }
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: categories.map((category) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: CategoryButton(label: category.name),
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    } else if (state is CategoryError) {
+                      return Text('Lỗi: ${state.message}');
+                    }
+                    return const SizedBox.shrink(); // Trạng thái ban đầu hoặc không xác định
+                  },
                 ),
                 const SizedBox(height: 20),
 
@@ -149,38 +206,117 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    RecipeCard(
-                      title: 'Healthy Taco Salad',
-                      calories: '120 Kcal',
-                      imageUrl: linkImage,
-                    ),
-                    RecipeCard(
-                      title: 'Japanese-style Pancakes',
-                      calories: '84 Kcal',
-                      imageUrl: linkImage,
-                    ),
-                    RecipeCard(
-                      title: 'Japanese-style Pancakes',
-                      calories: '84 Kcal',
-                      imageUrl: linkImage,
-                    ),
-                  ],
+                BlocBuilder<ProductBloc, ProductState>(
+                  builder: (context, state) {
+                    if (state is ProductLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is ProductLoaded) {
+                      final products = state.products;
+                      if (products.isEmpty) {
+                        return const Text('Không có sản phẩm nào.');
+                      }
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: products.take(3).map((product) { // Lấy tối đa 3 sản phẩm
+                          return RecipeCard(
+                            title: product.name,
+                            calories: '${product.price} VNĐ', // Ví dụ: hiển thị giá thay vì calories
+                            imageUrl: product.imageUrl ?? linkImage,
+                          );
+                        }).toList(),
+                      );
+                    } else if (state is ProductError) {
+                      return Text('Lỗi: ${state.message}');
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     RecipeCard(
+                //       title: 'Healthy Taco Salad',
+                //       calories: '120 Kcal',
+                //       imageUrl: linkImage,
+                //     ),
+                //     RecipeCard(
+                //       title: 'Japanese-style Pancakes',
+                //       calories: '84 Kcal',
+                //       imageUrl: linkImage,
+                //     ),
+                //     RecipeCard(
+                //       title: 'Japanese-style Pancakes',
+                //       calories: '84 Kcal',
+                //       imageUrl: linkImage,
+                //     ),
+                //   ],
+                // ),
+                const SizedBox(height: 10),
+
+                const Text(
+                  'Những gì bạn có thể cần',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                BlocBuilder<ProductBloc, ProductState>(
+                  builder: (context, state) {
+                    if (state is ProductLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is ProductLoaded) {
+                      final products = state.products;
+                      if (products.isEmpty) {
+                        return const Text('Không có sản phẩm nào.');
+                      }
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: products.skip(3).take(3).map((product) { // Lấy 3 sản phẩm tiếp theo
+                          return RecipeCard(
+                            title: product.name,
+                            calories: '${product.price} VNĐ',
+                            imageUrl: product.imageUrl ?? linkImage,
+                          );
+                        }).toList(),
+                      );
+                    } else if (state is ProductError) {
+                      return Text('Lỗi: ${state.message}');
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     RecipeCard(
+                //       title: 'Healthy Taco Salad',
+                //       calories: '120 Kcal',
+                //       imageUrl: linkImage,
+                //     ),
+                //     RecipeCard(
+                //       title: 'Japanese-style Pancakes',
+                //       calories: '84 Kcal',
+                //       imageUrl: linkImage,
+                //     ),
+                //     RecipeCard(
+                //       title: 'Japanese-style Pancakes',
+                //       calories: '84 Kcal',
+                //       imageUrl: linkImage,
+                //     ),
+                //   ],
+                // ),
               ],
             ),
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.read<AccountBloc>().add(const LogoutEvent());
-        },
-        backgroundColor: Colors.teal,
-        child: const Icon(Icons.logout),
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     context.read<AccountBloc>().add(const LogoutEvent());
+      //   },
+      //   backgroundColor: Colors.teal,
+      //   child: const Icon(Icons.logout),
+      // ),
       bottomNavigationBar: SizedBox(
         height: 100,
         child: Stack(
@@ -200,7 +336,7 @@ class HomeScreen extends StatelessWidget {
               onTap: (index) {
                 if (index == 4) {
                   // Xử lý đăng xuất khi nhấn vào biểu tượng người dùng
-                  context.read<AccountBloc>().add(const LogoutEvent());
+                  // context.read<AccountBloc>().add(const LogoutEvent());
                 }
               },
               items: [
@@ -220,7 +356,7 @@ class HomeScreen extends StatelessWidget {
                       shape: BoxShape.circle, // Hình tròn
                     ),
                     child: Icon(
-                      Icons.star,          // Dùng Icons.star để giống vương miện (có thể thay đổi)
+                      Icons.shopping_cart_outlined,          // Dùng Icons.star để giống vương miện (có thể thay đổi)
                       color: Colors.white, // Màu biểu tượng
                       size: 30,            // Kích thước lớn hơn
                     ),
@@ -240,6 +376,32 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+  void _showLogoutConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận đăng xuất'),
+          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Đóng hộp thoại
+              },
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<AccountBloc>().add(const LogoutEvent()); // Gọi sự kiện đăng xuất
+                Navigator.of(context).pop(); // Đóng hộp thoại
+              },
+              child: const Text('Đăng xuất'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
