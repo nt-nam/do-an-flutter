@@ -15,6 +15,7 @@ class UpdateUser {
         hoTen: user.fullName,
         sdt: user.phoneNumber,
         diaChi: user.address,
+        email: user.email, // Sử dụng email từ User
       );
       final updatedModel = await repository.updateUser(modelUser);
       return User(
@@ -23,6 +24,7 @@ class UpdateUser {
         fullName: updatedModel.hoTen,
         phoneNumber: updatedModel.sdt,
         address: updatedModel.diaChi,
+        email: updatedModel.email, // Thêm email
       );
     } catch (e) {
       throw Exception('Failed to update user: $e');

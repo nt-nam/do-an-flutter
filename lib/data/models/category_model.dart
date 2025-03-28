@@ -2,10 +2,7 @@ class CategoryModel {
   final int maLoai;
   final String tenLoai;
 
-  CategoryModel({
-    required this.maLoai,
-    required this.tenLoai,
-  });
+  CategoryModel({required this.maLoai, required this.tenLoai});
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(

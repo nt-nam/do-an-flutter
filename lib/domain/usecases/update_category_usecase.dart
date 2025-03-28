@@ -9,12 +9,19 @@ class UpdateCategoryUseCase {
 
   Future<Category> call(int categoryId, String name) async {
     try {
-      if (name.isEmpty) throw Exception('Category name cannot be empty');
-      final categoryModel = CategoryModel(maLoai: categoryId, tenLoai: name);
-      final result = await repository.updateCategory(categoryModel);
-      return Category(id: result.maLoai, name: result.tenLoai);
+      // Ánh xạ từ categoryId và name sang CategoryModel
+      final categoryModel = CategoryModel(
+        maLoai: categoryId,
+        tenLoai: name,
+      );
+      final updatedModel = await repository.updateCategory(categoryModel);
+      return _mapToEntity(updatedModel);
     } catch (e) {
       throw Exception('Failed to update category: $e');
     }
+  }
+
+  Category _mapToEntity(CategoryModel model) {
+    return Category(id: model.maLoai, name: model.tenLoai);
   }
 }

@@ -1,7 +1,7 @@
 import '../entities/user.dart';
 import '../repositories/user_repository.dart';
 
-class GetUserById{
+class GetUserById {
   final UserRepository repository;
 
   GetUserById(this.repository);
@@ -15,6 +15,7 @@ class GetUserById{
         fullName: modelUser.hoTen,
         phoneNumber: modelUser.sdt,
         address: modelUser.diaChi,
+        email: modelUser.email, // Thêm email
       );
     } catch (e) {
       throw Exception('Failed to get user by id: $e');

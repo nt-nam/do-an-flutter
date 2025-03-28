@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../blocs/account/account_bloc.dart';
-import '../../blocs/account/account_event.dart';
-import '../../blocs/account/account_state.dart';
+import '../../../blocs/account/account_bloc.dart';
+import '../../../blocs/account/account_event.dart';
+import '../../../blocs/account/account_state.dart';
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();

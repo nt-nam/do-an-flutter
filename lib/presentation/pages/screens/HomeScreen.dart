@@ -12,6 +12,7 @@ import '../../widgets/CategoryButton.dart';
 import '../../widgets/CustomShapeWidget.dart';
 import '../../widgets/FeaturedCard.dart';
 import '../../widgets/RecipeCard.dart';
+import 'category/CategoryScreen.dart'; // Import CategoryScreen với đường dẫn chính xác
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});

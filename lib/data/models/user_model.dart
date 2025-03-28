@@ -1,25 +1,28 @@
 class UserModel {
   final int maND;
-  final int? maTK; // Có thể null nếu không liên kết tài khoản
+  final int maTK; // Không nullable vì MaTK là bắt forced trong cơ sở dữ liệu
   final String hoTen;
-  final String sdt;
-  final String diaChi;
+  final String? sdt;
+  final String? diaChi;
+  final String email; // Thêm trường email từ bảng taikhoan
 
   UserModel({
     required this.maND,
-    this.maTK,
+    required this.maTK,
     required this.hoTen,
-    required this.sdt,
-    required this.diaChi,
+    this.sdt,
+    this.diaChi,
+    required this.email,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      maND: json['MaND'] as int,
-      maTK: json['MaTK'] as int?,
+      maND: int.parse(json['MaND'].toString()),
+      maTK: int.parse(json['MaTK'].toString()),
       hoTen: json['HoTen'] as String,
-      sdt: json['SDT'] as String,
-      diaChi: json['DiaChi'] as String,
+      sdt: json['SDT'] as String?,
+      diaChi: json['DiaChi'] as String?,
+      email: json['Email'] as String,
     );
   }
 
@@ -30,6 +33,7 @@ class UserModel {
       'HoTen': hoTen,
       'SDT': sdt,
       'DiaChi': diaChi,
+      'Email': email,
     };
   }
 }

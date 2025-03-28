@@ -9,12 +9,13 @@ class GetUserByAccountId {
   Future<User> call(int accountId) async {
     try {
       final modelUser = await repository.getUserByAccountId(accountId);
-      return  User(
+      return User(
         id: modelUser.maND,
         accountId: modelUser.maTK,
         fullName: modelUser.hoTen,
         phoneNumber: modelUser.sdt,
         address: modelUser.diaChi,
+        email: modelUser.email, // Thêm email
       );
     } catch (e) {
       throw Exception('Failed to get user by account id: $e');
