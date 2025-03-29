@@ -26,6 +26,9 @@ class AddToCartUseCase {
         cartId: result.maGH,
         productId: result.maSP,
         quantity: result.soLuong,
+        productName: result.tenSP,
+        price: result.gia,
+        image: result.hinhAnh,
       );
     } catch (e) {
       throw Exception('Failed to add to cart: $e');
