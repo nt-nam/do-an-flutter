@@ -236,7 +236,7 @@ class HomeScreen extends StatelessWidget {
                             title: product.name,
                             calories: '${product.price} VNĐ',
                             // Ví dụ: hiển thị giá thay vì calories
-                            imageUrl: product.imageUrl ?? linkImage,
+                            imageUrl: "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
                           );
                         }).toList(),
                       );
@@ -271,7 +271,7 @@ class HomeScreen extends StatelessWidget {
                           return RecipeCard(
                             title: product.name,
                             calories: '${product.price} VNĐ',
-                            imageUrl: product.imageUrl ?? linkImage,
+                            imageUrl: "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
                           );
                         }).toList(),
                       );
@@ -298,6 +298,18 @@ class HomeScreen extends StatelessWidget {
               unselectedItemColor: Colors.teal,
               currentIndex: 0,
               onTap: (index) {
+                if (index == 0) {
+                  // context.read<AccountBloc>().add(const LogoutEvent());
+                }
+                if (index == 1) {
+                  MaterialPageRoute(builder: (context) => MenuScreen());
+                }
+                if (index == 2) {
+                  // context.read<AccountBloc>().add(const LogoutEvent());
+                }
+                if (index == 3) {
+                  // context.read<AccountBloc>().add(const LogoutEvent());
+                }
                 if (index == 4) {
                   // context.read<AccountBloc>().add(const LogoutEvent());
                 }
