@@ -25,7 +25,6 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
         actions: [
           IconButton(
             icon: const Icon(Icons.receipt_long_rounded, color: Colors.black),
@@ -184,7 +183,7 @@ class HomeScreen extends StatelessWidget {
                           return RecipeCard(
                             title: product.name,
                             calories: '${product.price} VNĐ', // Ví dụ: hiển thị giá thay vì calories
-                            imageUrl: product.imageUrl ?? linkImage,
+                            imageUrl: linkImage,
                           );
                         }).toList(),
                       );

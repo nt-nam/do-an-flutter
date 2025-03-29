@@ -6,18 +6,24 @@ import '../../../blocs/account/account_event.dart';
 import '../../../blocs/account/account_state.dart';
 import '../HomeScreen.dart';
 import 'RegisterScreen.dart'; // Import RegisterScreen
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends StatefulWidget { // Chuyển sang StatefulWidget
+  const LoginScreen({super.key});
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  LoginScreen({super.key});
+  bool _obscureText = true; // Biến trạng thái để kiểm soát hiển thị mật khẩu
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          // Nền với hình ảnh minh họa
           // Nền với hình ảnh minh họa
           Image.asset(
             'assets/images/gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg',
@@ -85,8 +91,19 @@ class LoginScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: BorderSide.none,
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscureText ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscureText = !_obscureText; // Đổi trạng thái hiển thị mật khẩu
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
+                      obscureText: _obscureText, // Sử dụng biến trạng thái
                     ),
                     const SizedBox(height: 24.0),
                     // Nút Đăng nhập
@@ -98,8 +115,8 @@ class LoginScreen extends StatelessWidget {
                             LoginEvent(
                               // emailController.text,
                               // passwordController.text,
-                              "test1@mail.xx",
-                              "123"
+                              "phihung@gmail.com",
+                              "123",
                             ),
                           );
                         },
