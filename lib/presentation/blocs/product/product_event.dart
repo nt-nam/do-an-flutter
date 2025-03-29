@@ -3,8 +3,8 @@ abstract class ProductEvent {
 }
 
 class FetchProductsEvent extends ProductEvent {
-  final int? categoryId; // Lọc theo danh mục nếu có
-  final bool onlyAvailable; // Lọc sản phẩm còn hàng
+  final int? categoryId;
+  final bool onlyAvailable;
 
   const FetchProductsEvent({this.categoryId, this.onlyAvailable = false});
 }

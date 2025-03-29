@@ -1,6 +1,6 @@
-import 'package:do_an_flutter/domain/usecases/add_offer_usecase.dart';
+import 'package:do_an_flutter/domain/usecases/offer/add_offer_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/get_offers_usecase.dart';
+import '../../../domain/usecases/offer/get_offers_usecase.dart';
 import 'offer_event.dart';
 import 'offer_state.dart';
 

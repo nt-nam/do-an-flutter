@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/add_category_usecase.dart';
-import '../../../domain/usecases/delete_category_usecase.dart';
-import '../../../domain/usecases/get_categories_usecase.dart';
-import '../../../domain/usecases/update_category_usecase.dart';
+import '../../../domain/usecases/category/add_category_usecase.dart';
+import '../../../domain/usecases/category/delete_category_usecase.dart';
+import '../../../domain/usecases/category/get_categories_usecase.dart';
+import '../../../domain/usecases/category/update_category_usecase.dart';
 import 'category_event.dart';
 import 'category_state.dart';
 

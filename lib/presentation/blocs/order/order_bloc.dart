@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/create_order_usecase.dart';
-import '../../../domain/usecases/get_orders_usecase.dart';
-import '../../../domain/usecases/update_order_status_usecase.dart';
-import '../../../domain/usecases/get_order_details_usecase.dart';
+import '../../../domain/usecases/order/create_order_usecase.dart';
+import '../../../domain/usecases/order/get_orders_usecase.dart';
+import '../../../domain/usecases/order/update_order_status_usecase.dart';
+import '../../../domain/usecases/order/get_order_details_usecase.dart';
 import 'order_event.dart';
 import 'order_state.dart';
 

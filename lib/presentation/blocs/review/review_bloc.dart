@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/get_reviews_usecase.dart';
-import '../../../domain/usecases/update_review_usecase.dart';
-import '../../../domain/usecases/delete_review_usecase.dart';
-import '../../../domain/usecases/submit_review_usecase.dart';
+import '../../../domain/usecases/review/get_reviews_usecase.dart';
+import '../../../domain/usecases/review/update_review_usecase.dart';
+import '../../../domain/usecases/review/delete_review_usecase.dart';
+import '../../../domain/usecases/review/submit_review_usecase.dart';
 import 'review_event.dart';
 import 'review_state.dart';
 

@@ -1,10 +1,9 @@
+import 'package:do_an_flutter/domain/usecases/product/get_product_by_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/entities/product.dart';
-import '../../../domain/usecases/delete_product_usecase.dart';
-import '../../../domain/usecases/get_products_usecase.dart';
-import '../../../domain/usecases/add_product_usecase.dart';
-import '../../../domain/usecases/update_product_usecase.dart';
-import '../../../domain/repositories/product_repository.dart';
+import '../../../domain/usecases/product/delete_product_usecase.dart';
+import '../../../domain/usecases/product/get_products_usecase.dart';
+import '../../../domain/usecases/product/add_product_usecase.dart';
+import '../../../domain/usecases/product/update_product_usecase.dart';
 import 'product_event.dart';
 import 'product_state.dart';
 
@@ -13,14 +12,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final AddProductUseCase addProductUseCase;
   final UpdateProductUseCase updateProductUseCase;
   final DeleteProductUseCase deleteProductUseCase;
-  final ProductRepository productRepository; // Để xóa sản phẩm
+  final GetProductByIdUsecase getProductByIdUsecase;
 
   ProductBloc({
     required this.getProductsUseCase,
     required this.addProductUseCase,
     required this.updateProductUseCase,
     required this.deleteProductUseCase,
-    required this.productRepository,
+    required this.getProductByIdUsecase,
   }) : super(const ProductInitial()) {
     on<FetchProductsEvent>(_onFetchProducts);
     on<FetchProductDetailsEvent>(_onFetchProductDetails);
@@ -47,20 +46,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       FetchProductDetailsEvent event, Emitter<ProductState> emit) async {
     emit(const ProductLoading());
     try {
-      final productModel =
-          await productRepository.getProductById(event.productId);
-      final product = Product(
-        id: productModel.maSP,
-        name: productModel.tenSP,
-        description: productModel.moTa,
-        price: productModel.gia,
-        categoryId: productModel.maLoai,
-        imageUrl: productModel.hinhAnh,
-        status: productModel.trangThai == 'Còn hàng'
-            ? ProductStatus.inStock
-            : ProductStatus.outOfStock,
-        stock: productModel.soLuongTon,
-      );
+      final product = await getProductByIdUsecase(event.productId);
       emit(ProductDetailsLoaded(product));
     } catch (e) {
       emit(ProductError(e.toString()));

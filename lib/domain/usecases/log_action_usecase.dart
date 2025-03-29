@@ -10,7 +10,7 @@ class LogActionUseCase {
   Future<Log> call(int? accountId, String description, String type) async {
     try {
       final logModel = LogModel(
-        maNK: 0, // ID sẽ được API tạo
+        maNK: 0,
         maTK: accountId,
         moTa: description,
         thoiGian: DateTime.now(),

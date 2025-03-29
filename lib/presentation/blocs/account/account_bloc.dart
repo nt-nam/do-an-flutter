@@ -4,9 +4,9 @@ import '../../../data/models/account_model.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../domain/entities/account.dart';
 import '../../../domain/repositories/account_repository.dart';
-import '../../../domain/usecases/get_user_profile_usecase.dart';
-import '../../../domain/usecases/login_usecase.dart';
-import '../../../domain/usecases/register_use_case.dart';
+import '../../../domain/usecases/auth/get_user_usecase.dart';
+import '../../../domain/usecases/auth/login_usecase.dart';
+import '../../../domain/usecases/auth/register_use_case.dart';
 import 'account_event.dart';
 import 'account_state.dart';
 

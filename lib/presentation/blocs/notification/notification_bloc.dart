@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/get_notifications_usecase.dart';
-import '../../../domain/usecases/mark_notification_as_read_usecase.dart';
+import '../../../domain/usecases/notification/get_notifications_usecase.dart';
+import '../../../domain/usecases/notification/mark_notification_as_read_usecase.dart';
 import 'notification_event.dart';
 import 'notification_state.dart';
 

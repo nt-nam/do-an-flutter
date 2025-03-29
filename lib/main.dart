@@ -1,6 +1,6 @@
-import 'package:do_an_flutter/domain/usecases/add_category_usecase.dart';
-import 'package:do_an_flutter/domain/usecases/delete_category_usecase.dart';
-import 'package:do_an_flutter/domain/usecases/update_category_usecase.dart';
+import 'package:do_an_flutter/domain/usecases/category/add_category_usecase.dart';
+import 'package:do_an_flutter/domain/usecases/category/delete_category_usecase.dart';
+import 'package:do_an_flutter/domain/usecases/category/update_category_usecase.dart';
 import 'package:do_an_flutter/presentation/blocs/account/account_bloc.dart';
 import 'package:do_an_flutter/presentation/blocs/account/account_state.dart';
 import 'package:do_an_flutter/presentation/blocs/category/category_bloc.dart';
@@ -17,14 +17,15 @@ import 'data/repositories/product_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'data/services/api_service.dart';
 import 'data/services/auth_service.dart';
-import 'domain/usecases/add_product_usecase.dart';
-import 'domain/usecases/delete_product_usecase.dart';
-import 'domain/usecases/get_categories_usecase.dart';
-import 'domain/usecases/get_products_usecase.dart';
-import 'domain/usecases/get_user_profile_usecase.dart';
-import 'domain/usecases/login_usecase.dart';
-import 'domain/usecases/register_use_case.dart';
-import 'domain/usecases/update_product_usecase.dart';
+import 'domain/usecases/product/add_product_usecase.dart';
+import 'domain/usecases/product/delete_product_usecase.dart';
+import 'domain/usecases/category/get_categories_usecase.dart';
+import 'domain/usecases/product/get_product_by_id_usecase.dart';
+import 'domain/usecases/product/get_products_usecase.dart';
+import 'domain/usecases/auth/get_user_usecase.dart';
+import 'domain/usecases/auth/login_usecase.dart';
+import 'domain/usecases/auth/register_use_case.dart';
+import 'domain/usecases/product/update_product_usecase.dart';
 
 void main() {
   final apiService = ApiService();
@@ -43,6 +44,7 @@ void main() {
 
   final productRepository = ProductRepositoryImpl(apiService, authService);
   final getProductsUseCase = GetProductsUseCase(productRepository);
+  final getProductsByIdUseCase = GetProductByIdUsecase(productRepository);
   final addProductsUseCase = AddProductUseCase(productRepository);
   final updateProductsUseCase = UpdateProductUseCase(productRepository);
   final deleteProductsUseCase = DeleteProductUseCase(productRepository);
@@ -70,13 +72,12 @@ void main() {
         ),
         BlocProvider(
           create: (context) => ProductBloc(
-              getProductsUseCase: getProductsUseCase,
-              addProductUseCase: addProductsUseCase,
-              updateProductUseCase: updateProductsUseCase,
-              deleteProductUseCase: deleteProductsUseCase,
-              productRepository: productRepository)
-            ..add(
-                const FetchProductsEvent()), // Tự động fetch product khi khởi tạo
+            getProductsUseCase: getProductsUseCase,
+            addProductUseCase: addProductsUseCase,
+            updateProductUseCase: updateProductsUseCase,
+            deleteProductUseCase: deleteProductsUseCase,
+            getProductByIdUsecase: getProductsByIdUseCase,
+          )..add(const FetchProductsEvent()),
         ),
       ],
       child: const MyApp(),

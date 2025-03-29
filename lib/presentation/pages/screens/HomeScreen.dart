@@ -12,31 +12,12 @@ import '../../widgets/CategoryButton.dart';
 import '../../widgets/CustomShapeWidget.dart';
 import '../../widgets/FeaturedCard.dart';
 import '../../widgets/RecipeCard.dart';
+import 'auth/LoginScreen.dart';
 import 'category/CategoryScreen.dart'; // Import CategoryScreen với đường dẫn chính xác
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
   static final String linkImage = "https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
-  final List<Map<String, String>> featuredItems = [
-    {
-      'name': 'Asian white noodle\nwith extra seafood',
-      'author': 'James Spader',
-      'time': '20 Min',
-      'imageUrl': linkImage,
-    },
-    {
-      'name': 'Spicy Thai Curry\nwith Shrimp',
-      'author': 'Anna Smith',
-      'time': '25 Min',
-      'imageUrl': linkImage,
-    },
-    {
-      'name': 'Grilled Salmon\nwith Lemon',
-      'author': 'John Doe',
-      'time': '15 Min',
-      'imageUrl': linkImage,
-    },
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -112,25 +93,6 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // SizedBox(
-                //   height: 200,
-                //   child: ListView.builder(
-                //     scrollDirection: Axis.horizontal,
-                //     itemCount: featuredItems.length,
-                //     itemBuilder: (context, index) {
-                //       final item = featuredItems[index];
-                //       return Padding(
-                //         padding: const EdgeInsets.only(right: 16.0),
-                //         child: FeaturedCard(
-                //           title: item['name']!,
-                //           author: item['author']!,
-                //           time: item['time']!,
-                //           imageUrl: item['imageUrl']!,
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // ),
                 BlocBuilder<ProductBloc, ProductState>(
                   builder: (context, state) {
                     if (state is ProductLoading) {
@@ -286,26 +248,6 @@ class HomeScreen extends StatelessWidget {
                     return const SizedBox.shrink();
                   },
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     RecipeCard(
-                //       title: 'Healthy Taco Salad',
-                //       calories: '120 Kcal',
-                //       imageUrl: linkImage,
-                //     ),
-                //     RecipeCard(
-                //       title: 'Japanese-style Pancakes',
-                //       calories: '84 Kcal',
-                //       imageUrl: linkImage,
-                //     ),
-                //     RecipeCard(
-                //       title: 'Japanese-style Pancakes',
-                //       calories: '84 Kcal',
-                //       imageUrl: linkImage,
-                //     ),
-                //   ],
-                // ),
               ],
             ),
           );
@@ -389,14 +331,16 @@ class HomeScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Đóng hộp thoại
+                Navigator.of(context).pop();
               },
               child: const Text('Hủy'),
             ),
             TextButton(
               onPressed: () {
-                context.read<AccountBloc>().add(const LogoutEvent()); // Gọi sự kiện đăng xuất
-                Navigator.of(context).pop(); // Đóng hộp thoại
+                context.read<AccountBloc>().add(const LogoutEvent());
+                //TODO setScreen LoginScreen
+                Navigator.of(context).pop();
+                MaterialPageRoute(builder: (context) => LoginScreen());
               },
               child: const Text('Đăng xuất'),
             ),
