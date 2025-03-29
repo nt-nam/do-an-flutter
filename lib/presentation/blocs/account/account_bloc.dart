@@ -36,6 +36,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     try {
       final (token, account, user) = await loginUseCase(event.email, event.password);
       emit(AccountLoggedIn(token, account, user ));
+      print('Login success: token=$token, account=$account, user=$user');
     } catch (e) {
       emit(AccountError(e.toString()));
     }
@@ -54,7 +55,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   Future<void> _onFetchAccountProfile(FetchAccountProfileEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
-      final user = await getUserProfileUseCase(event.accountId);
+      // final user = await getUserProfileUseCase(event.accountId);
       final accountModel = await accountRepository.getAccountById(event.accountId);
       final account = Account(
         id: accountModel.maTK,

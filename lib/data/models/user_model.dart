@@ -17,8 +17,8 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      maND: int.parse(json['MaND'].toString()),
-      maTK: int.parse(json['MaTK'].toString()),
+      maND: int.tryParse(json['MaND'].toString()) ?? 0,
+      maTK: int.tryParse(json['MaTK'].toString()) ?? 0,
       hoTen: json['HoTen'] as String,
       sdt: json['SDT'] as String?,
       diaChi: json['DiaChi'] as String?,

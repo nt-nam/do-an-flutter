@@ -11,6 +11,7 @@ import '../../blocs/category/category_state.dart';
 import '../../blocs/product/product_state.dart';
 import '../../widgets/CategoryButton.dart';
 import '../../widgets/FeaturedCard.dart';
+import '../../widgets/ProductCard.dart';
 import '../../widgets/RecipeCard.dart';
 import 'MenuScreen.dart';
 
@@ -41,9 +42,11 @@ class HomeScreen extends StatelessWidget {
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: BlocBuilder<AccountBloc, AccountState>(
                 builder: (context, state) {
-                  String userName = 'Quý khách'; // Mặc định
+                  print('AppBar state: $state');
+                  String userName = 'Quý khách';
                   if (state is AccountLoggedIn && state.user != null) {
                     userName = state.user!.hoTen; // Lấy tên từ UserModel
+                    print('User name: $userName');
                   }
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -269,11 +272,7 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: products.skip(3).take(3).map((product) {
                           // Lấy 3 sản phẩm tiếp theo
-                          return RecipeCard(
-                            title: product.name,
-                            calories: '${product.price} VNĐ',
-                            imageUrl: "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                          );
+                          return ProductCard(product);
                         }).toList(),
                       );
                     } else if (state is ProductError) {
