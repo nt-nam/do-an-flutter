@@ -2,46 +2,97 @@ import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../domain/entities/product.dart';
 import '../../blocs/account/account_bloc.dart';
-import '../../blocs/account/account_event.dart';
 import '../../blocs/account/account_state.dart';
 import '../../blocs/category/category_bloc.dart';
 import '../../blocs/category/category_state.dart';
 import '../../blocs/product/product_state.dart';
 import '../../widgets/CategoryButton.dart';
-import '../../widgets/CustomShapeWidget.dart';
 import '../../widgets/FeaturedCard.dart';
 import '../../widgets/RecipeCard.dart';
-import 'auth/LoginScreen.dart';
-import 'category/CategoryScreen.dart'; // Import CategoryScreen với đường dẫn chính xác
+import 'MenuScreen.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
-  static final String linkImage = "https://images.pexels.com/photos/31042266/pexels-photo-31042266/free-photo-of-canh-d-ng-vang-r-ng-l-n-d-i-b-u-tr-i-em-d-u.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
+
+  static final String linkImage =
+      "gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Sửa lại appBar
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: const Icon(Icons.arrow_back, color: Colors.black),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.receipt_long_rounded, color: Colors.black),
-            onPressed: () {
-              // TODO: Điều hướng đến màn hình đơn hàng
-            },
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.teal.withOpacity(0.1), Colors.white],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
-          const SizedBox(width: 16),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.black),
-            onPressed: () {
-              _showLogoutConfirmationDialog(context); // Hiển thị hộp thoại xác nhận
-            },
+          child: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: BlocBuilder<AccountBloc, AccountState>(
+                builder: (context, state) {
+                  String userName = 'Quý khách'; // Mặc định
+                  if (state is AccountLoggedIn && state.user != null) {
+                    userName = state.user!.hoTen; // Lấy tên từ UserModel
+                  }
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Kính chào',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          Text(
+                            userName,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
+                            ),
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MenuScreen()),
+                          );
+                        },
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.teal.withOpacity(0.2),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.teal,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
           ),
-          const SizedBox(width: 16),
-        ],
+        ),
+        toolbarHeight: 80, // Tăng chiều cao để chứa nội dung
       ),
       body: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
@@ -55,33 +106,6 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Greeting Section với CustomShapeWidget làm nền
-                Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Kính chào',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          Text(
-                            userName,
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 20),
 
                 // Featured Section
@@ -100,16 +124,30 @@ class HomeScreen extends StatelessWidget {
                     } else if (state is ProductLoaded) {
                       final products = state.products;
                       if (products.isEmpty) {
-                        return const Text('Không có Sản phẩm nào.');
+                        return const Text('Không có sản phẩm nào.');
                       }
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
-                          children: products.map((product) {
+                          children: products.take(5).map((product) {
+                            // Lấy tối đa 3 sản phẩm nổi bật
                             return Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: CategoryButton(label: product.name),
+                              padding: const EdgeInsets.only(right: 16.0),
+                              // Thêm khoảng cách bên phải
+                              child: FeaturedCard(
+                                title: product.name,
+                                price:
+                                    '${product.price.toStringAsFixed(0)} VNĐ',
+                                time: product.status == ProductStatus.inStock
+                                    ? 'Còn hàng'
+                                    : 'Hết hàng',
+                                imageUrl:
+                                    "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
+                                onTap: () {
+                                  // TODO: Điều hướng đến trang chi tiết sản phẩm
+                                },
+                              ),
                             );
                           }).toList(),
                         ),
@@ -117,7 +155,7 @@ class HomeScreen extends StatelessWidget {
                     } else if (state is ProductError) {
                       return Text('Lỗi: ${state.message}');
                     }
-                    return const SizedBox.shrink(); // Trạng thái ban đầu hoặc không xác định
+                    return const SizedBox.shrink();
                   },
                 ),
                 const SizedBox(height: 20),
@@ -155,18 +193,30 @@ class HomeScreen extends StatelessWidget {
                     } else if (state is CategoryError) {
                       return Text('Lỗi: ${state.message}');
                     }
-                    return const SizedBox.shrink(); // Trạng thái ban đầu hoặc không xác định
+                    return const SizedBox
+                        .shrink(); // Trạng thái ban đầu hoặc không xác định
                   },
                 ),
                 const SizedBox(height: 20),
 
                 // Popular Recipes Section
-                const Text(
-                  'Công thức nấu ăn',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Sản phẩm',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      'Tất cả',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                      //TODO sản phẩm
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 BlocBuilder<ProductBloc, ProductState>(
@@ -180,10 +230,12 @@ class HomeScreen extends StatelessWidget {
                       }
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: products.take(3).map((product) { // Lấy tối đa 3 sản phẩm
+                        children: products.take(3).map((product) {
+                          // Lấy tối đa 3 sản phẩm
                           return RecipeCard(
                             title: product.name,
-                            calories: '${product.price} VNĐ', // Ví dụ: hiển thị giá thay vì calories
+                            calories: '${product.price} VNĐ',
+                            // Ví dụ: hiển thị giá thay vì calories
                             imageUrl: product.imageUrl ?? linkImage,
                           );
                         }).toList(),
@@ -194,26 +246,6 @@ class HomeScreen extends StatelessWidget {
                     return const SizedBox.shrink();
                   },
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     RecipeCard(
-                //       title: 'Healthy Taco Salad',
-                //       calories: '120 Kcal',
-                //       imageUrl: linkImage,
-                //     ),
-                //     RecipeCard(
-                //       title: 'Japanese-style Pancakes',
-                //       calories: '84 Kcal',
-                //       imageUrl: linkImage,
-                //     ),
-                //     RecipeCard(
-                //       title: 'Japanese-style Pancakes',
-                //       calories: '84 Kcal',
-                //       imageUrl: linkImage,
-                //     ),
-                //   ],
-                // ),
                 const SizedBox(height: 10),
 
                 const Text(
@@ -234,7 +266,8 @@ class HomeScreen extends StatelessWidget {
                       }
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: products.skip(3).take(3).map((product) { // Lấy 3 sản phẩm tiếp theo
+                        children: products.skip(3).take(3).map((product) {
+                          // Lấy 3 sản phẩm tiếp theo
                           return RecipeCard(
                             title: product.name,
                             calories: '${product.price} VNĐ',
@@ -253,100 +286,60 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     context.read<AccountBloc>().add(const LogoutEvent());
-      //   },
-      //   backgroundColor: Colors.teal,
-      //   child: const Icon(Icons.logout),
-      // ),
       bottomNavigationBar: SizedBox(
         height: 100,
         child: Stack(
           children: [
-            // CustomShapeWidget(
-            //   width: MediaQuery.of(context).size.width,
-            //   height: 100,
-            //   backgroundColor: Colors.teal.withOpacity(0.3),
-            // ),
             BottomNavigationBar(
-              type: BottomNavigationBarType.fixed, // Đảm bảo các mục cố định
-              backgroundColor: Colors.transparent, // Để trong suốt để thấy CustomShapeWidget
-              elevation: 0,                        // Bỏ bóng để hòa hợp với CustomShapeWidget
-              selectedItemColor: Colors.teal,      // Màu khi được chọn
-              unselectedItemColor: Colors.teal,    // Màu khi không được chọn
-              currentIndex: 0,                     // Mặc định chọn mục đầu tiên (có thể thay đổi)
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              selectedItemColor: Colors.teal,
+              unselectedItemColor: Colors.teal,
+              currentIndex: 0,
               onTap: (index) {
                 if (index == 4) {
-                  // Xử lý đăng xuất khi nhấn vào biểu tượng người dùng
                   // context.read<AccountBloc>().add(const LogoutEvent());
                 }
               },
               items: [
                 BottomNavigationBarItem(
-                  label: '__',
+                  label: 'Trang chủ',
                   icon: Icon(Icons.home),
                 ),
                 BottomNavigationBarItem(
-                  label: 'Sreach',
+                  label: 'Tìm kiếm',
                   icon: Icon(Icons.search),
                 ),
                 BottomNavigationBarItem(
                   icon: Container(
                     padding: EdgeInsets.all(10), // Khoảng cách bên trong
                     decoration: BoxDecoration(
-                      color: Colors.black,    // Màu nền tròn
+                      color: Colors.black, // Màu nền tròn
                       shape: BoxShape.circle, // Hình tròn
                     ),
                     child: Icon(
-                      Icons.shopping_cart_outlined,          // Dùng Icons.star để giống vương miện (có thể thay đổi)
+                      Icons.shopping_cart_outlined,
+                      // Dùng Icons.star để giống vương miện (có thể thay đổi)
                       color: Colors.white, // Màu biểu tượng
-                      size: 30,            // Kích thước lớn hơn
+                      size: 30, // Kích thước lớn hơn
                     ),
                   ),
-                  label: 'Star',
+                  label: 'Giỏ hàng',
                 ),
                 BottomNavigationBarItem(
-                  label: 'Notification',
+                  label: 'Thông báo',
                   icon: Icon(Icons.notifications_none),
                 ),
                 BottomNavigationBarItem(
-                  label: 'Person',
-                  icon: Icon(Icons.person_outline),
+                  label: 'Hóa đơn',
+                  icon: Icon(Icons.receipt_long),
                 ),
               ],
             ),
           ],
         ),
       ),
-    );
-  }
-  void _showLogoutConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Xác nhận đăng xuất'),
-          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AccountBloc>().add(const LogoutEvent());
-                //TODO setScreen LoginScreen
-                Navigator.of(context).pop();
-                MaterialPageRoute(builder: (context) => LoginScreen());
-              },
-              child: const Text('Đăng xuất'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

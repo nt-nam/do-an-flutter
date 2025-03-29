@@ -1,9 +1,9 @@
-// Featured Card Widget
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart'; // Thêm import cho Lottie
 
-class FeaturedCard extends StatelessWidget {
+class FeaturedCard extends StatefulWidget {
   final String title;
-  final String author;
+  final String price;
   final String time;
   final String imageUrl;
   final VoidCallback? onTap;
@@ -11,65 +11,200 @@ class FeaturedCard extends StatelessWidget {
   const FeaturedCard({
     super.key,
     required this.title,
-    required this.author,
+    required this.price,
     required this.time,
     required this.imageUrl,
     required this.onTap,
   });
 
   @override
+  _FeaturedCardState createState() => _FeaturedCardState();
+}
+
+class _FeaturedCardState extends State<FeaturedCard>
+    with TickerProviderStateMixin {
+  late AnimationController _scaleController;
+  late AnimationController _sparkleController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _sparkleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    // Animation cho scale khi nhấn
+    _scaleController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+    );
+
+    // Animation cho ngôi sao lấp lánh
+    _sparkleController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    )..repeat(reverse: true);
+    _sparkleAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _sparkleController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    _sparkleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 300, // Fixed width for each card in the horizontal list
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.teal[50],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
+    return GestureDetector(
+      onTapDown: (_) => _scaleController.forward(),
+      onTapUp: (_) => _scaleController.reverse(),
+      onTapCancel: () => _scaleController.reverse(),
+      onTap: widget.onTap,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_scaleController, _sparkleController]),
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              width: 200,
+              height: 230,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  // colors: [Colors.teal.shade100, Colors.teal.shade300],
+                  colors: [Colors.black87, Colors.black26],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.teal.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Stack(
                 children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  // Positioned(
+                  //   bottom: 0,
+                  //   left: 0,
+                  //   right: 0,
+                  //   child: ClipRRect(
+                  //     borderRadius: const BorderRadius.vertical(
+                  //       bottom: Radius.circular(20), // Bo hai góc dưới
+                  //     ),
+                  //     child: Lottie.asset(
+                  //       'assets/animation/fire.json',
+                  //       width: double.infinity,
+                  //       height: 200, // Điều chỉnh kích thước tùy ý
+                  //       fit: BoxFit.contain,
+                  //       repeat: true,
+                  //     ),
+                  //   ),
+                  // ),
+                  // Ảnh sản phẩm
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                          bottom: Radius.circular(20)),
+                      child: Container(
+                        width: double.infinity,
+                        height: 230,
+                        // Chiều cao cố định cho ảnh
+                        color: Colors.white.withOpacity(0.1),
+                        // Nền nhẹ cho ảnh trong suốt
+                        child: Image.network(
+                          widget.imageUrl,
+                          fit: BoxFit.cover, // Giữ nguyên tỷ lệ ảnh
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(
+                              child: Icon(Icons.broken_image,
+                                  size: 50, color: Colors.black87),
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          },
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 5),
-                  Row(
+                  // Nội dung text
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const CircleAvatar(
-                        radius: 12,
-                        backgroundImage: NetworkImage(
-                          'https://via.placeholder.com/50', // Replace with actual author image URL
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        author,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Icon(Icons.timer, size: 16, color: Colors.grey),
-                      const SizedBox(width: 5),
-                      Text(
-                        time,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    widget.title,
+                                    style:  TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.redAccent,
+                                      shadows: _shadow(),
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                AnimatedBuilder(
+                                  animation: _sparkleAnimation,
+                                  builder: (context, child) {
+                                    return Opacity(
+                                      opacity: _sparkleAnimation.value,
+                                      child: const Icon(
+                                        Icons.star,
+                                        color: Colors.yellow,
+                                        size: 24,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              widget.price,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(Icons.timer,
+                                    size: 14, color: Colors.black87),
+                                const SizedBox(width: 4),
+                                Text(
+                                  widget.time,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -77,21 +212,33 @@ class FeaturedCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(15),
-              bottomRight: Radius.circular(15),
-            ),
-            child: Image.network(
-              imageUrl,
-              width: 150,
-              height: 200,
-              fit: BoxFit.cover,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
+  }
+  List<Shadow> _shadow() {
+    return [
+      Shadow(
+        color: Colors.white,
+        offset: Offset(1, 1),
+        blurRadius: 2,
+      ),
+      Shadow(
+        color: Colors.white,
+        offset: Offset(-1, 1),
+        blurRadius: 2,
+      ),
+      Shadow(
+        color: Colors.white,
+        offset: Offset(1, -1),
+        blurRadius: 2,
+      ),
+      Shadow(
+        color: Colors.white,
+        offset: Offset(-1, -1),
+        blurRadius: 2,
+      ),
+    ];
   }
 }
