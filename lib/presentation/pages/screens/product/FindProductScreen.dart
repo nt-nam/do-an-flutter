@@ -1,21 +1,18 @@
 import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
-import 'package:do_an_flutter/presentation/pages/screens/product/FindProductScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/entities/product.dart';
-import '../../blocs/account/account_bloc.dart';
-import '../../blocs/account/account_state.dart';
-import '../../blocs/category/category_bloc.dart';
-import '../../blocs/category/category_state.dart';
-import '../../blocs/product/product_state.dart';
-import '../../widgets/CategoryButton.dart';
-import '../../widgets/FeaturedCard.dart';
-import '../../widgets/RecipeCard.dart';
-import 'MenuScreen.dart';
+import '../../../blocs/account/account_bloc.dart';
+import '../../../blocs/account/account_state.dart';
+import '../../../blocs/category/category_bloc.dart';
+import '../../../blocs/category/category_state.dart';
+import '../../../blocs/product/product_state.dart';
+import '../../../widgets/CategoryButton.dart';
+import '../../../widgets/RecipeCard.dart';
+import '../MenuScreen.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class FindProductScreen extends StatelessWidget {
+  FindProductScreen({super.key});
 
   static final String linkImage =
       "gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
@@ -38,7 +35,7 @@ class HomeScreen extends StatelessWidget {
           child: SafeArea(
             child: Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: BlocBuilder<AccountBloc, AccountState>(
                 builder: (context, state) {
                   String userName = 'Quý khách'; // Mặc định
@@ -97,69 +94,14 @@ class HomeScreen extends StatelessWidget {
       ),
       body: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
-          String userName = 'Quý khách'; // Mặc định là "Quý khách"
-          if (state is AccountLoggedIn && state.user != null) {
-            userName = state.user!.hoTen; // Lấy tên từ UserModel nếu có
-          }
+
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
 
-                // Featured Section
-                const Text(
-                  'Yêu thích',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                BlocBuilder<ProductBloc, ProductState>(
-                  builder: (context, state) {
-                    if (state is ProductLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is ProductLoaded) {
-                      final products = state.products;
-                      if (products.isEmpty) {
-                        return const Text('Không có sản phẩm nào.');
-                      }
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: products.take(5).map((product) {
-                            // Lấy tối đa 3 sản phẩm nổi bật
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              // Thêm khoảng cách bên phải
-                              child: FeaturedCard(
-                                title: product.name,
-                                price:
-                                    '${product.price.toStringAsFixed(0)} VNĐ',
-                                time: product.status == ProductStatus.inStock
-                                    ? 'Còn hàng'
-                                    : 'Hết hàng',
-                                imageUrl:
-                                    "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                                onTap: () {
-                                  // TODO: Điều hướng đến trang chi tiết sản phẩm
-                                },
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    } else if (state is ProductError) {
-                      return Text('Lỗi: ${state.message}');
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-                const SizedBox(height: 20),
 
                 // Category Section
                 const Text(
@@ -201,24 +143,14 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // Popular Recipes Section
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Sản phẩm',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      'Tất cả',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                      //TODO sản phẩm
-                    ),
-                  ],
+                const Text(
+                  'Sản phẩm',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+
                 const SizedBox(height: 10),
                 BlocBuilder<ProductBloc, ProductState>(
                   builder: (context, state) {
@@ -237,7 +169,7 @@ class HomeScreen extends StatelessWidget {
                             title: product.name,
                             calories: '${product.price} VNĐ',
                             // Ví dụ: hiển thị giá thay vì calories
-                            imageUrl: "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
+                            imageUrl: "assets/images/${(product.imageUrl ?? FindProductScreen.linkImage) == "" ? FindProductScreen.linkImage : (product.imageUrl ?? FindProductScreen.linkImage)}",
                           );
                         }).toList(),
                       );
@@ -249,39 +181,6 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                const Text(
-                  'Những gì bạn có thể cần',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                BlocBuilder<ProductBloc, ProductState>(
-                  builder: (context, state) {
-                    if (state is ProductLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is ProductLoaded) {
-                      final products = state.products;
-                      if (products.isEmpty) {
-                        return const Text('Không có sản phẩm nào.');
-                      }
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: products.skip(3).take(3).map((product) {
-                          // Lấy 3 sản phẩm tiếp theo
-                          return RecipeCard(
-                            title: product.name,
-                            calories: '${product.price} VNĐ',
-                            imageUrl: "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                          );
-                        }).toList(),
-                      );
-                    } else if (state is ProductError) {
-                      return Text('Lỗi: ${state.message}');
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
               ],
             ),
           );
@@ -303,10 +202,7 @@ class HomeScreen extends StatelessWidget {
                   // context.read<AccountBloc>().add(const LogoutEvent());
                 }
                 if (index == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FindProductScreen()),
-                  );
+                  MaterialPageRoute(builder: (context) => MenuScreen());
                 }
                 if (index == 2) {
                   // context.read<AccountBloc>().add(const LogoutEvent());

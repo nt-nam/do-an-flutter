@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Nền với hình ảnh minh họa
           Image.asset(
             'assets/images/gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg',
-            fit: BoxFit.cover, // Đảm bảo ảnh nền phủ toàn bộ màn hình
+            fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
           ),
