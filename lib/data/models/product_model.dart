@@ -21,14 +21,14 @@ class ProductModel {
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      maSP: int.tryParse(json['MaSP'].toString()) ?? 0,
+      maSP: json['MaSP'] is String ? int.tryParse(json['MaSP']) ?? 0 : json['MaSP'] as int,
       tenSP: json['TenSP'] as String,
       moTa: json['MoTa'] as String?,
       gia: (json['Gia'] as num).toDouble(),
-      maLoai: int.tryParse(json['MaLoai']),
+      maLoai: json['MaLoai'] is String ? int.tryParse(json['MaLoai']) : json['MaLoai'] as int?,
       hinhAnh: json['HinhAnh'] as String?,
       trangThai: json['TrangThai'] as String,
-      soLuongTon: int.tryParse(json['SoLuongTon']) ?? 0,
+      soLuongTon: json['SoLuongTon'] is String ? int.tryParse(json['SoLuongTon']) ?? 0 : json['SoLuongTon'] as int,
     );
   }
 

@@ -111,14 +111,23 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          context.read<AccountBloc>().add(
-                            LoginEvent(
-                              // emailController.text,
-                              // passwordController.text,
-                              "phihung@gmail.com",
-                              "123",
-                            ),
-                          );
+                          if(emailController.text == ""){
+                            context.read<AccountBloc>().add(
+                              LoginEvent(
+
+                                "phihung@gmail.com",
+                                "123",
+                              ),
+                            );
+                          }else{
+                            context.read<AccountBloc>().add(
+                              LoginEvent(
+                                emailController.text,
+                                passwordController.text,
+                              ),
+                            );
+                          }
+
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF1A3C34), // Màu nút giống trong hình

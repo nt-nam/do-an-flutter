@@ -19,7 +19,7 @@ class GetProductByIdUsecase {
         stock: modelProduct.soLuongTon,
       );
     } catch (e) {
-      throw Exception('Failed to get user by id: $e');
+      throw Exception('Failed to get product by id: $e');
     }
   }
 }

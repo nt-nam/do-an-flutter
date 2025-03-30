@@ -1,13 +1,14 @@
-import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
+import 'package:do_an_flutter/presentation/pages/screens/product/DetailProductScreen.dart';
 import 'package:do_an_flutter/presentation/pages/screens/product/FindProductScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../domain/entities/product.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import '../../blocs/category/category_bloc.dart';
 import '../../blocs/category/category_state.dart';
+import '../../blocs/product/product_bloc.dart';
+import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
 import '../../widgets/CategoryButton.dart';
 import '../../widgets/FeaturedCard.dart';
@@ -15,16 +16,29 @@ import '../../widgets/ProductCard.dart';
 import '../../widgets/RecipeCard.dart';
 import 'MenuScreen.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   static final String linkImage =
       "gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Product> _products = []; // Lưu danh sách sản phẩm cục bộ
+
+  @override
+  void initState() {
+    super.initState();
+    // Gửi FetchProductsEvent khi khởi tạo màn hình
+    context.read<ProductBloc>().add(const FetchProductsEvent());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Sửa lại appBar
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -38,14 +52,13 @@ class HomeScreen extends StatelessWidget {
           ),
           child: SafeArea(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: BlocBuilder<AccountBloc, AccountState>(
                 builder: (context, state) {
                   print('AppBar state: $state');
                   String userName = 'Quý khách';
                   if (state is AccountLoggedIn && state.user != null) {
-                    userName = state.user!.hoTen; // Lấy tên từ UserModel
+                    userName = state.user!.hoTen;
                     print('User name: $userName');
                   }
                   return Row(
@@ -96,13 +109,13 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        toolbarHeight: 80, // Tăng chiều cao để chứa nội dung
+        toolbarHeight: 80,
       ),
       body: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
-          String userName = 'Quý khách'; // Mặc định là "Quý khách"
+          String userName = 'Quý khách';
           if (state is AccountLoggedIn && state.user != null) {
-            userName = state.user!.hoTen; // Lấy tên từ UserModel nếu có
+            userName = state.user!.hoTen;
           }
 
           return SingleChildScrollView(
@@ -111,7 +124,6 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-
                 // Featured Section
                 const Text(
                   'Yêu thích',
@@ -126,44 +138,43 @@ class HomeScreen extends StatelessWidget {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is ProductLoaded) {
-                      final products = state.products;
-                      if (products.isEmpty) {
-                        return const Text('Không có sản phẩm nào.');
-                      }
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: products.take(5).map((product) {
-                            // Lấy tối đa 3 sản phẩm nổi bật
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
-                              // Thêm khoảng cách bên phải
-                              child: FeaturedCard(
-                                title: product.name,
-                                price:
-                                    '${product.price.toStringAsFixed(0)} VNĐ',
-                                time: product.status == ProductStatus.inStock
-                                    ? 'Còn hàng'
-                                    : 'Hết hàng',
-                                imageUrl:
-                                    "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                                onTap: () {
-                                  // TODO: Điều hướng đến trang chi tiết sản phẩm
-                                },
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      );
-                    } else if (state is ProductError) {
-                      return Text('Lỗi: ${state.message}');
+                      // Cập nhật danh sách sản phẩm cục bộ
+                      _products = state.products;
                     }
-                    return const SizedBox.shrink();
+                    // Dùng danh sách sản phẩm cục bộ để hiển thị
+                    if (_products.isEmpty) {
+                      return const Text('Không có sản phẩm nào.');
+                    }
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: _products.take(5).map((product) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: FeaturedCard(
+                              title: product.name,
+                              price: '${product.price.toStringAsFixed(0)} VNĐ',
+                              time: product.status == ProductStatus.inStock
+                                  ? 'Còn hàng'
+                                  : 'Hết hàng',
+                              imageUrl:
+                              "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
+                              onTap: () {
+                                context.read<ProductBloc>().add(FetchProductDetailsEvent(product.id));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => DetailProductScreen()),
+                                );
+                              },
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
-
                 // Category Section
                 const Text(
                   'Loại',
@@ -197,14 +208,11 @@ class HomeScreen extends StatelessWidget {
                     } else if (state is CategoryError) {
                       return Text('Lỗi: ${state.message}');
                     }
-                    return const SizedBox
-                        .shrink(); // Trạng thái ban đầu hoặc không xác định
+                    return const SizedBox.shrink();
                   },
                 ),
                 const SizedBox(height: 20),
-
                 // Popular Recipes Section
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -218,7 +226,6 @@ class HomeScreen extends StatelessWidget {
                     const Text(
                       'Tất cả',
                       style: TextStyle(fontSize: 18, color: Colors.grey),
-                      //TODO sản phẩm
                     ),
                   ],
                 ),
@@ -228,30 +235,25 @@ class HomeScreen extends StatelessWidget {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is ProductLoaded) {
-                      final products = state.products;
-                      if (products.isEmpty) {
-                        return const Text('Không có sản phẩm nào.');
-                      }
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: products.take(3).map((product) {
-                          // Lấy tối đa 3 sản phẩm
-                          return RecipeCard(
-                            title: product.name,
-                            calories: '${product.price} VNĐ',
-                            // Ví dụ: hiển thị giá thay vì calories
-                            imageUrl: "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                          );
-                        }).toList(),
-                      );
-                    } else if (state is ProductError) {
-                      return Text('Lỗi: ${state.message}');
+                      _products = state.products;
                     }
-                    return const SizedBox.shrink();
+                    if (_products.isEmpty) {
+                      return const Text('Không có sản phẩm nào.');
+                    }
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: _products.take(3).map((product) {
+                        return RecipeCard(
+                          title: product.name,
+                          calories: '${product.price} VNĐ',
+                          imageUrl:
+                          "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
+                        );
+                      }).toList(),
+                    );
                   },
                 ),
                 const SizedBox(height: 10),
-
                 const Text(
                   'Những gì bạn có thể cần',
                   style: TextStyle(
@@ -264,21 +266,17 @@ class HomeScreen extends StatelessWidget {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is ProductLoaded) {
-                      final products = state.products;
-                      if (products.isEmpty) {
-                        return const Text('Không có sản phẩm nào.');
-                      }
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: products.skip(3).take(3).map((product) {
-                          // Lấy 3 sản phẩm tiếp theo
-                          return ProductCard(product);
-                        }).toList(),
-                      );
-                    } else if (state is ProductError) {
-                      return Text('Lỗi: ${state.message}');
+                      _products = state.products;
                     }
-                    return const SizedBox.shrink();
+                    if (_products.isEmpty) {
+                      return const Text('Không có sản phẩm nào.');
+                    }
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: _products.skip(3).take(3).map((product) {
+                        return ProductCard(product);
+                      }).toList(),
+                    );
                   },
                 ),
               ],
@@ -286,74 +284,92 @@ class HomeScreen extends StatelessWidget {
           );
         },
       ),
-      bottomNavigationBar: SizedBox(
-        height: 100,
-        child: Stack(
-          children: [
-            BottomNavigationBar(
+      bottomNavigationBar: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            height: 80,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: BottomNavigationBar(
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.transparent,
               elevation: 0,
               selectedItemColor: Colors.teal,
-              unselectedItemColor: Colors.teal,
+              unselectedItemColor: Colors.grey,
               currentIndex: 0,
               onTap: (index) {
-                if (index == 0) {
-                  // context.read<AccountBloc>().add(const LogoutEvent());
-                }
                 if (index == 1) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => FindProductScreen()),
                   );
                 }
-                if (index == 2) {
-                  // context.read<AccountBloc>().add(const LogoutEvent());
-                }
-                if (index == 3) {
-                  // context.read<AccountBloc>().add(const LogoutEvent());
-                }
-                if (index == 4) {
-                  // context.read<AccountBloc>().add(const LogoutEvent());
-                }
               },
               items: [
                 BottomNavigationBarItem(
-                  label: 'Trang chủ',
+                  label: '',
                   icon: Icon(Icons.home),
                 ),
                 BottomNavigationBarItem(
-                  label: 'Tìm kiếm',
+                  label: '',
                   icon: Icon(Icons.search),
                 ),
                 BottomNavigationBarItem(
-                  icon: Container(
-                    padding: EdgeInsets.all(10), // Khoảng cách bên trong
-                    decoration: BoxDecoration(
-                      color: Colors.black, // Màu nền tròn
-                      shape: BoxShape.circle, // Hình tròn
-                    ),
-                    child: Icon(
-                      Icons.shopping_cart_outlined,
-                      // Dùng Icons.star để giống vương miện (có thể thay đổi)
-                      color: Colors.white, // Màu biểu tượng
-                      size: 30, // Kích thước lớn hơn
-                    ),
-                  ),
-                  label: 'Giỏ hàng',
+                  label: '',
+                  icon: SizedBox(width: 40),
                 ),
                 BottomNavigationBarItem(
-                  label: 'Thông báo',
+                  label: '',
                   icon: Icon(Icons.notifications_none),
                 ),
                 BottomNavigationBarItem(
-                  label: 'Hóa đơn',
+                  label: '',
                   icon: Icon(Icons.receipt_long),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+          Positioned(
+            top: -20,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.teal.shade900,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 8,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.shopping_cart_outlined,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
