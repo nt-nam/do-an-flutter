@@ -1,3 +1,4 @@
+import 'package:do_an_flutter/presentation/pages/screens/CartScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
@@ -22,7 +23,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     FindProductScreen(),
-    const Placeholder(), // Thay bằng CartScreen khi có
+    const CartScreen(), // Thay bằng CartScreen khi có
     const Placeholder(), // Thay bằng NotificationScreen khi có
     const OrderScreen(),
   ];

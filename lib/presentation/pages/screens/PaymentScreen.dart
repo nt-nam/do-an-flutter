@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../blocs/cart/cart_event.dart';
 import '../../blocs/cart/cart_bloc.dart';
+import '../../blocs/cart/cart_event.dart';
 import '../../blocs/order/order_bloc.dart';
 import '../../blocs/order/order_event.dart';
 import '../../blocs/order/order_state.dart';
 import '../../../domain/entities/cart_detail.dart';
 
-class PaymentScreen extends StatelessWidget {
+class PaymentScreen extends StatefulWidget {
   final List<CartDetail> items;
   final int accountId;
   final String deliveryAddress;
@@ -18,6 +18,58 @@ class PaymentScreen extends StatelessWidget {
     required this.accountId,
     required this.deliveryAddress,
   });
+
+  @override
+  _PaymentScreenState createState() => _PaymentScreenState();
+}
+
+class _PaymentScreenState extends State<PaymentScreen> {
+  late List<CartDetail> _items;
+
+  @override
+  void initState() {
+    super.initState();
+    _items = widget.items.map((item) => CartDetail(
+      productId: item.productId,
+      quantity: item.quantity,
+      price: item.price,
+      productName: item.productName,
+      image: item.image,
+      cartId: item.cartId,
+    )).toList();
+  }
+
+  void _incrementQuantity(int index) {
+    setState(() {
+      _items[index] = CartDetail(
+        productId: _items[index].productId,
+        quantity: _items[index].quantity + 1,
+        price: _items[index].price,
+        productName: _items[index].productName,
+        image: _items[index].image,
+        cartId: _items[index].cartId,
+      );
+    });
+  }
+
+  void _decrementQuantity(int index) {
+    setState(() {
+      if (_items[index].quantity > 1) {
+        _items[index] = CartDetail(
+          productId: _items[index].productId,
+          quantity: _items[index].quantity - 1,
+          price: _items[index].price,
+          productName: _items[index].productName,
+          image: _items[index].image,
+          cartId: _items[index].cartId,
+        );
+      }
+    });
+  }
+
+  double _calculateTotalAmount() {
+    return _items.fold(0.0, (sum, item) => sum + (item.price ?? 0) * item.quantity);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +92,7 @@ class PaymentScreen extends StatelessWidget {
       body: BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
           if (state is OrderCreated) {
+            // Xóa giỏ hàng sau khi thanh toán
             context.read<CartBloc>().add(const ClearCartEvent());
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -84,9 +137,9 @@ class PaymentScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Expanded(
                   child: ListView.builder(
-                    itemCount: items.length,
+                    itemCount: _items.length,
                     itemBuilder: (context, index) {
-                      final item = items[index];
+                      final item = _items[index];
                       return ListTile(
                         leading: item.image != null && item.image!.isNotEmpty
                             ? Image.asset(
@@ -97,9 +150,21 @@ class PaymentScreen extends StatelessWidget {
                         )
                             : const Icon(Icons.image, size: 50),
                         title: Text(item.productName ?? 'Sản phẩm không tên'),
-                        subtitle: Text('Số lượng: ${item.quantity}'),
+                        subtitle: Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () => _decrementQuantity(index),
+                            ),
+                            Text('Số lượng: ${item.quantity}'),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () => _incrementQuantity(index),
+                            ),
+                          ],
+                        ),
                         trailing: Text(
-                          '${(item.price ?? 0).toStringAsFixed(0)} VNĐ',
+                          '${((item.price ?? 0) * item.quantity).toStringAsFixed(0)} VNĐ',
                           style: const TextStyle(
                             color: Colors.redAccent,
                             fontWeight: FontWeight.bold,
@@ -118,7 +183,7 @@ class PaymentScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '${items.fold(0.0, (sum, item) => sum + (item.price ?? 0) * item.quantity).toStringAsFixed(0)} VNĐ',
+                      '${_calculateTotalAmount().toStringAsFixed(0)} VNĐ',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -129,7 +194,7 @@ class PaymentScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Địa chỉ giao hàng: $deliveryAddress',
+                  'Địa chỉ giao hàng: ${widget.deliveryAddress}',
                   style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 24),
@@ -137,10 +202,10 @@ class PaymentScreen extends StatelessWidget {
                   onPressed: () {
                     context.read<OrderBloc>().add(
                       CreateOrderEvent(
-                        accountId,
-                        items,
-                        deliveryAddress,
-                        cartId: items.isNotEmpty ? items.first.cartId : null,
+                        widget.accountId,
+                        _items,
+                        widget.deliveryAddress,
+                        cartId: _items.isNotEmpty ? _items.first.cartId : null,
                       ),
                     );
                   },

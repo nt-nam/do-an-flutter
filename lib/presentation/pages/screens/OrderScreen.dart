@@ -59,7 +59,7 @@ class _OrderScreenState extends State<OrderScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'My Orders',
+          'Đơn hàng của tôi',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -96,7 +96,7 @@ class _OrderScreenState extends State<OrderScreen> {
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'No orders found',
+                      'Không có đơn hàng nào',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.grey,
@@ -126,7 +126,7 @@ class _OrderScreenState extends State<OrderScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Order ID: ${order.id ?? 'N/A'}', // Xử lý null
+                              'Mã đơn hàng: ${order.id ?? 'N/A'}',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -165,7 +165,7 @@ class _OrderScreenState extends State<OrderScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Total: ${order.totalAmount.toStringAsFixed(0)} VND',
+                              'Tổng tiền: ${order.totalAmount.toStringAsFixed(0)} VNĐ',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
@@ -183,7 +183,7 @@ class _OrderScreenState extends State<OrderScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Order Date: ${order.orderDate.toString().split(' ')[0]}',
+                              'Ngày đặt: ${order.orderDate.toString().split(' ')[0]}',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
@@ -202,10 +202,9 @@ class _OrderScreenState extends State<OrderScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Delivery Address: ${order.deliveryAddress ?? 'N/A'}', // Xử lý null
+                                'Địa chỉ giao: ${order.deliveryAddress ?? 'N/A'}',
                                 style: const TextStyle(
                                   fontSize: 16,
-                                  color: Colors.black87,
                                 ),
                               ),
                             ),
@@ -223,7 +222,7 @@ class _OrderScreenState extends State<OrderScreen> {
               builder: (context, accountState) {
                 if (accountState is AccountLoggedIn) {
                   return const Text(
-                    'Loading orders...',
+                    'Đang tải đơn hàng...',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.grey,
@@ -231,7 +230,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   );
                 }
                 return const Text(
-                  'Please log in to view orders',
+                  'Vui lòng đăng nhập để xem đơn hàng',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey,

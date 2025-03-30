@@ -4,12 +4,13 @@ import '../../../../domain/entities/cart_detail.dart';
 import '../../../../domain/entities/product.dart';
 import '../../../blocs/account/account_bloc.dart';
 import '../../../blocs/account/account_state.dart';
-import '../../../blocs/order/order_bloc.dart';
-import '../../../blocs/order/order_event.dart';
-import '../../../blocs/order/order_state.dart';
+import '../../../blocs/cart/cart_bloc.dart';
+import '../../../blocs/cart/cart_event.dart';
+import '../../../blocs/cart/cart_state.dart';
 import '../../../blocs/product/product_bloc.dart';
 import '../../../blocs/product/product_state.dart';
 import '../HomeScreen.dart';
+import '../PaymentScreen.dart';
 
 class DetailProductScreen extends StatelessWidget {
   const DetailProductScreen({super.key});
@@ -171,76 +172,63 @@ class DetailProductScreen extends StatelessWidget {
                   // Nút hành động
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: BlocConsumer<OrderBloc, OrderState>(
-                      listener: (context, orderState) {
-                        if (orderState is OrderCreated) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Đơn hàng đã được tạo thành công!'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        } else if (orderState is OrderError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Lỗi: ${orderState.message}')),
-                          );
-                        }
-                      },
-                      builder: (context, orderState) {
-                        final accountState = context.read<AccountBloc>().state;
-                        String deliveryAddress = '123 Main St'; // Giá trị mặc định
-                        if (accountState is AccountLoggedIn && accountState.user != null) {
-                          deliveryAddress = accountState.user!.diaChi ?? '123 Main St';
-                        }
-
-                        return ElevatedButton(
-                          onPressed: product.status == ProductStatus.inStock
-                              ? () {
-                            if (accountState is AccountLoggedIn) {
-                              final accountId = accountState.account.id;
-                              if (deliveryAddress.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Vui lòng cập nhật địa chỉ của bạn!'),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: product.status == ProductStatus.inStock
+                                ? () {
+                              final accountState = context.read<AccountBloc>().state;
+                              if (accountState is AccountLoggedIn) {
+                                final accountId = accountState.account.id;
+                                String deliveryAddress = '123 Main St';
+                                if (accountState.user != null) {
+                                  deliveryAddress = accountState.user!.diaChi ?? '123 Main St';
+                                }
+                                if (deliveryAddress.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Vui lòng cập nhật địa chỉ của bạn!'),
+                                    ),
+                                  );
+                                  return;
+                                }
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => PaymentScreen(
+                                      items: [
+                                        CartDetail(
+                                          productId: product.id,
+                                          quantity: 1,
+                                          price: product.price,
+                                          productName: product.name ?? '',
+                                          image: product.imageUrl ?? '',
+                                        ),
+                                      ],
+                                      accountId: accountId,
+                                      deliveryAddress: deliveryAddress,
+                                    ),
                                   ),
                                 );
-                                return;
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Vui lòng đăng nhập để đặt hàng!'),
+                                  ),
+                                );
                               }
-                              context.read<OrderBloc>().add(
-                                CreateOrderEvent(
-                                  accountId,
-                                  [
-                                    CartDetail(
-                                      productId: product.id,
-                                      quantity: 1,
-                                      price: product.price,
-                                      productName: product.name ?? '',
-                                      image: product.imageUrl ?? '',
-                                    ),
-                                  ],
-                                  deliveryAddress,
-                                  cartId: null,
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Vui lòng đăng nhập để đặt hàng!'),
-                                ),
-                              );
                             }
-                          }
-                              : null, // Vô hiệu hóa nếu hết hàng
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurple,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 4,
                             ),
-                            elevation: 4,
-                          ),
-                          child: const Center(
-                            child: Text(
+                            child: const Text(
                               'Đặt hàng ngay',
                               style: TextStyle(
                                 fontSize: 18,
@@ -249,8 +237,58 @@ class DetailProductScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(width: 16),
+                        BlocConsumer<CartBloc, CartState>(
+                          listener: (context, state) {
+                            if (state is CartItemAdded) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Đã thêm vào giỏ hàng!'),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
+                            } else if (state is CartError) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Lỗi: ${state.message}')),
+                              );
+                            }
+                          },
+                          builder: (context, state) {
+                            return IconButton(
+                              icon: const Icon(
+                                Icons.shopping_cart,
+                                color: Colors.deepPurple,
+                                size: 36,
+                              ),
+                              onPressed: product.status == ProductStatus.inStock
+                                  ? () {
+                                final accountState = context.read<AccountBloc>().state;
+                                if (accountState is AccountLoggedIn) {
+                                  final productState = context.read<ProductBloc>().state;
+                                  if (productState is ProductDetailsLoaded) {
+                                    final product = productState.product;
+                                    context.read<CartBloc>().add(
+                                      AddToCartEvent(
+                                        accountState.account.id,
+                                        product.id,
+                                        1,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Vui lòng đăng nhập để thêm vào giỏ hàng!'),
+                                    ),
+                                  );
+                                }
+                              }
+                                  : null,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),

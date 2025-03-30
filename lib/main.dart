@@ -1,3 +1,4 @@
+import 'package:do_an_flutter/presentation/blocs/cart/cart_bloc.dart';
 import 'package:do_an_flutter/presentation/pages/screens/MainScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,12 +18,17 @@ import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
 import 'package:do_an_flutter/presentation/pages/screens/auth/LoginScreen.dart';
 import 'package:do_an_flutter/domain/entities/settings.dart';
 import 'data/repositories/account_repository_impl.dart';
+import 'data/repositories/cart_repository_impl.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'data/repositories/order_repository_impl.dart';
 import 'data/repositories/product_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'data/services/api_service.dart';
 import 'data/services/auth_service.dart';
+import 'domain/usecases/cart/add_to_cart_usecase.dart';
+import 'domain/usecases/cart/get_cart_usecase.dart';
+import 'domain/usecases/cart/remove_from_cart_usecase.dart';
+import 'domain/usecases/cart/update_cart_quantity_usecase.dart';
 import 'domain/usecases/order/create_order_usecase.dart';
 import 'domain/usecases/order/get_order_details_usecase.dart';
 import 'domain/usecases/order/get_orders_usecase.dart';
@@ -78,7 +84,12 @@ class MyApp extends StatelessWidget {
     final createOrderUseCase = CreateOrderUseCase(orderRepository);
     final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
     final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
-
+    // Cart-related dependencies
+    final cartRepository = CartRepositoryImpl(apiService, authService);
+    final getCartUseCase = GetCartUseCase(cartRepository);
+    final addToCartUseCase = AddToCartUseCase(cartRepository,productRepository);
+    final removeFromCartUseCase = RemoveFromCartUseCase(cartRepository);
+    final updateCartQuantityUseCase = UpdateCartQuantityUseCase(cartRepository);
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -113,6 +124,14 @@ class MyApp extends StatelessWidget {
             createOrderUseCase: createOrderUseCase,
             updateOrderStatusUseCase: updateOrderStatusUseCase,
             getOrderDetailsUseCase: getOrderDetailsUseCase,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => CartBloc(
+            getCartUseCase: getCartUseCase,
+            addToCartUseCase: addToCartUseCase,
+            removeFromCartUseCase: removeFromCartUseCase,
+            updateCartQuantityUseCase: updateCartQuantityUseCase,
           ),
         ),
         BlocProvider(
