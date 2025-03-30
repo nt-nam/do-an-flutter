@@ -13,15 +13,17 @@ class UpdateProductUseCase {
     required int categoryId,
     required double price,
     required int stock,
+    String? imageUrl, // Thêm tham số imageUrl
+    String? description, // Thêm tham số description
   }) async {
     try {
       final productModel = ProductModel(
         maSP: productId,
         tenSP: name,
-        moTa: null, // Giữ nguyên hoặc thêm tham số nếu cần
+        moTa: description,
         gia: price,
         maLoai: categoryId,
-        hinhAnh: null, // Giữ nguyên hoặc thêm tham số nếu cần
+        hinhAnh: imageUrl, // Sử dụng imageUrl
         trangThai: stock > 0 ? 'Còn hàng' : 'Hết hàng',
         soLuongTon: stock,
       );

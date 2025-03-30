@@ -17,6 +17,9 @@ class GetProductByIdUsecase {
             ? ProductStatus.inStock
             : ProductStatus.outOfStock,
         stock: modelProduct.soLuongTon,
+        description: modelProduct.moTa, // Thêm description
+        categoryId: modelProduct.maLoai, // Thêm categoryId
+        imageUrl: modelProduct.hinhAnh, // Thêm imageUrl
       );
     } catch (e) {
       throw Exception('Failed to get product by id: $e');
