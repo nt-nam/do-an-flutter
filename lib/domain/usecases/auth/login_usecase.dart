@@ -28,7 +28,6 @@ class LoginUseCase {
       try {
         user = await userRepository.getUserByAccountId(account.id); // Dùng maTK thay vì userId
       } catch (e) {
-        // Nếu không tìm thấy nguoidung tương ứng, user sẽ là null
         user = null;
       }
 
