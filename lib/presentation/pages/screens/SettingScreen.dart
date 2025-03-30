@@ -1,169 +1,121 @@
+// lib/presentation/pages/screens/settings/SettingsScreen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:do_an_flutter/presentation/blocs/settings/settings_bloc.dart';
+import 'package:do_an_flutter/presentation/blocs/settings/settings_event.dart';
+import 'package:do_an_flutter/presentation/blocs/settings/settings_state.dart';
+import 'package:do_an_flutter/domain/entities/settings.dart';
 
-import '../../blocs/account/account_bloc.dart';
-import '../../blocs/account/account_event.dart';
-import 'auth/LoginScreen.dart'; // Giả sử đường dẫn đúng
-
-class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Menu',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.teal,
+    return BlocProvider(
+      create: (context) => SettingsBloc(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text(
+            'Cài đặt',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
+            ),
+          ),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.teal),
+            onPressed: () => Navigator.pop(context),
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.teal),
-          onPressed: () => Navigator.pop(context), // Quay lại HomeScreen
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildMenuItem(
-              context,
-              icon: Icons.person_outline,
-              title: 'Hồ sơ',
-              onTap: () {
-                // TODO: Chuyển sang trang Hồ sơ
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.message_outlined,
-              title: 'Tin nhắn',
-              hasNotification: false, // Box báo hiệu mặc định ẩn
-              onTap: () {
-                // TODO: Chuyển sang trang Tin nhắn
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.local_shipping_outlined,
-              title: 'Đang giao',
-              onTap: () {
-                // TODO: Chuyển sang trang Đang giao
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.check_circle_outline,
-              title: 'Đã giao',
-              onTap: () {
-                // TODO: Chuyển sang trang Đã giao
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.local_offer_outlined,
-              title: 'Ưu đãi',
-              onTap: () {
-                // TODO: Chuyển sang trang Ưu đãi
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.star_outline,
-              title: 'Đánh giá',
-              onTap: () {
-                // TODO: Chuyển sang trang Đánh giá
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.settings_outlined,
-              title: 'Cài đặt',
-              onTap: () {
-                // TODO: Chuyển sang trang Cài đặt
-              },
-            ),
-            _buildMenuItem(
-              context,
-              icon: Icons.logout,
-              title: 'Đăng xuất',
-              onTap: () {
-                _showLogoutConfirmationDialog(context);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        bool hasNotification = false, // Mặc định không có báo hiệu
-        required VoidCallback onTap,
-      }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: ListTile(
-        leading: Icon(icon, color: Colors.teal, size: 28),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: BlocBuilder<SettingsBloc, SettingsState>(
+            builder: (context, state) {
+              final settings = state.settings;
+              return ListView(
+                children: [
+                  // Chế độ sáng/tối
+                  ListTile(
+                    leading: const Icon(Icons.brightness_6, color: Colors.teal),
+                    title: const Text('Chế độ sáng/tối'),
+                    trailing: Switch(
+                      value: settings.themeMode == ThemeModeOption.dark,
+                      onChanged: (value) {
+                        context.read<SettingsBloc>().add(ToggleThemeMode(value));
+                        // TODO: Áp dụng chế độ sáng/tối cho toàn ứng dụng
+                      },
+                      activeColor: Colors.teal,
+                    ),
+                  ),
+                  // Màu sắc
+                  ListTile(
+                    leading: const Icon(Icons.color_lens, color: Colors.teal),
+                    title: const Text('Màu sắc chủ đạo'),
+                    trailing: DropdownButton<ThemeColor>(
+                      value: settings.themeColor,
+                      onChanged: (ThemeColor? newValue) {
+                        if (newValue != null) {
+                          context.read<SettingsBloc>().add(ChangeThemeColor(newValue));
+                          // TODO: Áp dụng màu sắc cho toàn ứng dụng
+                        }
+                      },
+                      items: ThemeColor.values.map((ThemeColor color) {
+                        return DropdownMenuItem<ThemeColor>(
+                          value: color,
+                          child: Text(
+                            color.toString().split('.').last,
+                            style: const TextStyle(color: Colors.teal),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  // Ngôn ngữ
+                  ListTile(
+                    leading: const Icon(Icons.language, color: Colors.teal),
+                    title: const Text('Ngôn ngữ'),
+                    trailing: DropdownButton<Language>(
+                      value: settings.language,
+                      onChanged: (Language? newValue) {
+                        if (newValue != null) {
+                          context.read<SettingsBloc>().add(ChangeLanguage(newValue));
+                          // TODO: Áp dụng ngôn ngữ cho toàn ứng dụng
+                        }
+                      },
+                      items: Language.values.map((Language lang) {
+                        return DropdownMenuItem<Language>(
+                          value: lang,
+                          child: Text(
+                            lang == Language.vietnamese ? 'Tiếng Việt' : 'Tiếng Anh',
+                            style: const TextStyle(color: Colors.teal),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  // Âm thanh
+                  ListTile(
+                    leading: const Icon(Icons.volume_up, color: Colors.teal),
+                    title: const Text('Âm thanh'),
+                    trailing: Switch(
+                      value: settings.soundEnabled,
+                      onChanged: (value) {
+                        context.read<SettingsBloc>().add(ToggleSound(value));
+                        // TODO: Bật/tắt âm thanh cho ứng dụng
+                      },
+                      activeColor: Colors.teal,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
-        trailing: hasNotification
-            ? Container(
-          width: 10,
-          height: 10,
-          decoration: const BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
-          ),
-        )
-            : null,
-        onTap: onTap,
       ),
-    );
-  }
-
-  void _showLogoutConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Xác nhận đăng xuất'),
-          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Hủy'),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<AccountBloc>().add(const LogoutEvent());
-                Navigator.of(context).pop(); // Đóng dialog
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                      (route) => false, // Xóa hết stack để không quay lại
-                );
-              },
-              child: const Text('Đăng xuất'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

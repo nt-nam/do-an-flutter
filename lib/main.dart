@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Thêm import này
 import 'package:do_an_flutter/domain/usecases/category/add_category_usecase.dart';
 import 'package:do_an_flutter/domain/usecases/category/delete_category_usecase.dart';
 import 'package:do_an_flutter/domain/usecases/category/update_category_usecase.dart';
@@ -7,10 +10,11 @@ import 'package:do_an_flutter/presentation/blocs/category/category_bloc.dart';
 import 'package:do_an_flutter/presentation/blocs/category/category_event.dart';
 import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
 import 'package:do_an_flutter/presentation/blocs/product/product_event.dart';
+import 'package:do_an_flutter/presentation/blocs/settings/settings_bloc.dart';
+import 'package:do_an_flutter/presentation/blocs/settings/settings_state.dart';
 import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
 import 'package:do_an_flutter/presentation/pages/screens/auth/LoginScreen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:do_an_flutter/domain/entities/settings.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/category_repository_impl.dart';
 import 'data/repositories/product_repository_impl.dart';
@@ -67,8 +71,7 @@ void main() {
             addCategoryUseCase,
             updateCategoryUseCase,
             deleteCategoryUseCase,
-          )..add(
-              const FetchCategoriesEvent()), // Tự động fetch categories khi khởi tạo
+          )..add(const FetchCategoriesEvent()),
         ),
         BlocProvider(
           create: (context) => ProductBloc(
@@ -77,7 +80,10 @@ void main() {
             updateProductUseCase: updateProductsUseCase,
             deleteProductUseCase: deleteProductsUseCase,
             getProductByIdUsecase: getProductsByIdUseCase,
-          )..add(const FetchProductsEvent()),
+          ),
+        ),
+        BlocProvider(
+          create: (context) => SettingsBloc(),
         ),
       ],
       child: const MyApp(),
@@ -90,18 +96,54 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BlocBuilder<AccountBloc, AccountState>(
-        builder: (context, state) {
-          // Nếu trạng thái là đăng nhập thành công, chuyển sang HomeScreen
-          if (state is AccountLoggedIn) {
-            return HomeScreen();
-          }
-          // Mặc định hiển thị LoginScreen
-          return LoginScreen();
-        },
-      ),
+    return BlocBuilder<SettingsBloc, SettingsState>(
+      builder: (context, settingsState) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primarySwatch: _getMaterialColor(settingsState.settings.themeColor),
+            brightness: Brightness.light,
+          ),
+          darkTheme: ThemeData(
+            primarySwatch: _getMaterialColor(settingsState.settings.themeColor),
+            brightness: Brightness.dark,
+          ),
+          themeMode: settingsState.settings.themeMode == ThemeModeOption.light
+              ? ThemeMode.light
+              : ThemeMode.dark,
+          locale: settingsState.settings.language == Language.vietnamese
+              ? const Locale('vi', 'VN')
+              : const Locale('en', 'US'),
+          supportedLocales: const [
+            Locale('vi', 'VN'),
+            Locale('en', 'US'),
+          ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          home: BlocBuilder<AccountBloc, AccountState>(
+            builder: (context, accountState) {
+              if (accountState is AccountLoggedIn) {
+                return HomeScreen();
+              }
+              return LoginScreen();
+            },
+          ),
+        );
+      },
     );
+  }
+
+  MaterialColor _getMaterialColor(ThemeColor color) {
+    switch (color) {
+      case ThemeColor.teal:
+        return Colors.teal;
+      case ThemeColor.blue:
+        return Colors.blue;
+      case ThemeColor.red:
+        return Colors.red;
+    }
   }
 }

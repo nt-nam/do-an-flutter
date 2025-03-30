@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
+import 'SettingScreen.dart';
 import 'auth/LoginScreen.dart'; // Giả sử đường dẫn đúng
 
 class MenuScreen extends StatelessWidget {
@@ -84,7 +85,10 @@ class MenuScreen extends StatelessWidget {
               icon: Icons.settings_outlined,
               title: 'Cài đặt',
               onTap: () {
-                // TODO: Chuyển sang trang Cài đặt
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                );
               },
             ),
             _buildMenuItem(
