@@ -1,9 +1,9 @@
 class OrderDetail {
-  final int id; // Thêm khóa chính riêng
-  final int orderId;
-  final int productId;
-  final int quantity;
-  final double priceAtPurchase;
+  final int? id; // Cho phép null
+  final int? orderId; // Cho phép null
+  final int? productId; // Cho phép null
+  final int? quantity; // Cho phép null
+  final double? priceAtPurchase; // Cho phép null
 
   OrderDetail({
     required this.id,
