@@ -35,6 +35,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       final products = await getProductsUseCase(
         categoryId: event.categoryId,
         onlyAvailable: event.onlyAvailable,
+        searchQuery: event.searchQuery,
       );
       emit(ProductLoaded(products));
     } catch (e) {

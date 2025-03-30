@@ -5,8 +5,9 @@ abstract class ProductEvent {
 class FetchProductsEvent extends ProductEvent {
   final int? categoryId;
   final bool onlyAvailable;
+  final String? searchQuery;
 
-  const FetchProductsEvent({this.categoryId, this.onlyAvailable = false});
+  const FetchProductsEvent({this.categoryId, this.onlyAvailable = false,this.searchQuery,});
 }
 
 class FetchProductDetailsEvent extends ProductEvent {

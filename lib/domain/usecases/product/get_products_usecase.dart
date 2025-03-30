@@ -12,16 +12,26 @@ class GetProductsUseCase {
     int limit = 10,
     int? categoryId,
     String? searchQuery,
-    bool onlyAvailable = false, // Thêm để lọc sản phẩm còn hàng
+    bool onlyAvailable = false,
   }) async {
     try {
       final productModels = categoryId != null
           ? await repository.getProductsByCategory(categoryId)
           : await repository.getProducts();
-      return productModels
+      var filteredProducts = productModels
           .where((model) => !onlyAvailable || model.trangThai == 'Còn hàng')
           .map(_mapToEntity)
           .toList();
+
+      // Lọc theo searchQuery nếu có
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        filteredProducts = filteredProducts
+            .where((product) =>
+            product.name.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+      }
+
+      return filteredProducts;
     } catch (e) {
       throw Exception('Failed to get products: $e');
     }
