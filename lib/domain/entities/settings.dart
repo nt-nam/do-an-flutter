@@ -1,20 +1,6 @@
-// lib/domain/entities/settings.dart
-
-enum ThemeModeOption {
-  light,
-  dark,
-}
-
-enum ThemeColor {
-  teal,
-  blue,
-  red,
-}
-
-enum Language {
-  vietnamese,
-  english,
-}
+enum ThemeModeOption { light, dark }
+enum ThemeColor { teal, blue, red }
+enum Language { vietnamese, english }
 
 class Settings {
   final ThemeModeOption themeMode;
@@ -29,7 +15,6 @@ class Settings {
     required this.soundEnabled,
   });
 
-  // Tạo bản sao với các giá trị mới
   Settings copyWith({
     ThemeModeOption? themeMode,
     ThemeColor? themeColor,

@@ -9,10 +9,10 @@ import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import '../../blocs/category/category_bloc.dart';
 import '../../blocs/category/category_state.dart';
-import '../../blocs/product/product_bloc.dart';
 import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
 import '../../widgets/CategoryButton.dart';
+import '../../widgets/CustomBottomNavigation.dart';
 import '../../widgets/FeaturedCard.dart';
 import '../../widgets/ProductCard.dart';
 import '../../widgets/RecipeCard.dart';
@@ -286,105 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
-      bottomNavigationBar: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            height: 80,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: BottomNavigationBar(
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              selectedItemColor: Colors.teal,
-              unselectedItemColor: Colors.grey,
-              currentIndex: 0,
-              onTap: (index) {
-                if (index == 1) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FindProductScreen()),
-                  );
-                }
-                if (index == 2) {
-                  // context.read<AccountBloc>().add(const LogoutEvent());
-                }
-                if (index == 3) {
-                  // context.read<AccountBloc>().add(const LogoutEvent());
-                }
-                if (index == 4) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>OrderScreen()),
-                  );
-                }
-              },
-              items: [
-                BottomNavigationBarItem(
-                  label: '',
-                  icon: Icon(Icons.home),
-                ),
-                BottomNavigationBarItem(
-                  label: '',
-                  icon: Icon(Icons.search),
-                ),
-                BottomNavigationBarItem(
-                  label: '',
-                  icon: SizedBox(width: 40),
-                ),
-                BottomNavigationBarItem(
-                  label: '',
-                  icon: Icon(Icons.notifications_none),
-                ),
-                BottomNavigationBarItem(
-                  label: '',
-                  icon: Icon(Icons.receipt_long),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: -20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.teal.shade900,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 8,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.shopping_cart_outlined,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+
     );
   }
 }
