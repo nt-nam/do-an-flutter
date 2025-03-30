@@ -6,23 +6,23 @@ enum OrderStatus {
 }
 
 class Order {
-  final int id;
-  final int? accountId;
-  final int? cartId; // Liên kết với Cart
+  final int? id; // Cho phép null
+  final int? accountId; // Cho phép null
+  final int? cartId;
   final DateTime orderDate;
   final double totalAmount;
-  final OrderStatus status; // 'Chờ xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'
-  final String deliveryAddress;
+  final OrderStatus status;
+  final String? deliveryAddress;
   final int? offerId;
 
   Order({
     required this.id,
-    this.accountId,
+    required this.accountId,
     this.cartId,
     required this.orderDate,
     required this.totalAmount,
     required this.status,
-    required this.deliveryAddress,
+    this.deliveryAddress,
     this.offerId,
   });
 }

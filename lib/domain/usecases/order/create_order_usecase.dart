@@ -18,11 +18,11 @@ class CreateOrderUseCase {
       }) async {
     try {
       final orderModel = model.OrderModel(
-        maDH: 0, // API sẽ sinh
+        maDH: 0,
         maTK: accountId,
         maGH: cartId,
         ngayDat: DateTime.now(),
-        tongTien: items.fold(0, (sum, item) => sum + item.quantity * 10000), // Giả định giá tạm
+        tongTien: items.fold(0, (sum, item) => sum + (item.price ?? 0) * item.quantity),
         trangThai: model.OrderStatus.pending,
         diaChiGiao: deliveryAddress,
         maUD: offerId,
@@ -32,11 +32,11 @@ class CreateOrderUseCase {
       // Tạo chi tiết đơn hàng
       for (var item in items) {
         final detailModel = OrderDetailModel(
-          maCTDH: 0, // API sẽ sinh
-          maDH: createdOrder.maDH,
+          maCTDH: 0,
+          maDH: createdOrder.maDH ?? 0, // Xử lý null
           maSP: item.productId,
           soLuong: item.quantity,
-          giaLucMua: 10000, // Giả định giá, cần lấy từ sản phẩm thực tế
+          giaLucMua: item.price ?? 10000,
         );
         await orderRepository.createOrderDetail(detailModel);
       }

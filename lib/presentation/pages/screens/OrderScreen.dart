@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/cart_detail.dart';
-import '../../../domain/entities/order.dart'; // Import OrderStatus từ đây
+import '../../../domain/entities/order.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import '../../blocs/order/order_bloc.dart';
@@ -19,7 +19,6 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   void initState() {
     super.initState();
-    // Tự động load đơn hàng khi vào màn hình
     final accountState = context.read<AccountBloc>().state;
     if (accountState is AccountLoggedIn) {
       final accountId = accountState.account.id;
@@ -27,7 +26,6 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-  // Hàm để chuyển đổi OrderStatus sang tiếng Việt
   String getStatusText(OrderStatus status) {
     switch (status) {
       case OrderStatus.delivered:
@@ -39,10 +37,9 @@ class _OrderScreenState extends State<OrderScreen> {
       case OrderStatus.cancelled:
         return 'Đã hủy';
     }
-    return 'Không xác định'; // Giá trị mặc định để tránh lỗi null
+    return 'Không xác định';
   }
 
-  // Hàm để lấy màu sắc dựa trên trạng thái
   Color getStatusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.delivered:
@@ -54,7 +51,7 @@ class _OrderScreenState extends State<OrderScreen> {
       case OrderStatus.cancelled:
         return Colors.red;
     }
-    return Colors.grey; // Màu mặc định
+    return Colors.grey;
   }
 
   @override
@@ -129,7 +126,7 @@ class _OrderScreenState extends State<OrderScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Order ID: ${order.id}',
+                              'Order ID: ${order.id ?? 'N/A'}', // Xử lý null
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -168,7 +165,7 @@ class _OrderScreenState extends State<OrderScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Total: ${order.totalAmount} VND',
+                              'Total: ${order.totalAmount.toStringAsFixed(0)} VND',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black87,
@@ -205,7 +202,7 @@ class _OrderScreenState extends State<OrderScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'Delivery Address: ${order.deliveryAddress}',
+                                'Delivery Address: ${order.deliveryAddress ?? 'N/A'}', // Xử lý null
                                 style: const TextStyle(
                                   fontSize: 16,
                                   color: Colors.black87,
