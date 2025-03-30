@@ -11,7 +11,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   final AddToCartUseCase addToCartUseCase;
   final RemoveFromCartUseCase removeFromCartUseCase;
   final UpdateCartQuantityUseCase updateCartQuantityUseCase;
-  int? _accountId; // Lưu trữ accountId
+  int? _accountId;
 
   CartBloc({
     required this.getCartUseCase,
@@ -23,13 +23,14 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     on<AddToCartEvent>(_onAddToCart);
     on<RemoveFromCartEvent>(_onRemoveFromCart);
     on<UpdateCartQuantityEvent>(_onUpdateCartQuantity);
+    on<ClearCartEvent>(_onClearCart);
   }
 
   Future<void> _onFetchCart(FetchCartEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
       final (cart, cartDetails) = await getCartUseCase(event.accountId);
-      _accountId = cart.accountId; // Lưu accountId khi lấy giỏ hàng
+      _accountId = cart.accountId;
       emit(CartLoaded(cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
@@ -41,7 +42,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     try {
       final cartDetail = await addToCartUseCase(event.accountId, event.productId, event.quantity);
       emit(CartItemAdded(cartDetail));
-      _accountId ??= event.accountId; // Lưu accountId nếu chưa có
+      _accountId ??= event.accountId;
       final (_, cartDetails) = await getCartUseCase(_accountId!);
       emit(CartLoaded(cartDetails));
     } catch (e) {
@@ -74,6 +75,23 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       }
     } catch (e) {
       emit(CartError(e.toString()));
+    }
+  }
+
+  Future<void> _onClearCart(ClearCartEvent event, Emitter<CartState> emit) async {
+    emit(const CartLoading());
+    try {
+      if (_accountId != null) {
+        final (_, cartDetails) = await getCartUseCase(_accountId!);
+        for (var detail in cartDetails) {
+          await removeFromCartUseCase(detail.cartId!, detail.productId);
+        }
+        emit(CartLoaded([])); // Sau khi xóa, giỏ hàng sẽ rỗng
+      } else {
+        emit(const CartLoaded([]));
+      }
+    } catch (e) {
+      emit(CartError('Failed to clear cart: $e'));
     }
   }
 }

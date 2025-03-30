@@ -30,3 +30,7 @@ class UpdateCartQuantityEvent extends CartEvent {
 
   const UpdateCartQuantityEvent(this.cartId, this.productId, this.newQuantity);
 }
+
+class ClearCartEvent extends CartEvent {
+  const ClearCartEvent();
+}
