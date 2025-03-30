@@ -14,6 +14,10 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<OrderModel>> getOrders() async {
     final token = await authService.getToken();
     final data = await apiService.get('donhang', token: token);
+    // Kiểm tra nếu data là Map và lấy danh sách từ key "data"
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return (data['data'] as List).map((json) => OrderModel.fromJson(json)).toList();
+    }
     return (data as List).map((json) => OrderModel.fromJson(json)).toList();
   }
 
@@ -35,6 +39,10 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<OrderModel>> getOrdersByAccount(int accountId) async {
     final token = await authService.getToken();
     final data = await apiService.get('donhang?MaTK=$accountId', token: token);
+    // Kiểm tra nếu data là Map và lấy danh sách từ key "data"
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return (data['data'] as List).map((json) => OrderModel.fromJson(json)).toList();
+    }
     return (data as List).map((json) => OrderModel.fromJson(json)).toList();
   }
 
@@ -42,6 +50,10 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<OrderDetailModel>> getOrderDetails(int orderId) async {
     final token = await authService.getToken();
     final data = await apiService.get('chitietdonhang?MaDH=$orderId', token: token);
+    // Kiểm tra nếu data là Map và lấy danh sách từ key "data"
+    if (data is Map<String, dynamic> && data.containsKey('data')) {
+      return (data['data'] as List).map((json) => OrderDetailModel.fromJson(json)).toList();
+    }
     return (data as List).map((json) => OrderDetailModel.fromJson(json)).toList();
   }
 
@@ -54,7 +66,8 @@ class OrderRepositoryImpl implements OrderRepository {
 
   @override
   Future<OrderModel> getOrderById(int orderId) async {
-    final response = await apiService.get('/orders/$orderId');
-    return OrderModel.fromJson(response);
+    final token = await authService.getToken();
+    final data = await apiService.get('donhang/$orderId', token: token);
+    return OrderModel.fromJson(data);
   }
 }

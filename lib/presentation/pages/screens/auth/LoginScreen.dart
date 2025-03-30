@@ -115,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             LoginEvent(
                               // emailController.text,
                               // passwordController.text,
-                              "phihung@gmail.com",
-                              "123",
+                              "1@x.x",
+                              "1",
                             ),
                           );
                         },

@@ -26,28 +26,46 @@ import 'domain/usecases/auth/get_user_usecase.dart';
 import 'domain/usecases/auth/login_usecase.dart';
 import 'domain/usecases/auth/register_use_case.dart';
 import 'domain/usecases/product/update_product_usecase.dart';
+import 'data/repositories/order_repository_impl.dart'; // Thêm repository cho Order
+import 'domain/usecases/order/create_order_usecase.dart'; // Thêm usecase cho Order
+import 'domain/usecases/order/get_orders_usecase.dart';
+import 'domain/usecases/order/update_order_status_usecase.dart';
+import 'domain/usecases/order/get_order_details_usecase.dart';
+import 'presentation/blocs/order/order_bloc.dart'; // Thêm OrderBloc
+import 'presentation/blocs/order/order_event.dart'; // Thêm OrderEvent
 
 void main() {
   final apiService = ApiService();
   final authService = AuthService();
+
+  // Account-related dependencies
   final accountRepository = AccountRepositoryImpl(apiService, authService);
   final userRepository = UserRepositoryImpl(apiService, authService);
   final loginUseCase = LoginUseCase(authService, userRepository);
   final registerUseCase = RegisterUseCase(authService);
   final getUserProfileUseCase = GetUserProfileUseCase(userRepository);
 
+  // Category-related dependencies
   final categoryRepository = CategoryRepositoryImpl(apiService, authService);
   final getCategoriesUseCase = GetCategoriesUseCase(categoryRepository);
   final addCategoryUseCase = AddCategoryUseCase(categoryRepository);
   final updateCategoryUseCase = UpdateCategoryUseCase(categoryRepository);
   final deleteCategoryUseCase = DeleteCategoryUseCase(categoryRepository);
 
+  // Product-related dependencies
   final productRepository = ProductRepositoryImpl(apiService, authService);
   final getProductsUseCase = GetProductsUseCase(productRepository);
   final getProductsByIdUseCase = GetProductByIdUsecase(productRepository);
   final addProductsUseCase = AddProductUseCase(productRepository);
   final updateProductsUseCase = UpdateProductUseCase(productRepository);
   final deleteProductsUseCase = DeleteProductUseCase(productRepository);
+
+  // Order-related dependencies
+  final orderRepository = OrderRepositoryImpl(apiService, authService);
+  final getOrdersUseCase = GetOrdersUseCase(orderRepository);
+  final createOrderUseCase = CreateOrderUseCase(orderRepository);
+  final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
+  final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
 
   runApp(
     MultiBlocProvider(
@@ -67,8 +85,7 @@ void main() {
             addCategoryUseCase,
             updateCategoryUseCase,
             deleteCategoryUseCase,
-          )..add(
-              const FetchCategoriesEvent()), // Tự động fetch categories khi khởi tạo
+          )..add(const FetchCategoriesEvent()),
         ),
         BlocProvider(
           create: (context) => ProductBloc(
@@ -78,6 +95,14 @@ void main() {
             deleteProductUseCase: deleteProductsUseCase,
             getProductByIdUsecase: getProductsByIdUseCase,
           )..add(const FetchProductsEvent()),
+        ),
+        BlocProvider(
+          create: (context) => OrderBloc(
+            getOrdersUseCase: getOrdersUseCase,
+            createOrderUseCase: createOrderUseCase,
+            updateOrderStatusUseCase: updateOrderStatusUseCase,
+            getOrderDetailsUseCase: getOrderDetailsUseCase,
+          ),
         ),
       ],
       child: const MyApp(),
@@ -94,11 +119,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
-          // Nếu trạng thái là đăng nhập thành công, chuyển sang HomeScreen
           if (state is AccountLoggedIn) {
             return HomeScreen();
           }
-          // Mặc định hiển thị LoginScreen
           return LoginScreen();
         },
       ),
