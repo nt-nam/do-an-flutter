@@ -1,6 +1,6 @@
 import '../../entities/account.dart';
 import '../../../data/models/account_model.dart';
-import '../../../data/models/user_model.dart';
+import '../../../data/models/user_model.dart'; // Thêm import
 import '../../../data/services/auth_service.dart';
 import '../../repositories/user_repository.dart';
 
@@ -23,9 +23,10 @@ class LoginUseCase {
       final accountModel = AccountModel.fromJson(userData);
       final account = _mapToEntity(accountModel);
 
+      // Lấy UserModel dựa trên maTK (account.id)
       UserModel? user;
       try {
-        user = await userRepository.getUserByAccountId(account.id);
+        user = await userRepository.getUserByAccountId(account.id); // Dùng maTK thay vì userId
       } catch (e) {
         user = null;
       }
@@ -35,16 +36,6 @@ class LoginUseCase {
       throw Exception('Login failed: $e');
     }
   }
-
-  // Future<(String, Account, UserModel?)> checkLoginStatus(String token) async {
-  //   try {
-  //     final account = await authService.validateToken(token);
-  //     final user = await userRepository.getUserProfile(token);
-  //     return (token, account, user);
-  //   } catch (e) {
-  //     throw Exception('Token validation failed: $e');
-  //   }
-  // }
 
   Account _mapToEntity(AccountModel model) {
     return Account(

@@ -12,17 +12,15 @@ class AddProductUseCase {
     required int categoryId,
     required double price,
     required int stock,
-    String? imageUrl, // Thêm tham số imageUrl
-    String? description, // Thêm tham số description
   }) async {
     try {
       final productModel = ProductModel(
         maSP: 0, // API sẽ sinh
         tenSP: name,
-        moTa: description,
+        moTa: null,
         gia: price,
         maLoai: categoryId,
-        hinhAnh: imageUrl, // Sử dụng imageUrl
+        hinhAnh: null,
         trangThai: stock > 0 ? 'Còn hàng' : 'Hết hàng',
         soLuongTon: stock,
       );

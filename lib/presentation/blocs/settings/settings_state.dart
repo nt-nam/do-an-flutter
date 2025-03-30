@@ -1,11 +1,9 @@
-import 'package:equatable/equatable.dart';
-import '../../../../domain/entities/settings.dart';
+// lib/presentation/blocs/settings/settings_state.dart
 
-class SettingsState extends Equatable {
+import 'package:do_an_flutter/domain/entities/settings.dart';
+
+class SettingsState {
   final Settings settings;
 
   const SettingsState(this.settings);
-
-  @override
-  List<Object?> get props => [settings];
 }

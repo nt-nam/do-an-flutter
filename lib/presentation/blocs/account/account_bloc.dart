@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../data/models/account_model.dart';
-import '../../../data/models/user_model.dart';
 import '../../../data/services/auth_service.dart';
 import '../../../domain/entities/account.dart';
 import '../../../domain/repositories/account_repository.dart';
@@ -25,24 +24,18 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       this.accountRepository,
       this.authService,
       ) : super(const AccountInitial()) {
-    // Đăng ký các sự kiện
     on<LoginEvent>(_onLogin);
     on<RegisterEvent>(_onRegister);
     on<FetchAccountProfileEvent>(_onFetchAccountProfile);
     on<UpdateAccountEvent>(_onUpdateAccount);
     on<LogoutEvent>(_onLogout);
-
-    // Kiểm tra trạng thái đăng nhập khi khởi tạo
-    // _checkLoginStatus();
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
       final (token, account, user) = await loginUseCase(event.email, event.password);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('authToken', token);
-      emit(AccountLoggedIn(token, account, user));
+      emit(AccountLoggedIn(token, account, user ));
       print('Login success: token=$token, account=$account, user=$user');
     } catch (e) {
       emit(AccountError(e.toString()));
@@ -62,12 +55,13 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   Future<void> _onFetchAccountProfile(FetchAccountProfileEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
+      // final user = await getUserProfileUseCase(event.accountId);
       final accountModel = await accountRepository.getAccountById(event.accountId);
       final account = Account(
         id: accountModel.maTK,
-        email: accountModel.email,
-        password: '',
-        role: accountModel.vaiTro,
+        email: accountModel.email, // Đã đảm bảo không null
+        password: '', // Không cần trả mật khẩu
+        role: accountModel.vaiTro, // Đã đảm bảo không null
         isActive: accountModel.trangThai,
       );
       emit(AccountProfileLoaded(account));
@@ -81,17 +75,17 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     try {
       final accountModel = AccountModel(
         maTK: event.accountId,
-        email: event.email,
-        matKhau: '',
-        vaiTro: event.role,
+        email: event.email ?? '', // Đảm bảo không null
+        matKhau: '', // Giả định không cập nhật mật khẩu ở đây
+        vaiTro: event.role ?? 'Khách hàng', // Đảm bảo không null
         trangThai: event.isActive,
       );
       final updatedAccountModel = await accountRepository.updateAccount(accountModel);
       final updatedAccount = Account(
         id: updatedAccountModel.maTK,
-        email: updatedAccountModel.email,
+        email: updatedAccountModel.email, // Đã đảm bảo không null
         password: '',
-        role: updatedAccountModel.vaiTro,
+        role: updatedAccountModel.vaiTro, // Đã đảm bảo không null
         isActive: updatedAccountModel.trangThai,
       );
       emit(AccountUpdated(updatedAccount));
@@ -104,26 +98,9 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     emit(const AccountLoading());
     try {
       await authService.logout();
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('authToken'); // Xóa token khi đăng xuất
       emit(const AccountLoggedOut());
     } catch (e) {
       emit(AccountError(e.toString()));
     }
   }
-
-  // Future<void> _checkLoginStatus() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final token = prefs.getString('authToken');
-  //   if (token != null) {
-  //     try {
-  //       final (token, account, user) = await loginUseCase.checkLoginStatus(token);
-  //       emit(AccountLoggedIn(token, account, user));
-  //     } catch (e) {
-  //       emit(AccountError(e.toString()));
-  //     }
-  //   } else {
-  //     emit(const AccountInitial());
-  //   }
-  // }
 }
