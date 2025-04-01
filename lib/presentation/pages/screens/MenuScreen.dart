@@ -1,3 +1,4 @@
+import 'package:do_an_flutter/presentation/pages/screens/product/AddProductScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
@@ -78,6 +79,18 @@ class MenuScreen extends StatelessWidget {
               title: 'Đánh giá',
               onTap: () {
                 // TODO: Chuyển sang trang Đánh giá
+              },
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.star_outline,
+              title: 'Thêm sản phẩm',
+              onTap: () {
+                // TODO: Chuyển sang trang Thêm sản phẩm
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                );
               },
             ),
             _buildMenuItem(

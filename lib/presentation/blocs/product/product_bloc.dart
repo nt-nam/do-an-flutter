@@ -63,6 +63,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         categoryId: event.categoryId,
         price: event.price,
         stock: event.stock,
+        imageUrl: event.imageUrl, // Truyền imageUrl
+        description: event.description, // Truyền description
       );
       emit(ProductAdded(product));
       final products = await getProductsUseCase();
@@ -82,6 +84,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         categoryId: event.categoryId,
         price: event.price,
         stock: event.stock,
+        imageUrl: event.imageUrl, // Truyền imageUrl
+        description: event.description, // Truyền description
       );
       emit(ProductUpdated(product));
       final products = await getProductsUseCase();
