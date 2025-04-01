@@ -112,11 +112,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/gasdandung/
-    - assets/images/gascongnghiep/
-    - assets/images/bepgas/
-    - assets/images/phukien/
-    - assets/images/gasmini/
     - assets/images/
     - assets/animation/fire.json
   # An image asset can refer to one or more resolution-specific "variants", see
