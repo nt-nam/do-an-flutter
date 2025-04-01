@@ -15,7 +15,7 @@ class FindProductScreen extends StatefulWidget {
   const FindProductScreen({super.key});
 
   static final String linkImage =
-      "gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
+      "gasdandung/GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
 
   @override
   State<FindProductScreen> createState() => _FindProductScreenState();

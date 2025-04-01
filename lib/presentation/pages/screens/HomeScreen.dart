@@ -1,5 +1,4 @@
 import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
-import 'package:do_an_flutter/presentation/pages/screens/OrderScreen.dart';
 import 'package:do_an_flutter/presentation/pages/screens/product/DetailProductScreen.dart';
 import 'package:do_an_flutter/presentation/pages/screens/product/FindProductScreen.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +19,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static final String linkImage =
-      "gasdandung/Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
+      "GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
