@@ -3,11 +3,11 @@ abstract class ProductEvent {
 }
 
 class FetchProductsEvent extends ProductEvent {
-  final int? categoryId;
+  final List<int>? categoryIds;
   final bool onlyAvailable;
   final String? searchQuery;
 
-  const FetchProductsEvent({this.categoryId, this.onlyAvailable = false,this.searchQuery,});
+  const FetchProductsEvent({this.categoryIds, this.onlyAvailable = false,this.searchQuery,});
 }
 
 class FetchProductDetailsEvent extends ProductEvent {
@@ -58,4 +58,7 @@ class DeleteProductEvent extends ProductEvent {
   final int productId;
 
   const DeleteProductEvent(this.productId);
+}
+class ResetProductsEvent extends ProductEvent {
+  const ResetProductsEvent();
 }

@@ -115,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             context.read<AccountBloc>().add(
                               LoginEvent(
 
-                                "1@x.x",
-                                "1",
+                                "test1@mail.xx",
+                                "123",
                               ),
                             );
                           }else{

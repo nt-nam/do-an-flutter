@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gas_store/presentation/pages/screens/product/DetailProductScreen.dart';
+import '../../../presentation/pages/screens/product/DetailProductScreen.dart';
 import '../../../domain/entities/product.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
@@ -10,15 +10,14 @@ import '../../blocs/product/product_bloc.dart';
 import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
 import '../../widgets/CategoryButton.dart';
-import '../../widgets/FeaturedCard.dart';
+import '../../widgets/ProductCardFeatured.dart';
 import '../../widgets/ProductCard.dart';
 import 'MenuScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  static final String linkImage =
-      "placeholder.jpg";
+  static final String linkImage = "placeholder.jpg";
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -60,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     userName = state.user!.hoTen;
                     print('User name: $userName');
                   }
+                  print('AppBar state: $userName');
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Sản phẩm',
+                      'Sản phẩm ngẫu nhiên',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -240,20 +240,57 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is ProductLoaded) {
-                      _products = state.products;
+                      _products = state.products
+                        ..shuffle(); // Xáo trộn danh sách sản phẩm
                     }
                     if (_products.isEmpty) {
                       return const Text('Không có sản phẩm nào.');
                     }
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: _products.take(3).map((product) {
-                        return ProductCard(
-                          title: product.name,
-                          calories: '${product.price} VNĐ',
-                          imageName: product.imageUrl ?? '', // Truyền tên file ảnh
-                        );
-                      }).toList(),
+                    return Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: _products.take(3).map((product) {
+                            return ProductCard(
+                              title: product.name,
+                              calories: '${product.price} VNĐ',
+                              imageName: product.imageUrl ?? '',
+                              onTap: () {
+                                context
+                                    .read<ProductBloc>()
+                                    .add(FetchProductDetailsEvent(product.id));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailProductScreen()),
+                                );
+                              },
+                            );
+                          }).toList(),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: _products.skip(3).take(3).map((product) {
+                            return ProductCard(
+                              title: product.name,
+                              calories: '${product.price} VNĐ',
+                              imageName: product.imageUrl ?? '',
+                              onTap: () {
+                                context
+                                    .read<ProductBloc>()
+                                    .add(FetchProductDetailsEvent(product.id));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailProductScreen()),
+                                );
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -265,24 +302,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // BlocBuilder<ProductBloc, ProductState>(
-                //   builder: (context, state) {
-                //     if (state is ProductLoading) {
-                //       return const Center(child: CircularProgressIndicator());
-                //     } else if (state is ProductLoaded) {
-                //       _products = state.products;
-                //     }
-                //     if (_products.isEmpty) {
-                //       return const Text('Không có sản phẩm nào.');
-                //     }
-                //     return Row(
-                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //       children: _products.skip(3).take(3).map((product) {
-                //         return ProductCard(product);
-                //       }).toList(),
-                //     );
-                //   },
-                // ),
               ],
             ),
           );

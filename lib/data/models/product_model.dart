@@ -3,7 +3,7 @@ class ProductModel {
   final String tenSP;
   final String? moTa; // Có thể null
   final double gia;
-  final int? maLoai; // Có thể null
+  final int maLoai;
   final String? hinhAnh; // Có thể null
   final String trangThai; // ENUM: 'Còn hàng', 'Hết hàng'
   final int soLuongTon; // Thêm stock
@@ -13,7 +13,7 @@ class ProductModel {
     required this.tenSP,
     this.moTa,
     required this.gia,
-    this.maLoai,
+    required this.maLoai,
     this.hinhAnh,
     required this.trangThai,
     required this.soLuongTon,
@@ -25,7 +25,7 @@ class ProductModel {
       tenSP: json['TenSP'] as String,
       moTa: json['MoTa'] as String?,
       gia: (json['Gia'] as num).toDouble(),
-      maLoai: json['MaLoai'] is String ? int.tryParse(json['MaLoai']) : json['MaLoai'] as int?,
+      maLoai: json['MaLoai'] is String ? int.tryParse(json['MaLoai']) ?? 0: json['MaLoai'] as int,
       hinhAnh: json['HinhAnh'] as String?,
       trangThai: json['TrangThai'] as String,
       soLuongTon: json['SoLuongTon'] is String ? int.tryParse(json['SoLuongTon']) ?? 0 : json['SoLuongTon'] as int,

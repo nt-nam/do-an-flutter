@@ -6,10 +6,10 @@ enum ProductStatus {
 class Product {
   final int id;
   final String name;
-  final String? description; // Có thể null
+  final String? description;
   final double price;
-  final int? categoryId; // Có thể null
-  final String? imageUrl; // Có thể null
+  final int categoryId;
+  final String? imageUrl;
   final ProductStatus status; // 'Còn hàng', 'Hết hàng'
   final int stock;
 
@@ -18,7 +18,7 @@ class Product {
     required this.name,
     this.description,
     required this.price,
-    this.categoryId,
+    required this.categoryId,
     this.imageUrl,
     required this.status,
     required this.stock,
