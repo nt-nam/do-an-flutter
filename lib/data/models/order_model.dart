@@ -41,7 +41,7 @@ class OrderModel {
     }
 
     return OrderModel(
-      maDH: json['MaDH'] as int?,
+      maDH: json['MaDH'] as int? ?? json['id'] as int?,
       maTK: json['MaTK'] as int?,
       maGH: json['MaGH'] as int?,
       ngayDat: DateTime.parse(json['NgayDat'] as String? ?? DateTime.now().toString()),

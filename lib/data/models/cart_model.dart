@@ -1,31 +1,47 @@
+import 'package:do_an_flutter/domain/entities/cart.dart';
+
 class CartModel {
-  final int maGH;
-  final int? maTK; // Có thể null nếu tài khoản bị xóa
-  final DateTime ngayThem;
-  final String trangThai; // 'Đang hoạt động', 'Đã thanh toán'
+  final int cartId;
+  final int accountId;
+  final DateTime addedDate;
+  final String status;
 
   CartModel({
-    required this.maGH,
-    this.maTK,
-    required this.ngayThem,
-    required this.trangThai,
+    required this.cartId,
+    required this.accountId,
+    required this.addedDate,
+    required this.status,
   });
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
+    final cartId = json['MaGH'];
+    if (cartId == null || cartId == 0) {
+      throw Exception('Invalid cart ID received from API');
+    }
+
     return CartModel(
-      maGH: json['MaGH'] as int,
-      maTK: json['MaTK'] as int?,
-      ngayThem: DateTime.parse(json['NgayThem'] as String),
-      trangThai: json['TrangThai'] as String? ?? 'Đang hoạt động',
+      cartId: cartId,
+      accountId: json['MaTK'] ?? 0,
+      addedDate: DateTime.parse(json['NgayThem'] ?? DateTime.now().toString()),
+      status: json['TrangThai'] ?? 'active',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'MaGH': maGH,
-      'MaTK': maTK,
-      'NgayThem': ngayThem.toIso8601String(),
-      'TrangThai': trangThai,
+      'MaGH': cartId,
+      'MaTK': accountId,
+      'NgayThem': addedDate.toIso8601String(),
+      'TrangThai': status,
     };
+  }
+
+  Cart toEntity() {
+    return Cart(
+      cartId: cartId,
+      accountId: accountId,
+      addedDate: addedDate,
+      status: status,
+    );
   }
 }

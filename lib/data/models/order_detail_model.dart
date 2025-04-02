@@ -1,25 +1,27 @@
+import '../../domain/entities/order_detail.dart';
+
 class OrderDetailModel {
-  final int? maCTDH; // Cho phép null
-  final int? maDH; // Cho phép null
-  final int? maSP; // Cho phép null
-  final int? soLuong; // Cho phép null
-  final double? giaLucMua; // Cho phép null
+  final int? maCTDH;
+  final int? maDH;
+  final int? maSP;
+  final int? soLuong;
+  final double? donGia; // Sửa từ giaLucMua thành donGia để khớp với API
 
   OrderDetailModel({
-    required this.maCTDH,
-    required this.maDH,
-    required this.maSP,
-    required this.soLuong,
-    required this.giaLucMua,
+    this.maCTDH,
+    this.maDH,
+    this.maSP,
+    this.soLuong,
+    this.donGia,
   });
 
   factory OrderDetailModel.fromJson(Map<String, dynamic> json) {
     return OrderDetailModel(
-      maCTDH: json['MaCTDH'] as int?, // Cho phép null
-      maDH: json['MaDH'] as int?, // Cho phép null
-      maSP: json['MaSP'] as int?, // Cho phép null
-      soLuong: json['SoLuong'] as int?, // Cho phép null
-      giaLucMua: (json['GiaLucMua'] as num?)?.toDouble(), // Cho phép null
+      maCTDH: json['MaCTDH'] as int?,
+      maDH: json['MaDH'] as int?,
+      maSP: json['MaSP'] as int?,
+      soLuong: json['SoLuong'] as int?,
+      donGia: (json['DONGIA'] as num?)?.toDouble(), // Sửa từ GiaLucMua thành DONGIA
     );
   }
 
@@ -29,7 +31,17 @@ class OrderDetailModel {
       'MaDH': maDH,
       'MaSP': maSP,
       'SoLuong': soLuong,
-      'GiaLucMua': giaLucMua,
+      'DONGIA': donGia, // Sửa từ GiaLucMua thành DONGIA
     };
+  }
+
+  OrderDetail toEntity() {
+    return OrderDetail(
+      id: maCTDH,
+      orderId: maDH,
+      productId: maSP,
+      quantity: soLuong,
+      priceAtPurchase: donGia,
+    );
   }
 }

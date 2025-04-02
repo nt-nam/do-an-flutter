@@ -59,9 +59,9 @@ class CartScreen extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final item = state.cartItems[index];
                       return ListTile(
-                        leading: item.image != null && item.image!.isNotEmpty
+                        leading: item.productImage != null && item.productImage!.isNotEmpty
                             ? Image.asset(
-                          'assets/images/${item.image}',
+                          'assets/images/${item.productImage}',
                           width: 50,
                           height: 50,
                           fit: BoxFit.cover,

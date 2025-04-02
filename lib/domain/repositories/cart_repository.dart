@@ -1,10 +1,12 @@
-import '../../data/models/cart_model.dart';
-import '../../data/models/cart_detail_model.dart';
+
+import '../entities/cart.dart';
+import '../entities/cart_detail.dart';
 
 abstract class CartRepository {
-  Future<CartModel> getCart(int accountId); // Lấy giỏ hàng tổng quát
-  Future<List<CartDetailModel>> getCartDetails(int cartId); // Lấy chi tiết giỏ hàng
-  Future<CartDetailModel> addToCart(CartDetailModel cartDetail); // Thêm sản phẩm vào giỏ
-  Future<CartDetailModel> updateCartDetail(CartDetailModel cartDetail); // Cập nhật số lượng
-  Future<void> removeFromCart(int cartDetailId); // Xóa sản phẩm khỏi giỏ
+  Future<Cart> getCart(int accountId);
+  Future<List<CartDetail>> getCartDetails(int cartId);
+  Future<CartDetail> addToCart(CartDetail cartDetail);
+  Future<CartDetail> updateCartDetail(CartDetail cartDetail);
+  Future<void> removeFromCart(int cartDetailId);
+  Future<void> clearCart(int accountId);
 }

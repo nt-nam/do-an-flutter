@@ -77,19 +77,23 @@ class MyApp extends StatelessWidget {
     final addProductsUseCase = AddProductUseCase(productRepository);
     final updateProductsUseCase = UpdateProductUseCase(productRepository);
     final deleteProductsUseCase = DeleteProductUseCase(productRepository);
-
-    // Thêm OrderRepository và các UseCase cho OrderBloc
-    final orderRepository = OrderRepositoryImpl(apiService, authService);
-    final getOrdersUseCase = GetOrdersUseCase(orderRepository);
-    final createOrderUseCase = CreateOrderUseCase(orderRepository);
-    final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
-    final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
     // Cart-related dependencies
     final cartRepository = CartRepositoryImpl(apiService, authService);
     final getCartUseCase = GetCartUseCase(cartRepository);
     final addToCartUseCase = AddToCartUseCase(cartRepository,productRepository);
     final removeFromCartUseCase = RemoveFromCartUseCase(cartRepository);
     final updateCartQuantityUseCase = UpdateCartQuantityUseCase(cartRepository);
+
+    // Thêm OrderRepository và các UseCase cho OrderBloc
+    final orderRepository = OrderRepositoryImpl(apiService, authService);
+    final getOrdersUseCase = GetOrdersUseCase(orderRepository);
+    final createOrderUseCase = CreateOrderUseCase(
+      orderRepository: orderRepository,
+      cartRepository: cartRepository, // Thêm cartRepository
+    );
+    final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
+    final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(

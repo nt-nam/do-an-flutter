@@ -1,30 +1,20 @@
-import '../../entities/cart.dart';
-import '../../entities/cart_detail.dart';
-import '../../repositories/cart_repository.dart';
-import '../../../data/models/cart_model.dart';
-import '../../../data/models/cart_detail_model.dart';
+import 'package:do_an_flutter/domain/entities/cart.dart';
+import 'package:do_an_flutter/domain/entities/cart_detail.dart';
+import 'package:do_an_flutter/domain/repositories/cart_repository.dart';
 
 class GetCartUseCase {
-  final CartRepository repository;
+  final CartRepository cartRepository;
 
-  GetCartUseCase(this.repository);
+  GetCartUseCase(this.cartRepository);
 
   Future<(Cart, List<CartDetail>)> call(int accountId) async {
     try {
-      final cartModel = await repository.getCart(accountId);
-      final cartDetails = await repository.getCartDetails(cartModel.maGH);
-      final cart = Cart(
-        id: cartModel.maGH,
-        accountId: cartModel.maTK,
-        addedDate: cartModel.ngayThem,
-        status: cartModel.trangThai,
-      );
-      final cartDetailList = cartDetails.map((model) => CartDetail(
-        cartId: model.maGH,
-        productId: model.maSP,
-        quantity: model.soLuong,
-      )).toList();
-      return (cart, cartDetailList);
+      final cart = await cartRepository.getCart(accountId);
+      if (cart.cartId == null) {
+        // return (cart, [""]); // Trả về giỏ hàng rỗng nếu không tìm thấy
+      }
+      final cartDetails = await cartRepository.getCartDetails(cart.cartId!);
+      return (cart, cartDetails);
     } catch (e) {
       throw Exception('Failed to get cart: $e');
     }

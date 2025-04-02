@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/entities/cart.dart';
+import '../../../domain/entities/cart_detail.dart';
 import '../../../domain/usecases/cart/add_to_cart_usecase.dart';
 import '../../../domain/usecases/cart/get_cart_usecase.dart';
 import '../../../domain/usecases/cart/remove_from_cart_usecase.dart';
@@ -30,8 +32,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(const CartLoading());
     try {
       final (cart, cartDetails) = await getCartUseCase(event.accountId);
-      _accountId = cart.accountId;
-      emit(CartLoaded(cartDetails));
+      _accountId = cart.accountId; // accountId có thể là null, nhưng _accountId đã khai báo là int?
+      emit(CartLoaded(cartItems: cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
     }
@@ -44,7 +46,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       emit(CartItemAdded(cartDetail));
       _accountId ??= event.accountId;
       final (_, cartDetails) = await getCartUseCase(_accountId!);
-      emit(CartLoaded(cartDetails));
+      emit(CartLoaded(cartItems: cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
     }
@@ -57,7 +59,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       emit(CartItemRemoved(event.cartId));
       if (_accountId != null) {
         final (_, cartDetails) = await getCartUseCase(_accountId!);
-        emit(CartLoaded(cartDetails));
+        emit(CartLoaded(cartItems: cartDetails));
       }
     } catch (e) {
       emit(CartError(e.toString()));
@@ -71,7 +73,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       emit(CartItemUpdated(cartDetail));
       if (_accountId != null) {
         final (_, cartDetails) = await getCartUseCase(_accountId!);
-        emit(CartLoaded(cartDetails));
+        emit(CartLoaded(cartItems: cartDetails));
       }
     } catch (e) {
       emit(CartError(e.toString()));
@@ -82,13 +84,13 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(const CartLoading());
     try {
       if (_accountId != null) {
-        final (_, cartDetails) = await getCartUseCase(_accountId!);
+        final (cart, cartDetails) = await getCartUseCase(_accountId!);
         for (var detail in cartDetails) {
-          await removeFromCartUseCase(detail.cartId!, detail.productId);
+          await removeFromCartUseCase(detail.cartId!, detail.productId!);
         }
-        emit(CartLoaded([])); // Sau khi xóa, giỏ hàng sẽ rỗng
+        emit(const CartLoaded(cartItems: [])); // Sau khi xóa, giỏ hàng sẽ rỗng
       } else {
-        emit(const CartLoaded([]));
+        emit(const CartLoaded(cartItems: []));
       }
     } catch (e) {
       emit(CartError('Failed to clear cart: $e'));

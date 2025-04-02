@@ -15,7 +15,7 @@ class GetOrderDetailsUseCase {
         orderId: model.maDH,
         productId: model.maSP,
         quantity: model.soLuong,
-        priceAtPurchase: model.giaLucMua,
+        priceAtPurchase: model.donGia,
       )).toList();
     } catch (e) {
       throw Exception('Failed to get order details: $e');

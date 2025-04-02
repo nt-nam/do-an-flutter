@@ -35,3 +35,8 @@ class FetchOrderDetailsEvent extends OrderEvent {
 
   const FetchOrderDetailsEvent(this.orderId);
 }
+class CancelOrderEvent extends OrderEvent {
+  final int orderId;
+
+  const CancelOrderEvent(this.orderId);
+}

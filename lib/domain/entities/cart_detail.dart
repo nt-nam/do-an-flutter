@@ -1,17 +1,21 @@
 class CartDetail {
-  final int? cartId; // Thay required thành optional
+  final int cartDetailId;
+  final int cartId;
   final int productId;
   final int quantity;
+  final double price;
   final String? productName;
-  final double? price;
-  final String? image;
+  final double productPrice;
+  final String? productImage;
 
   CartDetail({
-    this.cartId, // Không còn required
+    required this.cartDetailId,
+    required this.cartId,
     required this.productId,
     required this.quantity,
+    required this.price,
     this.productName,
-    this.price,
-    this.image,
+    required this.productPrice,
+    this.productImage,
   });
 }

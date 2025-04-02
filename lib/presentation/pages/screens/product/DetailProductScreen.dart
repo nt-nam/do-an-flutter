@@ -175,67 +175,116 @@ class DetailProductScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: ElevatedButton(
-                            onPressed: product.status == ProductStatus.inStock
-                                ? () {
-                              final accountState = context.read<AccountBloc>().state;
-                              if (accountState is AccountLoggedIn) {
-                                final accountId = accountState.account.id;
-                                String deliveryAddress = '123 Main St';
-                                if (accountState.user != null) {
-                                  deliveryAddress = accountState.user!.diaChi ?? '123 Main St';
-                                }
-                                if (deliveryAddress.isEmpty) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Vui lòng cập nhật địa chỉ của bạn!'),
-                                    ),
-                                  );
-                                  return;
-                                }
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PaymentScreen(
-                                      items: [
-                                        CartDetail(
-                                          productId: product.id,
-                                          quantity: 1,
-                                          price: product.price,
-                                          productName: product.name ?? '',
-                                          image: product.imageUrl ?? '',
-                                        ),
-                                      ],
-                                      accountId: accountId,
-                                      deliveryAddress: deliveryAddress,
-                                    ),
-                                  ),
-                                );
-                              } else {
+                          child: BlocConsumer<CartBloc, CartState>(
+                            listener: (context, state) {
+                              if (state is CartError) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Vui lòng đăng nhập để đặt hàng!'),
-                                  ),
+                                  SnackBar(content: Text('Lỗi: ${state.message}')),
                                 );
                               }
-                            }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 4,
-                            ),
-                            child: const Text(
-                              'Đặt hàng ngay',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            },
+                            builder: (context, cartState) {
+                              return ElevatedButton(
+                                onPressed: product.status == ProductStatus.inStock
+                                    ? () async {
+                                  final accountState = context.read<AccountBloc>().state;
+                                  if (accountState is AccountLoggedIn) {
+                                    final accountId = accountState.account.id;
+                                    String deliveryAddress = '123 Main St';
+                                    if (accountState.user != null) {
+                                      deliveryAddress = accountState.user!.diaChi ?? '123 Main St';
+                                    }
+                                    if (deliveryAddress.isEmpty) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Vui lòng cập nhật địa chỉ của bạn!'),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    // Gọi FetchCartEvent nếu giỏ hàng chưa được tải
+                                    if (cartState is! CartLoaded) {
+                                      context.read<CartBloc>().add(FetchCartEvent(accountId));
+                                      await Future.delayed(const Duration(milliseconds: 500)); // Chờ tải giỏ hàng
+                                    }
+
+                                    // Lấy cartId từ CartBloc
+                                    int? cartId;
+                                    final updatedCartState = context.read<CartBloc>().state;
+                                    if (updatedCartState is CartLoaded && updatedCartState.cartItems.isNotEmpty) {
+                                      cartId = updatedCartState.cartItems.first.cartId;
+                                    }
+
+                                    // Nếu giỏ hàng rỗng, thêm sản phẩm vào giỏ hàng trước
+                                    if (cartId == null) {
+                                      context.read<CartBloc>().add(AddToCartEvent(accountId, product.id, 1));
+                                      await Future.delayed(const Duration(milliseconds: 500)); // Chờ thêm sản phẩm
+                                      final newCartState = context.read<CartBloc>().state;
+                                      if (newCartState is CartLoaded && newCartState.cartItems.isNotEmpty) {
+                                        cartId = newCartState.cartItems.first.cartId;
+                                      }
+                                    }
+
+                                    // Kiểm tra lại cartId
+                                    if (cartId == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Không thể lấy thông tin giỏ hàng!'),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    // Đảm bảo cartId không null khi truyền vào CartDetail
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PaymentScreen(
+                                          items: [
+                                            CartDetail(
+                                              cartDetailId: 0, // Giả định ID tạm thời
+                                              cartId: cartId!, // cartId đã được đảm bảo không null
+                                              productId: product.id,
+                                              quantity: 1,
+                                              price: product.price,
+                                              productName: product.name ?? '',
+                                              productPrice: product.price,
+                                              productImage: product.imageUrl ?? '',
+                                            ),
+                                          ],
+                                          accountId: accountId,
+                                          deliveryAddress: deliveryAddress,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Vui lòng đăng nhập để đặt hàng!'),
+                                      ),
+                                    );
+                                  }
+                                }
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.deepPurple,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 4,
+                                ),
+                                child: const Text(
+                                  'Đặt hàng ngay',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(width: 16),
