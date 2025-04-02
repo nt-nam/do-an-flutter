@@ -1,9 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 
 import '../../../blocs/product/product_bloc.dart';
 import '../../../blocs/product/product_event.dart';
@@ -22,7 +23,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _stockController = TextEditingController();
   final _categoryIdController = TextEditingController();
   final _descriptionController = TextEditingController();
-  File? _imageFile; // Lưu file ảnh được chọn
+  File? _imageFile; // Dùng cho di động
+  Uint8List? _imageBytes; // Dùng cho web
+  String? _imageName; // Tên file ảnh để truyền vào imageUrl
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -39,9 +42,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Future<void> _pickImageFromCamera() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
-      setState(() {
+      if (kIsWeb) {
+        _imageBytes = await pickedFile.readAsBytes();
+        _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        setState(() {});
+      } else {
         _imageFile = File(pickedFile.path);
-      });
+        await _saveImageLocally(_imageFile!);
+        setState(() {});
+      }
     }
   }
 
@@ -49,38 +58,27 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Future<void> _pickImageFromGallery() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
-      setState(() {
+      if (kIsWeb) {
+        _imageBytes = await pickedFile.readAsBytes();
+        _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        setState(() {});
+      } else {
         _imageFile = File(pickedFile.path);
-      });
+        await _saveImageLocally(_imageFile!);
+        setState(() {});
+      }
     }
   }
 
-  // Lưu ảnh vào bộ nhớ cục bộ và trả về đường dẫn
-  Future<String> _saveImageLocally(File image) async {
+  // Lưu ảnh vào bộ nhớ cục bộ (chỉ cho di động)
+  Future<void> _saveImageLocally(File image) async {
     final directory = await getApplicationDocumentsDirectory();
-    final imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final localPath = '${directory.path}/$imageName';
+    _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final localPath = '${directory.path}/$_imageName';
     await image.copy(localPath);
-    return localPath;
-  }
-
-  // Tải ảnh lên API và nhận imageUrl
-  Future<String?> _uploadImageToApi(File image) async {
-    const apiUrl = 'YOUR_API_ENDPOINT/sanpham/upload'; // Thay bằng URL API của bạn
-    final token = 'YOUR_AUTH_TOKEN'; // Lấy token từ AuthService nếu cần
-
-    var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-    request.headers['Authorization'] = 'Bearer $token';
-    request.files.add(await http.MultipartFile.fromPath('image', image.path));
-
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      final responseData = await http.Response.fromStream(response);
-      // Giả sử API trả về JSON với trường "imageUrl"
-      return responseData.body; // Điều chỉnh theo định dạng phản hồi của API
-    } else {
-      throw Exception('Failed to upload image');
-    }
+    _imageFile = File(localPath); // Cập nhật _imageFile với đường dẫn mới
+    print('Ảnh đã lưu tại: $localPath');
+    print('File tồn tại: ${File(localPath).existsSync()}');
   }
 
   void _submitProduct(BuildContext context) async {
@@ -97,28 +95,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
       return;
     }
 
-    String? imageUrl;
-    if (_imageFile != null) {
-      try {
-        // Lưu ảnh cục bộ
-        final localPath = await _saveImageLocally(_imageFile!);
-        // Tải ảnh lên API và lấy imageUrl
-        imageUrl = await _uploadImageToApi(_imageFile!);
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Lỗi khi tải ảnh: $e')),
-        );
-        return;
-      }
-    }
-
     context.read<ProductBloc>().add(
       AddProductEvent(
         name: name,
         categoryId: categoryId,
         price: price,
         stock: stock,
-        imageUrl: imageUrl,
+        imageUrl: _imageName, // Truyền tên file ảnh làm imageUrl
         description: description,
       ),
     );
@@ -209,7 +192,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                if (_imageFile != null)
+                if (kIsWeb && _imageBytes != null)
+                  Image.memory(
+                    _imageBytes!,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                else if (!kIsWeb && _imageFile != null)
                   Image.file(
                     _imageFile!,
                     height: 200,

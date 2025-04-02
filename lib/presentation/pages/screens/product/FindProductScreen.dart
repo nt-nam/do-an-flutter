@@ -1,5 +1,6 @@
 import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
 import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
+import 'package:do_an_flutter/presentation/widgets/ProductCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/account/account_bloc.dart';
@@ -9,13 +10,11 @@ import '../../../blocs/category/category_state.dart';
 import '../../../blocs/product/product_event.dart';
 import '../../../blocs/product/product_state.dart';
 import '../../../widgets/CategoryButton.dart';
-import '../../../widgets/RecipeCard.dart';
 
 class FindProductScreen extends StatefulWidget {
   const FindProductScreen({super.key});
 
-  static final String linkImage =
-      "gasdandung/GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
+  static final String linkImage = "gasdandung/placeholder.jpg";
 
   @override
   State<FindProductScreen> createState() => _FindProductScreenState();
@@ -36,9 +35,9 @@ class _FindProductScreenState extends State<FindProductScreen> {
   void _onSearchChanged() {
     final query = _searchController.text.trim();
     context.read<ProductBloc>().add(FetchProductsEvent(
-      searchQuery: query.isNotEmpty ? query : null,
-      categoryId: _selectedCategoryId,
-    ));
+          searchQuery: query.isNotEmpty ? query : null,
+          categoryId: _selectedCategoryId,
+        ));
   }
 
   void _onCategorySelected(int categoryId) {
@@ -46,11 +45,11 @@ class _FindProductScreenState extends State<FindProductScreen> {
       _selectedCategoryId = categoryId;
     });
     context.read<ProductBloc>().add(FetchProductsEvent(
-      categoryId: categoryId,
-      searchQuery: _searchController.text.trim().isNotEmpty
-          ? _searchController.text.trim()
-          : null,
-    ));
+          categoryId: categoryId,
+          searchQuery: _searchController.text.trim().isNotEmpty
+              ? _searchController.text.trim()
+              : null,
+        ));
   }
 
   @override
@@ -94,7 +93,8 @@ class _FindProductScreenState extends State<FindProductScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.teal, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.teal, width: 2),
                     ),
                   ),
                 ),
@@ -122,7 +122,8 @@ class _FindProductScreenState extends State<FindProductScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: categories.map((category) {
-                            final isSelected = _selectedCategoryId == category.id;
+                            final isSelected =
+                                _selectedCategoryId == category.id;
                             return Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: CategoryButton(
@@ -163,8 +164,7 @@ class _FindProductScreenState extends State<FindProductScreen> {
                           );
                         }
                         return GridView.builder(
-                          gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2, // 2 cột
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
@@ -173,11 +173,10 @@ class _FindProductScreenState extends State<FindProductScreen> {
                           itemCount: products.length,
                           itemBuilder: (context, index) {
                             final product = products[index];
-                            return RecipeCard(
+                            return ProductCard(
                               title: product.name,
                               calories: '${product.price} VNĐ',
-                              imageUrl:
-                              "assets/images/${(product.imageUrl ?? FindProductScreen.linkImage) == "" ? FindProductScreen.linkImage : (product.imageUrl ?? FindProductScreen.linkImage)}",
+                              imageName: product.imageUrl ?? '', // Truyền tên file ảnh
                             );
                           },
                         );
