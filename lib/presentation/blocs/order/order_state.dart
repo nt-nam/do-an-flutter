@@ -13,10 +13,9 @@ class OrderLoading extends OrderState {
   const OrderLoading();
 }
 
-class OrderLoaded extends OrderState {
+class OrdersLoaded extends OrderState {
   final List<Order> orders;
-
-  const OrderLoaded(this.orders);
+  OrdersLoaded(this.orders);
 }
 
 class OrderCreated extends OrderState {

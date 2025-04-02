@@ -28,7 +28,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     emit(const OrderLoading());
     try {
       final orders = await getOrdersUseCase(event.accountId, page: event.page, limit: event.limit);
-      emit(OrderLoaded(orders));
+      emit(OrdersLoaded(orders));
     } catch (e) {
       emit(OrderError(e.toString()));
     }
@@ -46,7 +46,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       );
       emit(OrderCreated(order));
       final orders = await getOrdersUseCase(event.accountId);
-      emit(OrderLoaded(orders));
+      emit(OrdersLoaded(orders));
     } catch (e) {
       emit(OrderError(e.toString()));
     }
@@ -59,7 +59,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       emit(OrderStatusUpdated(order));
       if (order.accountId != null) {
         final orders = await getOrdersUseCase(order.accountId!);
-        emit(OrderLoaded(orders));
+        emit(OrdersLoaded(orders));
       } else {
         emit(const OrderError('Cannot reload orders: accountId is null'));
       }
