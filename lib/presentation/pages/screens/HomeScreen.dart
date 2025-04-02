@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:newflutter/presentation/pages/screens/product/DetailProductScreen.dart';
+import 'package:gas_store/presentation/pages/screens/product/DetailProductScreen.dart';
 import '../../../domain/entities/product.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
