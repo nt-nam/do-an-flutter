@@ -1,7 +1,8 @@
-import 'package:do_an_flutter/data/models/user_model.dart';
-import 'package:do_an_flutter/data/services/api_service.dart';
-import 'package:do_an_flutter/data/services/auth_service.dart';
-import 'package:do_an_flutter/domain/repositories/user_repository.dart';
+
+import '../../domain/repositories/user_repository.dart';
+import '../models/user_model.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final ApiService apiService;

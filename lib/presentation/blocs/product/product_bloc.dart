@@ -1,6 +1,6 @@
-import 'package:do_an_flutter/domain/usecases/product/get_product_by_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/usecases/product/delete_product_usecase.dart';
+import '../../../domain/usecases/product/get_product_by_id_usecase.dart';
 import '../../../domain/usecases/product/get_products_usecase.dart';
 import '../../../domain/usecases/product/add_product_usecase.dart';
 import '../../../domain/usecases/product/update_product_usecase.dart';

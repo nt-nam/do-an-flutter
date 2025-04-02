@@ -1,4 +1,4 @@
-import 'package:do_an_flutter/domain/entities/offer.dart'; // Import OfferStatus từ domain
+import '../../domain/entities/offer.dart';
 
 class OfferModel {
   final int maUD;

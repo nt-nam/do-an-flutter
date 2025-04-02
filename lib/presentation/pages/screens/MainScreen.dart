@@ -1,9 +1,9 @@
-import 'package:do_an_flutter/presentation/pages/screens/CartScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import '../../widgets/CustomBottomNavigation.dart';
+import 'CartScreen.dart';
 import 'HomeScreen.dart';
 import 'product/FindProductScreen.dart';
 import 'OrderScreen.dart';

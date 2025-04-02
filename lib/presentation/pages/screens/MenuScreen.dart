@@ -1,6 +1,6 @@
-import 'package:do_an_flutter/presentation/pages/screens/product/AddProductScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:newflutter/presentation/pages/screens/product/AddProductScreen.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
 import 'SettingScreen.dart';

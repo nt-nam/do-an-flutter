@@ -1,15 +1,14 @@
-import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
-import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
-import 'package:do_an_flutter/presentation/widgets/ProductCard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/account/account_bloc.dart';
 import '../../../blocs/account/account_state.dart';
 import '../../../blocs/category/category_bloc.dart';
 import '../../../blocs/category/category_state.dart';
+import '../../../blocs/product/product_bloc.dart';
 import '../../../blocs/product/product_event.dart';
 import '../../../blocs/product/product_state.dart';
 import '../../../widgets/CategoryButton.dart';
+import '../../../widgets/ProductCard.dart';
 
 class FindProductScreen extends StatefulWidget {
   const FindProductScreen({super.key});
