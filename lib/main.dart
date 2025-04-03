@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gas_store/presentation/blocs/user/user_bloc.dart';
 import '../presentation/blocs/account/account_bloc.dart';
 import '../presentation/blocs/account/account_state.dart';
 import '../presentation/blocs/cart/cart_bloc.dart';
@@ -20,6 +21,7 @@ import 'data/repositories/user_repository_impl.dart';
 import 'data/services/api_service.dart';
 import 'data/services/auth_service.dart';
 import 'domain/entities/settings.dart';
+import 'domain/usecases/auth/update_user_usecase.dart';
 import 'domain/usecases/cart/add_to_cart_usecase.dart';
 import 'domain/usecases/cart/get_cart_usecase.dart';
 import 'domain/usecases/cart/remove_from_cart_usecase.dart';
@@ -59,6 +61,7 @@ class MyApp extends StatelessWidget {
     final userRepository = UserRepositoryImpl(apiService, authService);
     final loginUseCase = LoginUseCase(authService, userRepository);
     final registerUseCase = RegisterUseCase(authService);
+    final updateUserUseCase = UpdateUserUseCase(userRepository);
     final getUserProfileUseCase = GetUserProfileUseCase(userRepository);
 
     // Category-related dependencies
@@ -97,6 +100,16 @@ class MyApp extends StatelessWidget {
             getUserProfileUseCase,
             accountRepository,
             authService,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => UserBloc(
+            userRepository,
+            /*loginUseCase,
+            registerUseCase,
+            getUserProfileUseCase,
+            accountRepository,
+            authService,*/
           ),
         ),
         BlocProvider(

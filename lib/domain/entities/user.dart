@@ -4,7 +4,7 @@ class User {
   final String fullName;
   final String? phoneNumber;
   final String? address;
-  final String email; // Thêm trường email
+  final String email;
 
   User({
     required this.id,

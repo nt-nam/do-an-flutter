@@ -1,4 +1,4 @@
-import '../../../data/models/user_model.dart';
+import '../../../domain/entities/user.dart';
 
 abstract class UserEvent {
   const UserEvent();
@@ -19,6 +19,6 @@ class LoadUserByAccountId extends UserEvent {
 }
 
 class UpdateUser extends UserEvent {
-  final UserModel user;
+  final User user; // Đúng kiểu là User
   const UpdateUser(this.user);
 }

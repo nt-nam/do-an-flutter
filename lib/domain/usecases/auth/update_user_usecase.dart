@@ -2,10 +2,10 @@ import '../../../data/models/user_model.dart';
 import '../../entities/user.dart';
 import '../../repositories/user_repository.dart';
 
-class UpdateUser {
+class UpdateUserUseCase {
   final UserRepository repository;
 
-  UpdateUser(this.repository);
+  UpdateUserUseCase(this.repository);
 
   Future<User> call(User user) async {
     try {
@@ -15,7 +15,7 @@ class UpdateUser {
         hoTen: user.fullName,
         sdt: user.phoneNumber,
         diaChi: user.address,
-        email: user.email, // Sử dụng email từ User
+        email: user.email,
       );
       final updatedModel = await repository.updateUser(modelUser);
       return User(
@@ -24,7 +24,7 @@ class UpdateUser {
         fullName: updatedModel.hoTen,
         phoneNumber: updatedModel.sdt,
         address: updatedModel.diaChi,
-        email: updatedModel.email, // Thêm email
+        email: updatedModel.email,
       );
     } catch (e) {
       throw Exception('Failed to update user: $e');

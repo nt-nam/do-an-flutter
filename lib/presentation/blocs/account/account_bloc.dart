@@ -73,19 +73,20 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   Future<void> _onUpdateAccount(UpdateAccountEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
+      final currentAccount = await accountRepository.getAccountById(event.accountId);
       final accountModel = AccountModel(
         maTK: event.accountId,
-        email: event.email ?? '', // Đảm bảo không null
-        matKhau: '', // Giả định không cập nhật mật khẩu ở đây
-        vaiTro: event.role ?? 'Khách hàng', // Đảm bảo không null
+        email: event.email ?? currentAccount.email,
+        matKhau: currentAccount.matKhau, // Giữ nguyên mật khẩu cũ
+        vaiTro: event.role ?? currentAccount.vaiTro,
         trangThai: event.isActive,
       );
       final updatedAccountModel = await accountRepository.updateAccount(accountModel);
       final updatedAccount = Account(
         id: updatedAccountModel.maTK,
-        email: updatedAccountModel.email, // Đã đảm bảo không null
+        email: updatedAccountModel.email,
         password: '',
-        role: updatedAccountModel.vaiTro, // Đã đảm bảo không null
+        role: updatedAccountModel.vaiTro,
         isActive: updatedAccountModel.trangThai,
       );
       emit(AccountUpdated(updatedAccount));

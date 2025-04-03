@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gas_store/presentation/pages/screens/profile/ProfileScreen.dart';
 import '../../../presentation/pages/screens/product/AddProductScreen.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
@@ -38,6 +39,22 @@ class MenuScreen extends StatelessWidget {
               title: 'Hồ sơ',
               onTap: () {
                 // TODO: Chuyển sang trang Hồ sơ
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.person_outline,
+              title: 'Thay đổi vai trò',
+              onTap: () {
+                // TODO: Chuyển sang trang Hồ sơ
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
               },
             ),
             _buildMenuItem(
