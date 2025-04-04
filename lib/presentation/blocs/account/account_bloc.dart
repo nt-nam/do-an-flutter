@@ -104,4 +104,62 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       emit(AccountError(e.toString()));
     }
   }
+
+  Future<void> _onFetchAllAccounts(FetchAllAccountsEvent event, Emitter<AccountState> emit) async {
+    emit(const AccountLoading());
+    try {
+      if (state is! AccountLoggedIn) {
+        throw Exception('Unauthorized');
+      }
+
+      final loggedInAccount = (state as AccountLoggedIn).account;
+      if (loggedInAccount.role != 'Quản trị') {
+        throw Exception('Permission denied');
+      }
+
+      final accounts = await accountRepository.getAccounts();
+      emit(AllAccountsLoaded(accounts));
+    } catch (e) {
+      emit(AccountError(e.toString()));
+    }
+  }
+
+  Future<void> _onUpdateAccountRole(UpdateAccountRoleEvent event, Emitter<AccountState> emit) async {
+    emit(const AccountLoading());
+    try {
+      if (state is! AccountLoggedIn) {
+        throw Exception('Unauthorized');
+      }
+
+      final loggedInAccount = (state as AccountLoggedIn).account;
+      if (loggedInAccount.role != 'Quản trị') {
+        throw Exception('Permission denied');
+      }
+
+      final targetAccount = await accountRepository.getAccountById(event.accountId);
+
+      // Prevent modifying admin accounts (role 3)
+      if (targetAccount.vaiTro == 'Quản trị') {
+        throw Exception('Cannot modify admin accounts');
+      }
+
+      // Only allow changing between role 1 and 2
+      if (event.newRole != 'Khách hàng' && event.newRole != 'Nhân viên') {
+        throw Exception('Invalid role');
+      }
+
+      final updatedAccount = AccountModel(
+        maTK: targetAccount.maTK,
+        email: targetAccount.email,
+        matKhau: targetAccount.matKhau,
+        vaiTro: event.newRole,
+        trangThai: targetAccount.trangThai,
+      );
+
+      await accountRepository.updateAccount(updatedAccount);
+      emit(AccountRoleUpdated(updatedAccount));
+    } catch (e) {
+      emit(AccountError(e.toString()));
+    }
+  }
 }

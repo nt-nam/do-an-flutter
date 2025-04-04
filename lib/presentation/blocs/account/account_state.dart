@@ -1,3 +1,4 @@
+import '../../../data/models/account_model.dart';
 import '../../../data/models/user_model.dart';
 import '../../../domain/entities/account.dart';
 
@@ -47,4 +48,16 @@ class AccountRegistered extends AccountState {
   final Account account;
 
   const AccountRegistered(this.account);
+}
+
+class AllAccountsLoaded extends AccountState {
+  final List<AccountModel> accounts;
+
+  const AllAccountsLoaded(this.accounts);
+}
+
+class AccountRoleUpdated extends AccountState {
+  final AccountModel account;
+
+  const AccountRoleUpdated(this.account);
 }

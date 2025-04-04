@@ -1,131 +1,153 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../domain/entities/user.dart';
-import '../../../blocs/user/user_bloc.dart';
-import '../../../blocs/user/user_event.dart';
-import '../../../blocs/user/user_state.dart';
+import '../../../../data/models/account_model.dart';
+import '../../../../presentation/blocs/account/account_bloc.dart';
+import '../../../../presentation/blocs/account/account_event.dart';
+import '../../../../presentation/blocs/account/account_state.dart';
 
-class EditProfileScreen extends StatefulWidget {
-  final User user;
-
-  const EditProfileScreen({super.key, required this.user});
+class ChangeRoleScreen extends StatefulWidget {
+  const ChangeRoleScreen({super.key});
 
   @override
-  _EditProfileScreenState createState() => _EditProfileScreenState();
+  _ChangeRoleScreenState createState() => _ChangeRoleScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
-  late TextEditingController _fullNameController;
-  late TextEditingController _phoneNumberController;
-  late TextEditingController _addressController;
+class _ChangeRoleScreenState extends State<ChangeRoleScreen> {
+  final Map<int, String> _selectedRoles = {};
 
   @override
   void initState() {
     super.initState();
-    _fullNameController = TextEditingController(text: widget.user.fullName);
-    _phoneNumberController = TextEditingController(text: widget.user.phoneNumber);
-    _addressController = TextEditingController(text: widget.user.address);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AccountBloc>().add(const FetchAllAccountsEvent());
+    });
   }
 
-  @override
-  void dispose() {
-    _fullNameController.dispose();
-    _phoneNumberController.dispose();
-    _addressController.dispose();
-    super.dispose();
-  }
-
-  void _saveProfile(BuildContext context) {
-    final updatedUser = User(
-      id: widget.user.id,
-      accountId: widget.user.accountId,
-      fullName: _fullNameController.text,
-      phoneNumber: _phoneNumberController.text.isEmpty ? null : _phoneNumberController.text,
-      address: _addressController.text.isEmpty ? null : _addressController.text,
-      email: widget.user.email,
+  void _showConfirmationDialog(BuildContext context, AccountModel account, String newRole) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận thay đổi'),
+          content: Text('Bạn có chắc muốn đổi vai trò của ${account.email} thành "$newRole"?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Hủy'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<AccountBloc>().add(
+                  UpdateAccountRoleEvent(account.maTK, newRole),
+                );
+              },
+              child: const Text('Xác nhận'),
+            ),
+          ],
+        );
+      },
     );
-    context.read<UserBloc>().add(UpdateUser(updatedUser));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chỉnh sửa hồ sơ'),
+        title: const Text('Quản lý quyền'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
-      body: BlocListener<UserBloc, UserState>(
+      body: BlocConsumer<AccountBloc, AccountState>(
         listener: (context, state) {
-          if (state is UserLoaded) {
-            Navigator.pop(context);
+          if (state is AccountError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Cập nhật hồ sơ thành công!')),
+              SnackBar(content: Text(state.message)),
             );
-          } else if (state is UserError) {
+          } else if (state is AccountRoleUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Lỗi: ${state.message}')),
+              const SnackBar(content: Text('Cập nhật vai trò thành công')),
             );
+            context.read<AccountBloc>().add(const FetchAllAccountsEvent());
           }
         },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Chỉnh sửa thông tin cá nhân',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _fullNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Họ tên',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _phoneNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Số điện thoại',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _addressController,
-                decoration: const InputDecoration(
-                  labelText: 'Địa chỉ',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 30),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () => _saveProfile(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+        builder: (context, state) {
+          if (state is AllAccountsLoaded) {
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: state.accounts.length,
+              itemBuilder: (context, index) {
+                final account = state.accounts[index];
+                _selectedRoles.putIfAbsent(account.maTK, () => account.vaiTro);
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          account.email,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Text('Vai trò: '),
+                            const SizedBox(width: 8),
+                            account.vaiTro == 'Quản trị'
+                                ? Text(
+                              'Quản trị (không thể thay đổi)',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontStyle: FontStyle.italic,
+                              ),
+                            )
+                                : Expanded(
+                              child: DropdownButton<String>(
+                                value: _selectedRoles[account.maTK],
+                                isExpanded: true,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'Khách hàng',
+                                    child: Text('Khách hàng'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Nhân viên',
+                                    child: Text('Nhân viên'),
+                                  ),
+                                ],
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    setState(() {
+                                      _selectedRoles[account.maTK] = newValue;
+                                    });
+                                    _showConfirmationDialog(
+                                      context,
+                                      account,
+                                      newValue,
+                                    );
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Text(
-                    'Lưu thay đổi',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+                );
+              },
+            );
+          } else if (state is AccountError) {
+            return Center(child: Text(state.message));
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }

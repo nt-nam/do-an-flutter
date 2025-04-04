@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gas_store/presentation/pages/screens/profile/ChangeRoleScreen.dart';
 import 'package:gas_store/presentation/pages/screens/profile/ProfileScreen.dart';
 import '../../../presentation/pages/screens/product/AddProductScreen.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
+import '../../blocs/account/account_state.dart';
 import 'SettingScreen.dart';
 import 'auth/LoginScreen.dart'; // Giả sử đường dẫn đúng
 
@@ -51,10 +53,17 @@ class MenuScreen extends StatelessWidget {
               title: 'Thay đổi vai trò',
               onTap: () {
                 // TODO: Chuyển sang trang Hồ sơ
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
-                );
+                final accountState = context.read<AccountBloc>().state;
+                if (accountState is AccountLoggedIn && accountState.account.role == 'Quản trị') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ChangeRoleScreen()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Bạn không có quyền truy cập tính năng này')),
+                  );
+                }
               },
             ),
             _buildMenuItem(
@@ -199,4 +208,71 @@ class MenuScreen extends StatelessWidget {
       },
     );
   }
+}
+
+void _showRoleManagementScreen(BuildContext context) {
+  context.read<AccountBloc>().add(const FetchAllAccountsEvent());
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => BlocProvider.value(
+        value: context.read<AccountBloc>(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Quản lý tài khoản'),
+          ),
+          body: BlocConsumer<AccountBloc, AccountState>(
+            listener: (context, state) {
+              if (state is AccountRoleUpdated) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Cập nhật vai trò thành công')),
+                );
+                context.read<AccountBloc>().add(const FetchAllAccountsEvent());
+              }
+            },
+            builder: (context, state) {
+              if (state is AllAccountsLoaded) {
+                return ListView.builder(
+                  itemCount: state.accounts.length,
+                  itemBuilder: (context, index) {
+                    final account = state.accounts[index];
+                    return ListTile(
+                      title: Text(account.email),
+                      subtitle: Text('Vai trò: ${account.vaiTro}'),
+                      trailing: account.vaiTro != 'Quản trị'
+                          ? DropdownButton<String>(
+                        value: account.vaiTro,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Khách hàng',
+                            child: Text('Khách hàng'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Nhân viên',
+                            child: Text('Nhân viên'),
+                          ),
+                        ],
+                        onChanged: (newRole) {
+                          if (newRole != null) {
+                            context.read<AccountBloc>().add(
+                              UpdateAccountRoleEvent(account.maTK, newRole),
+                            );
+                          }
+                        },
+                      )
+                          : const Text('Quản trị (không thể thay đổi)'),
+                    );
+                  },
+                );
+              } else if (state is AccountError) {
+                return Center(child: Text(state.message));
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+        ),
+      ),
+    ),
+  );
 }
