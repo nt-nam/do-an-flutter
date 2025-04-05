@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:do_an_flutter/presentation/blocs/settings/settings_bloc.dart';
-import 'package:do_an_flutter/presentation/blocs/settings/settings_event.dart';
-import 'package:do_an_flutter/presentation/blocs/settings/settings_state.dart';
-import 'package:do_an_flutter/domain/entities/settings.dart';
+
+import '../../../domain/entities/settings.dart';
+import '../../blocs/settings/settings_bloc.dart';
+import '../../blocs/settings/settings_event.dart';
+import '../../blocs/settings/settings_state.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

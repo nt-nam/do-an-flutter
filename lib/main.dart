@@ -1,22 +1,17 @@
-import 'package:do_an_flutter/presentation/blocs/cart/cart_bloc.dart';
-import 'package:do_an_flutter/presentation/pages/screens/MainScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:do_an_flutter/domain/usecases/category/add_category_usecase.dart';
-import 'package:do_an_flutter/domain/usecases/category/delete_category_usecase.dart';
-import 'package:do_an_flutter/domain/usecases/category/update_category_usecase.dart';
-import 'package:do_an_flutter/presentation/blocs/account/account_bloc.dart';
-import 'package:do_an_flutter/presentation/blocs/account/account_state.dart';
-import 'package:do_an_flutter/presentation/blocs/category/category_bloc.dart';
-import 'package:do_an_flutter/presentation/blocs/category/category_event.dart';
-import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
-import 'package:do_an_flutter/presentation/blocs/product/product_event.dart';
-import 'package:do_an_flutter/presentation/blocs/settings/settings_bloc.dart';
-import 'package:do_an_flutter/presentation/blocs/settings/settings_state.dart';
-import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
-import 'package:do_an_flutter/presentation/pages/screens/auth/LoginScreen.dart';
-import 'package:do_an_flutter/domain/entities/settings.dart';
+import 'package:gas_store/presentation/blocs/user/user_bloc.dart';
+import '../presentation/blocs/account/account_bloc.dart';
+import '../presentation/blocs/account/account_state.dart';
+import '../presentation/blocs/cart/cart_bloc.dart';
+import '../presentation/blocs/category/category_bloc.dart';
+import '../presentation/blocs/category/category_event.dart';
+import '../presentation/blocs/product/product_bloc.dart';
+import '../presentation/blocs/settings/settings_bloc.dart';
+import '../presentation/blocs/settings/settings_state.dart';
+import '../presentation/pages/screens/MainScreen.dart';
+import '../presentation/pages/screens/auth/LoginScreen.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/cart_repository_impl.dart';
 import 'data/repositories/category_repository_impl.dart';
@@ -25,10 +20,15 @@ import 'data/repositories/product_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'data/services/api_service.dart';
 import 'data/services/auth_service.dart';
+import 'domain/entities/settings.dart';
+import 'domain/usecases/auth/update_user_usecase.dart';
 import 'domain/usecases/cart/add_to_cart_usecase.dart';
 import 'domain/usecases/cart/get_cart_usecase.dart';
 import 'domain/usecases/cart/remove_from_cart_usecase.dart';
 import 'domain/usecases/cart/update_cart_quantity_usecase.dart';
+import 'domain/usecases/category/add_category_usecase.dart';
+import 'domain/usecases/category/delete_category_usecase.dart';
+import 'domain/usecases/category/update_category_usecase.dart';
 import 'domain/usecases/order/create_order_usecase.dart';
 import 'domain/usecases/order/get_order_details_usecase.dart';
 import 'domain/usecases/order/get_orders_usecase.dart';
@@ -61,6 +61,7 @@ class MyApp extends StatelessWidget {
     final userRepository = UserRepositoryImpl(apiService, authService);
     final loginUseCase = LoginUseCase(authService, userRepository);
     final registerUseCase = RegisterUseCase(authService);
+    final updateUserUseCase = UpdateUserUseCase(userRepository);
     final getUserProfileUseCase = GetUserProfileUseCase(userRepository);
 
     // Category-related dependencies
@@ -103,6 +104,16 @@ class MyApp extends StatelessWidget {
             getUserProfileUseCase,
             accountRepository,
             authService,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => UserBloc(
+            userRepository,
+            /*loginUseCase,
+            registerUseCase,
+            getUserProfileUseCase,
+            accountRepository,
+            authService,*/
           ),
         ),
         BlocProvider(

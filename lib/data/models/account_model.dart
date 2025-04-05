@@ -1,9 +1,12 @@
+import 'package:gas_store/data/models/user_model.dart';
+
 class AccountModel {
   final int maTK;
   final String email;
   final String matKhau;
   final String vaiTro; // ENUM: 'Khách hàng', 'Nhân viên', 'Quản trị'
   final bool trangThai;
+  final UserModel? user;
 
   AccountModel({
     required this.maTK,
@@ -11,6 +14,7 @@ class AccountModel {
     required this.matKhau,
     required this.vaiTro,
     required this.trangThai,
+    this.user,
   });
 
   // Hàm chuyển đổi VaiTro từ int sang String

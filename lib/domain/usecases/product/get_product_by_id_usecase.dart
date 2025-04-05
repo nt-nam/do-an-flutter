@@ -1,5 +1,6 @@
-import 'package:do_an_flutter/domain/entities/product.dart';
-import 'package:do_an_flutter/domain/repositories/product_repository.dart';
+
+import '../../entities/product.dart';
+import '../../repositories/product_repository.dart';
 
 class GetProductByIdUsecase {
   final ProductRepository repository;

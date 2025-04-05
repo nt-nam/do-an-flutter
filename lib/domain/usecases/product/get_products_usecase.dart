@@ -10,15 +10,18 @@ class GetProductsUseCase {
   Future<List<Product>> call({
     int page = 1,
     int limit = 10,
-    int? categoryId,
+    List<int>? categoryIds, // Thay đổi từ int? categoryId thành List<int>?
     String? searchQuery,
     bool onlyAvailable = false,
   }) async {
     try {
-      final productModels = categoryId != null
-          ? await repository.getProductsByCategory(categoryId)
-          : await repository.getProducts();
+      // Lấy danh sách sản phẩm từ repository
+      final productModels = await repository.getProducts();
+
+      // Lọc sản phẩm theo danh sách categoryIds (nếu có)
       var filteredProducts = productModels
+          .where((model) =>
+      categoryIds == null || categoryIds.contains(model.maLoai))
           .where((model) => !onlyAvailable || model.trangThai == 'Còn hàng')
           .map(_mapToEntity)
           .toList();
@@ -45,7 +48,9 @@ class GetProductsUseCase {
       price: model.gia,
       categoryId: model.maLoai,
       imageUrl: model.hinhAnh,
-      status: model.trangThai == 'Còn hàng' ? ProductStatus.inStock : ProductStatus.outOfStock,
+      status: model.trangThai == 'Còn hàng'
+          ? ProductStatus.inStock
+          : ProductStatus.outOfStock,
       stock: model.soLuongTon,
     );
   }

@@ -34,3 +34,14 @@ class RegisterEvent extends AccountEvent {
 
   const RegisterEvent(this.email, this.password);
 }
+
+class FetchAllAccountsEvent extends AccountEvent {
+  const FetchAllAccountsEvent();
+}
+
+class UpdateAccountRoleEvent extends AccountEvent {
+  final int accountId;
+  final String newRole;
+
+  const UpdateAccountRoleEvent(this.accountId, this.newRole);
+}

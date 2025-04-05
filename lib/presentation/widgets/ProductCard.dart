@@ -1,107 +1,101 @@
 import 'package:flutter/material.dart';
-import '../../domain/entities/product.dart';
-import '../pages/screens/HomeScreen.dart';
 
-Widget ProductCard(Product product) {
-  return Container(
-    width: 180,
-    height: 220,
-    margin: const EdgeInsets.all(8),
-    decoration: BoxDecoration(
-      color: Colors.grey.shade300, // Nền xám
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Stack(
-      clipBehavior: Clip.none,
-      children: [
-        // Thẻ màu (nền xanh cho text + nút)
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            height: 130,
-            decoration: BoxDecoration(
-              color: Colors.brown, // Thẻ màu
-              borderRadius: BorderRadius.circular(24),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 15),
-                Text(
-                  product.name,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  product.description ?? "Unknown",
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "\$${product.price.toStringAsFixed(0)}",
-                      style: const TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Container(
-                      width: 32,
-                      height: 25,
-                      decoration: const BoxDecoration(
-                        color: Colors.orange,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
+class ProductCard extends StatelessWidget {
+  final String title;
+  final String calories;
+  final String imageName;
+  final VoidCallback? onTap; // Đảm bảo onTap được sử dụng
 
-        // Ảnh sản phẩm
-        Positioned(
-          top: -10,
-          left: 25,
-          right: 25,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child:
-            // product.imageUrl != null ?
-            Image.network(
-              "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                    height: 140,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.image, size: 120, color: Colors.grey),
-                  )
-                // : const Icon(Icons.image, size: 80, color: Colors.grey),
-          ),
+  const ProductCard({
+    super.key,
+    required this.title,
+    required this.calories,
+    required this.imageName,
+    this.onTap, // Không cần required vì có thể null
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const String defaultImage = "GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
+    final String imageUrl = "assets/images/${imageName.isEmpty ? defaultImage : imageName}";
+
+    return GestureDetector(
+      onTap: onTap, // Thêm GestureDetector để xử lý sự kiện nhấn
+      child: Container(
+        width: MediaQuery.of(context).size.width / 3.5,
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                topRight: Radius.circular(10),
+              ),
+              child: Image.network(
+                imageUrl,
+                height: 80,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 80,
+                    width: double.infinity,
+                    color: Colors.grey[300],
+                    child: const Center(
+                        child: Text('Ảnh không khả dụng', style: TextStyle(fontSize: 12))),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const SizedBox(
+                    height: 80,
+                    width: double.infinity,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    calories,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

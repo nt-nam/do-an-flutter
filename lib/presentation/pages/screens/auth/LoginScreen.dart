@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // Nền với hình ảnh minh họa
           Image.asset(
-            'assets/images/GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg',
+            'assets/images/placeholder.jpg',
             fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
@@ -115,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             context.read<AccountBloc>().add(
                               LoginEvent(
 
-                                "1@x.x",
-                                "1",
+                                "test3@mail.xx",
+                                "123",
                               ),
                             );
                           }else{

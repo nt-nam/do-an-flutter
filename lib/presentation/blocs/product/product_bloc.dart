@@ -1,6 +1,6 @@
-import 'package:do_an_flutter/domain/usecases/product/get_product_by_id_usecase.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/usecases/product/delete_product_usecase.dart';
+import '../../../domain/usecases/product/get_product_by_id_usecase.dart';
 import '../../../domain/usecases/product/get_products_usecase.dart';
 import '../../../domain/usecases/product/add_product_usecase.dart';
 import '../../../domain/usecases/product/update_product_usecase.dart';
@@ -26,6 +26,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<AddProductEvent>(_onAddProduct);
     on<UpdateProductEvent>(_onUpdateProduct);
     on<DeleteProductEvent>(_onDeleteProduct);
+    on<ResetProductsEvent>(_onResetProducts);
   }
 
   Future<void> _onFetchProducts(
@@ -33,7 +34,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     emit(const ProductLoading());
     try {
       final products = await getProductsUseCase(
-        categoryId: event.categoryId,
+        categoryIds: event.categoryIds,
         onlyAvailable: event.onlyAvailable,
         searchQuery: event.searchQuery,
       );
@@ -107,4 +108,16 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       emit(ProductError(e.toString()));
     }
   }
+
+  Future<void> _onResetProducts(
+      ResetProductsEvent event, Emitter<ProductState> emit) async {
+    emit(const ProductLoading());
+    try {
+      final products = await getProductsUseCase(); // Gọi mà không truyền tham số
+      emit(ProductLoaded(products));
+    } catch (e) {
+      emit(ProductError(e.toString()));
+    }
+  }
+
 }

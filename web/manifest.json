@@ -1,6 +1,6 @@
 {
-    "name": "do_an_flutter",
-    "short_name": "do_an_flutter",
+    "name": "gas_store",
+    "short_name": "gas_store",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

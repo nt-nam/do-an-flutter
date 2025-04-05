@@ -1,4 +1,4 @@
-package com.example.do_an_flutter;
+package com.example.gas_store;
 
 import io.flutter.embedding.android.FlutterActivity;
 

@@ -1,21 +1,20 @@
-import 'package:do_an_flutter/presentation/blocs/product/product_bloc.dart';
-import 'package:do_an_flutter/presentation/pages/screens/HomeScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/account/account_bloc.dart';
 import '../../../blocs/account/account_state.dart';
 import '../../../blocs/category/category_bloc.dart';
 import '../../../blocs/category/category_state.dart';
+import '../../../blocs/product/product_bloc.dart';
 import '../../../blocs/product/product_event.dart';
 import '../../../blocs/product/product_state.dart';
 import '../../../widgets/CategoryButton.dart';
-import '../../../widgets/RecipeCard.dart';
+import '../../../widgets/ProductCard.dart';
+import 'DetailProductScreen.dart';
 
 class FindProductScreen extends StatefulWidget {
   const FindProductScreen({super.key});
 
-  static final String linkImage =
-      "gasdandung/GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
+  static final String linkImage = "gasdandung/placeholder.jpg";
 
   @override
   State<FindProductScreen> createState() => _FindProductScreenState();
@@ -23,12 +22,11 @@ class FindProductScreen extends StatefulWidget {
 
 class _FindProductScreenState extends State<FindProductScreen> {
   final TextEditingController _searchController = TextEditingController();
-  int? _selectedCategoryId;
+  List<int> _selectedCategoryIds = []; // Thay đổi thành danh sách
 
   @override
   void initState() {
     super.initState();
-    // Lấy danh sách tất cả sản phẩm khi vào màn hình
     context.read<ProductBloc>().add(const FetchProductsEvent());
     _searchController.addListener(_onSearchChanged);
   }
@@ -36,21 +34,29 @@ class _FindProductScreenState extends State<FindProductScreen> {
   void _onSearchChanged() {
     final query = _searchController.text.trim();
     context.read<ProductBloc>().add(FetchProductsEvent(
-      searchQuery: query.isNotEmpty ? query : null,
-      categoryId: _selectedCategoryId,
-    ));
+          searchQuery: query.isNotEmpty ? query : null,
+          categoryIds: _selectedCategoryIds.isNotEmpty
+              ? _selectedCategoryIds
+              : null, // Truyền danh sách
+        ));
   }
 
   void _onCategorySelected(int categoryId) {
     setState(() {
-      _selectedCategoryId = categoryId;
+      if (_selectedCategoryIds.contains(categoryId)) {
+        _selectedCategoryIds.remove(categoryId); // Bỏ chọn nếu đã chọn
+      } else {
+        _selectedCategoryIds.add(categoryId); // Thêm vào nếu chưa chọn
+      }
     });
     context.read<ProductBloc>().add(FetchProductsEvent(
-      categoryId: categoryId,
-      searchQuery: _searchController.text.trim().isNotEmpty
-          ? _searchController.text.trim()
-          : null,
-    ));
+          categoryIds: _selectedCategoryIds.isNotEmpty
+              ? _selectedCategoryIds
+              : null, // Truyền danh sách
+          searchQuery: _searchController.text.trim().isNotEmpty
+              ? _searchController.text.trim()
+              : null,
+        ));
   }
 
   @override
@@ -82,7 +88,6 @@ class _FindProductScreenState extends State<FindProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Thanh tìm kiếm
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -94,12 +99,12 @@ class _FindProductScreenState extends State<FindProductScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.teal, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.teal, width: 2),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                // Danh mục
                 const Text(
                   'Loại',
                   style: TextStyle(
@@ -122,7 +127,8 @@ class _FindProductScreenState extends State<FindProductScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: categories.map((category) {
-                            final isSelected = _selectedCategoryId == category.id;
+                            final isSelected =
+                                _selectedCategoryIds.contains(category.id);
                             return Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: CategoryButton(
@@ -141,7 +147,6 @@ class _FindProductScreenState extends State<FindProductScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Danh sách sản phẩm
                 const Text(
                   'Sản phẩm',
                   style: TextStyle(
@@ -164,20 +169,30 @@ class _FindProductScreenState extends State<FindProductScreen> {
                         }
                         return GridView.builder(
                           gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2, // 2 cột
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.75, // Tỷ lệ chiều cao/chiều rộng
+                            childAspectRatio: 0.75,
                           ),
                           itemCount: products.length,
                           itemBuilder: (context, index) {
                             final product = products[index];
-                            return RecipeCard(
+                            return ProductCard(
                               title: product.name,
                               calories: '${product.price} VNĐ',
-                              imageUrl:
-                              "assets/images/${(product.imageUrl ?? FindProductScreen.linkImage) == "" ? FindProductScreen.linkImage : (product.imageUrl ?? FindProductScreen.linkImage)}",
+                              imageName: product.imageUrl ?? '',
+                              onTap: () {
+                                context
+                                    .read<ProductBloc>()
+                                    .add(FetchProductDetailsEvent(product.id));
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailProductScreen()),
+                                );
+                              },
                             );
                           },
                         );
@@ -192,41 +207,6 @@ class _FindProductScreenState extends State<FindProductScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-// Cập nhật CategoryButton để hỗ trợ trạng thái được chọn
-class CategoryButton extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const CategoryButton({
-    super.key,
-    required this.label,
-    this.isSelected = false,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.teal : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
       ),
     );
   }

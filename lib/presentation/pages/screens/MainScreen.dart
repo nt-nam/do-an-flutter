@@ -1,9 +1,11 @@
-import 'package:do_an_flutter/presentation/pages/screens/CartScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
-import '../../widgets/CustomBottomNavigation.dart';
+import '../../blocs/product/product_bloc.dart';
+import '../../blocs/product/product_event.dart';
+import '../../widgets/NavigationBottom.dart';
+import 'CartScreen.dart';
 import 'HomeScreen.dart';
 import 'product/FindProductScreen.dart';
 import 'OrderScreen.dart';
@@ -23,14 +25,17 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _screens = [
     const HomeScreen(),
     FindProductScreen(),
-    const CartScreen(), // Thay bằng CartScreen khi có
-    const Placeholder(), // Thay bằng NotificationScreen khi có
+    const CartScreen(),
+    const Placeholder(),
     const OrderScreen(),
   ];
 
   void _onItemTapped(int index) {
+    if (_currentIndex == 1 && index != 1) { // Kiểm tra khi rời khỏi FindProductScreen
+      context.read<ProductBloc>().add(const ResetProductsEvent()); // Gửi sự kiện reset
+    }
     setState(() {
-      _currentIndex = index;
+      _currentIndex = index; // Cập nhật index hiện tại
     });
   }
 

@@ -1,4 +1,6 @@
-import '../../../data/models/user_model.dart';
+import 'package:gas_store/data/models/user_model.dart';
+
+import '../../../domain/entities/user.dart';
 
 abstract class UserState {
   const UserState();
@@ -13,12 +15,12 @@ class UserLoading extends UserState {
 }
 
 class UsersLoaded extends UserState {
-  final List<UserModel> users;
+  final List<User> users;
   const UsersLoaded(this.users);
 }
 
 class UserLoaded extends UserState {
-  final UserModel user;
+  final User user;
   const UserLoaded(this.user);
 }
 
