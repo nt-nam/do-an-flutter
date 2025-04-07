@@ -30,7 +30,7 @@ class AddProductEvent extends ProductEvent {
   final int categoryId;
   final double price;
   final int stock;
-  final File? imageFile; // Thay imageUrl bằng File để upload
+  final File? imageFile;
   final String? description;
 
   const AddProductEvent({

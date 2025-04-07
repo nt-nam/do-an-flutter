@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/entities/product.dart';
 import '../../../domain/usecases/product/delete_product_usecase.dart';
 import '../../../domain/usecases/product/get_product_by_id_usecase.dart';
 import '../../../domain/usecases/product/get_products_usecase.dart';
@@ -39,14 +40,16 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       final products = await getProductsUseCase(
         categoryId: event.categoryId,
         searchQuery: event.searchQuery,
-        page: event.page,
-        limit: event.limit,
+        page: event.page ?? 1, // Default to 1 if null
+        limit: event.limit ?? 10, // Default to 10 if null
       );
-      // Lọc chỉ sản phẩm còn hàng nếu cần
       final filteredProducts = event.onlyAvailable
-          ? products.where((p) => p.trangThai == 'Còn hàng').toList()
+          ? products.where((p) => p.status == ProductStatus.inStock).toList()
           : products;
-      emit(ProductLoaded(filteredProducts, meta: {'page': event.page, 'limit': event.limit}));
+      emit(ProductLoaded(filteredProducts, meta: {
+        'page': event.page ?? 1,
+        'limit': event.limit ?? 10,
+      }));
     } catch (e) {
       emit(ProductError(e.toString()));
     }
@@ -70,7 +73,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         categoryId: event.categoryId,
         price: event.price,
         stock: event.stock,
-        imageFile: event.imageFile, // Truyền File thay vì URL
+        imageFile: event.imageFile,
         description: event.description,
       );
       emit(ProductAdded(product));
@@ -94,7 +97,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         categoryId: event.categoryId,
         price: event.price,
         stock: event.stock,
-        imageFile: event.imageFile, // Truyền File thay vì URL
+        imageFile: event.imageFile,
         description: event.description,
       );
       emit(ProductUpdated(product));

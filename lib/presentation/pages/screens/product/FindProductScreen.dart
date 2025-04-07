@@ -23,7 +23,7 @@ class FindProductScreen extends StatefulWidget {
 
 class _FindProductScreenState extends State<FindProductScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<int> _selectedCategoryIds = []; // Thay đổi thành danh sách
+  int? _selectedCategoryId; // Thay bằng single ID
 
   @override
   void initState() {
@@ -31,41 +31,27 @@ class _FindProductScreenState extends State<FindProductScreen> {
     context.read<ProductBloc>().add(const FetchProductsEvent());
     _searchController.addListener(_onSearchChanged);
   }
+
   String _generateHeroTag(Product product) {
-    return 'product_${product.id}';
+    return 'product_${product.id}'; // Sử dụng maSP thay vì id nếu cần
   }
+
   void _onSearchChanged() {
     final query = _searchController.text.trim();
     context.read<ProductBloc>().add(FetchProductsEvent(
-          searchQuery: query.isNotEmpty ? query : null,
-          categoryIds: _selectedCategoryIds.isNotEmpty
-              ? _selectedCategoryIds
-              : null, // Truyền danh sách
-        ));
+      categoryId: _selectedCategoryId,
+      searchQuery: query.isNotEmpty ? query : null,
+    ));
   }
 
   void _onCategorySelected(int categoryId) {
     setState(() {
-      if (_selectedCategoryIds.contains(categoryId)) {
-        _selectedCategoryIds.remove(categoryId); // Bỏ chọn nếu đã chọn
-      } else {
-        _selectedCategoryIds.add(categoryId); // Thêm vào nếu chưa chọn
-      }
+      _selectedCategoryId = (_selectedCategoryId == categoryId) ? null : categoryId; // Toggle chọn/bỏ chọn
     });
     context.read<ProductBloc>().add(FetchProductsEvent(
-          categoryIds: _selectedCategoryIds.isNotEmpty
-              ? _selectedCategoryIds
-              : null, // Truyền danh sách
-          searchQuery: _searchController.text.trim().isNotEmpty
-              ? _searchController.text.trim()
-              : null,
-        ));
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+      categoryId: _selectedCategoryId,
+      searchQuery: _searchController.text.trim().isNotEmpty ? _searchController.text.trim() : null,
+    ));
   }
 
   @override
@@ -102,8 +88,7 @@ class _FindProductScreenState extends State<FindProductScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.teal, width: 2),
+                      borderSide: const BorderSide(color: Colors.teal, width: 2),
                     ),
                   ),
                 ),
@@ -130,8 +115,7 @@ class _FindProductScreenState extends State<FindProductScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: categories.map((category) {
-                            final isSelected =
-                                _selectedCategoryIds.contains(category.id);
+                            final isSelected = _selectedCategoryId == category.id;
                             return Padding(
                               padding: const EdgeInsets.only(right: 8.0),
                               child: CategoryButton(
@@ -171,8 +155,7 @@ class _FindProductScreenState extends State<FindProductScreen> {
                           );
                         }
                         return GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,

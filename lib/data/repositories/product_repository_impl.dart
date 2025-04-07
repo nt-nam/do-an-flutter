@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import '../models/product_model.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
@@ -12,48 +12,63 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl(this.apiService, this.authService);
 
   @override
-  Future<List<ProductModel>> getProducts() async {
+  Future<List<Product>> getProducts() async {
     final token = await authService.getToken();
     final response = await apiService.get('products.php', token: token);
     if (response['status'] == 'success') {
-      return (response['data'] as List).map((json) => ProductModel.fromJson(json)).toList();
+      return (response['data'] as List).map((json) => ProductModel.fromJson(json).toEntity()).toList();
     }
     throw Exception('Failed to fetch products: ${response['message']}');
   }
 
   @override
-  Future<ProductModel> getProductById(int id) async {
+  Future<Product> getProductById(int id) async {
     final token = await authService.getToken();
     final response = await apiService.get('products.php?id=$id', token: token);
     if (response['status'] == 'success') {
-      return ProductModel.fromJson(response['data']);
+      return ProductModel.fromJson(response['data']).toEntity();
     }
     throw Exception('Failed to fetch product: ${response['message']}');
   }
 
   @override
-  Future<ProductModel> createProduct(ProductModel product) async {
+  Future<Product> createProduct(ProductModel product, {File? imageFile}) async {
     final token = await authService.getToken();
-    final data = product.toJson();
-    final response = product.hinhAnh is File
-        ? await apiService.postWithImage('products.php', data, token: token)
-        : await apiService.post('products.php', data, token: token);
+    Map<String, dynamic> data = product.toJson();
+
+    // Handle image upload if provided
+    if (imageFile != null) {
+      final fileName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final imageUrl = await uploadImage(imageFile, fileName);
+      data['HinhAnh'] = imageUrl; // Update the imageUrl field with the uploaded URL
+    }
+
+    final response = await apiService.post('products.php', data, token: token);
     if (response['status'] == 'success') {
-      return ProductModel.fromJson(response['data']);
+      return ProductModel.fromJson(response['data']).toEntity();
     }
     throw Exception('Failed to create product: ${response['message']}');
   }
 
   @override
-  Future<ProductModel> updateProduct(ProductModel product) async {
+  Future<Product> updateProduct(ProductModel product, {File? imageFile}) async {
     final token = await authService.getToken();
+    Map<String, dynamic> data = product.toJson();
+
+    // Handle image upload if provided
+    if (imageFile != null) {
+      final fileName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final imageUrl = await uploadImage(imageFile, fileName);
+      data['HinhAnh'] = imageUrl; // Update the imageUrl field with the uploaded URL
+    }
+
     final response = await apiService.put(
-      'products.php?id=${product.maSP}',
-      product.toJson(),
+      'products.php?id=${product.id}', // Changed from maSP to id
+      data,
       token: token,
     );
     if (response['status'] == 'success') {
-      return ProductModel.fromJson(response['data']);
+      return ProductModel.fromJson(response['data']).toEntity();
     }
     throw Exception('Failed to update product: ${response['message']}');
   }
@@ -68,13 +83,33 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<List<ProductModel>> getProductsByCategory(int categoryId) async {
+  Future<List<Product>> getProductsByCategory(int categoryId) async {
     final token = await authService.getToken();
     final response = await apiService.get('products.php?MaLoai=$categoryId', token: token);
     if (response['status'] == 'success') {
-      return (response['data'] as List).map((json) => ProductModel.fromJson(json)).toList();
+      return (response['data'] as List).map((json) => ProductModel.fromJson(json).toEntity()).toList();
     }
     throw Exception('Failed to fetch products by category: ${response['message']}');
+  }
+
+  @override
+  Future<List<Product>> getFeaturedProducts(int limit) async {
+    final token = await authService.getToken();
+    final response = await apiService.get('products.php?featured=1&limit=$limit', token: token);
+    if (response['status'] == 'success') {
+      return (response['data'] as List).map((json) => ProductModel.fromJson(json).toEntity()).toList();
+    }
+    throw Exception('Failed to fetch featured products: ${response['message']}');
+  }
+
+  @override
+  Future<List<Product>> getNewProducts(int limit) async {
+    final token = await authService.getToken();
+    final response = await apiService.get('products.php?new=1&limit=$limit', token: token);
+    if (response['status'] == 'success') {
+      return (response['data'] as List).map((json) => ProductModel.fromJson(json).toEntity()).toList();
+    }
+    throw Exception('Failed to fetch new products: ${response['message']}');
   }
 
   @override
@@ -85,22 +120,5 @@ class ProductRepositoryImpl implements ProductRepository {
       return response['imageUrl'];
     }
     throw Exception('Failed to upload image: ${response['message']}');
-  }
-  Future<List<ProductModel>> getFeaturedProducts(int limit) async {
-    final token = await authService.getToken();
-    final response = await apiService.get('products.php?featured=1&limit=$limit', token: token);
-    if (response['status'] == 'success') {
-      return (response['data'] as List).map((json) => ProductModel.fromJson(json)).toList();
-    }
-    throw Exception('Failed to fetch featured products: ${response['message']}');
-  }
-
-  Future<List<ProductModel>> getNewProducts(int limit) async {
-    final token = await authService.getToken();
-    final response = await apiService.get('products.php?new=1&limit=$limit', token: token);
-    if (response['status'] == 'success') {
-      return (response['data'] as List).map((json) => ProductModel.fromJson(json)).toList();
-    }
-    throw Exception('Failed to fetch new products: ${response['message']}');
   }
 }

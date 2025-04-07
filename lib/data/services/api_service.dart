@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://localhost/gas_api/';
+  static const String baseUrl = 'http://localhost/gas_api'; // Remove trailing slash
 
-  // Headers mặc định, có thể thêm token sau khi xác thực
   Map<String, String> _getHeaders({String? token}) {
     return {
       'Content-Type': 'application/json',
@@ -14,23 +13,26 @@ class ApiService {
   }
 
   Future<String> getBaseUrl() async {
-    return baseUrl; // Hoặc xử lý dynamic domain nếu cần
+    return baseUrl;
   }
 
-  // GET request
   Future<dynamic> get(String endpoint, {String? token}) async {
     try {
+      print('Making GET request to: $baseUrl/$endpoint');
+      print('Headers: ${_getHeaders(token: token)}');
       final response = await http.get(
         Uri.parse('$baseUrl/$endpoint'),
         headers: _getHeaders(token: token),
       );
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
       return _handleResponse(response);
     } catch (e) {
+      print('Error in GET request: $e');
       throw Exception('Failed to perform GET request: $e');
     }
   }
 
-  // POST request
   Future<dynamic> post(String endpoint, Map<String, dynamic> data,
       {String? token}) async {
     try {
@@ -45,7 +47,6 @@ class ApiService {
     }
   }
 
-  // PUT request
   Future<dynamic> put(String endpoint, Map<String, dynamic> data,
       {String? token}) async {
     try {
@@ -60,7 +61,6 @@ class ApiService {
     }
   }
 
-  // DELETE request
   Future<dynamic> delete(String endpoint, {String? token}) async {
     try {
       final response = await http.delete(
@@ -76,7 +76,7 @@ class ApiService {
   Future<dynamic> uploadFile(String endpoint, File file, String fileName,
       {String? token}) async {
     var request =
-        http.MultipartRequest('POST', Uri.parse('$baseUrl/$endpoint'));
+    http.MultipartRequest('POST', Uri.parse('$baseUrl/$endpoint'));
 
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
@@ -98,11 +98,9 @@ class ApiService {
     }
   }
 
-  // Thêm hàm upload ảnh dạng base64
   Future<dynamic> postWithImage(String endpoint, Map<String, dynamic> data,
       {String? token}) async {
     try {
-      // Xử lý ảnh nếu có
       if (data['HinhAnh'] is File) {
         final file = data['HinhAnh'] as File;
         final bytes = await file.readAsBytes();
@@ -120,25 +118,25 @@ class ApiService {
     }
   }
 
-  // Xử lý phản hồi từ server
   dynamic _handleResponse(http.Response response) {
     final jsonResponse = jsonDecode(response.body);
+    final errorMessage = jsonResponse['message'] ?? 'Unknown error';
     switch (response.statusCode) {
       case 200:
       case 201:
-        return jsonResponse['data'] ?? jsonResponse; // Bóc tách 'data' nếu có, nếu không trả toàn bộ
+        return jsonResponse['data'] ?? jsonResponse;
       case 400:
-        throw Exception('Bad request: ${jsonResponse['message']}');
+        throw Exception('Bad request: $errorMessage');
       case 401:
-        throw Exception('Unauthorized: ${jsonResponse['message']}');
+        throw Exception('Unauthorized: $errorMessage');
       case 403:
-        throw Exception('Forbidden: ${jsonResponse['message']}');
+        throw Exception('Forbidden: $errorMessage');
       case 404:
-        throw Exception('Not found: ${jsonResponse['message']}');
+        throw Exception('Not found: $errorMessage');
       case 500:
-        throw Exception('Server error: ${jsonResponse['message']}');
+        throw Exception('Server error: $errorMessage');
       default:
-        throw Exception('Unexpected error: ${response.statusCode} - ${jsonResponse['message']}');
+        throw Exception('Unexpected error: ${response.statusCode} - $errorMessage');
     }
   }
 }

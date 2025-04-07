@@ -1,6 +1,5 @@
 import '../../entities/product.dart';
 import '../../repositories/product_repository.dart';
-import '../../../data/models/product_model.dart';
 
 class GetProductsUseCase {
   final ProductRepository repository;
@@ -8,50 +7,39 @@ class GetProductsUseCase {
   GetProductsUseCase(this.repository);
 
   Future<List<Product>> call({
+    int? categoryId,
+    String? searchQuery,
     int page = 1,
     int limit = 10,
-    List<int>? categoryIds, // Thay đổi từ int? categoryId thành List<int>?
-    String? searchQuery,
+    bool featured = false,
+    bool newProducts = false,
     bool onlyAvailable = false,
   }) async {
     try {
-      // Lấy danh sách sản phẩm từ repository
-      final productModels = await repository.getProducts();
-
-      // Lọc sản phẩm theo danh sách categoryIds (nếu có)
-      var filteredProducts = productModels
-          .where((model) =>
-      categoryIds == null || categoryIds.contains(model.maLoai))
-          .where((model) => !onlyAvailable || model.trangThai == 'Còn hàng')
-          .map(_mapToEntity)
-          .toList();
-
-      // Lọc theo searchQuery nếu có
-      if (searchQuery != null && searchQuery.isNotEmpty) {
-        filteredProducts = filteredProducts
-            .where((product) =>
-            product.name.toLowerCase().contains(searchQuery.toLowerCase()))
-            .toList();
+      List<Product> products;
+      if (featured) {
+        products = await repository.getFeaturedProducts(limit);
+      } else if (newProducts) {
+        products = await repository.getNewProducts(limit);
+      } else if (categoryId != null) {
+        products = await repository.getProductsByCategory(categoryId);
+      } else {
+        products = await repository.getProducts();
       }
 
-      return filteredProducts;
+      // Filter by searchQuery and onlyAvailable if needed
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        products = products
+            .where((p) => p.name.toLowerCase().contains(searchQuery.toLowerCase()))
+            .toList();
+      }
+      if (onlyAvailable) {
+        products = products.where((p) => p.status == ProductStatus.inStock).toList();
+      }
+
+      return products;
     } catch (e) {
       throw Exception('Failed to get products: $e');
     }
-  }
-
-  Product _mapToEntity(ProductModel model) {
-    return Product(
-      id: model.maSP,
-      name: model.tenSP,
-      description: model.moTa,
-      price: model.gia,
-      categoryId: model.maLoai,
-      imageUrl: model.hinhAnh,
-      status: model.trangThai == 'Còn hàng'
-          ? ProductStatus.inStock
-          : ProductStatus.outOfStock,
-      stock: model.soLuongTon,
-    );
   }
 }

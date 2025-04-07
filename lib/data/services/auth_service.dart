@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost/gas_api/';
+  static const String baseUrl = 'http://localhost/gas_api'; // Remove trailing slash
   static const String loginEndpoint = '/auth/login';
   static const String registerEndpoint = '/auth/register';
   static const String _tokenKey = 'auth_token';
@@ -23,8 +23,8 @@ class AuthService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
-          await _saveToken(data['token']); // Luôn lưu token
-          await saveCurrentAccountId(data['user']['id']); // Lưu MaTK
+          await _saveToken(data['token']);
+          await saveCurrentAccountId(data['user']['id']);
           return data;
         } else {
           throw Exception('Login failed: ${data['message']}');
@@ -48,8 +48,8 @@ class AuthService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
-          await _saveToken(data['token']); // Luôn lưu token
-          await saveCurrentAccountId(data['user']['id']); // Lưu MaTK
+          await _saveToken(data['token']);
+          await saveCurrentAccountId(data['user']['id']);
           return data;
         } else {
           throw Exception('Registration failed: ${data['message']}');
@@ -62,30 +62,27 @@ class AuthService {
     }
   }
 
-  // Lấy token từ bộ nhớ cục bộ
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(_tokenKey);
   }
 
-  // Lưu token vào bộ nhớ cục bộ
   Future<void> _saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenKey, token);
   }
 
-  // Xóa token (đăng xuất)
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);
+    await prefs.remove('current_account_id'); // Clear account ID on logout
   }
 
-  // Kiểm tra trạng thái đăng nhập
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null;
   }
-  // Trong auth_service.dart
+
   Future<int> getCurrentAccountId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('current_account_id') ?? 0;

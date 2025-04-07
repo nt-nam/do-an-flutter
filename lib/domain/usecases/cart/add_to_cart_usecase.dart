@@ -13,7 +13,7 @@ class AddToCartUseCase {
     try {
       if (quantity <= 0) throw Exception('Quantity must be positive');
       final product = await productRepository.getProductById(productId);
-      if (product.trangThai == 'Hết hàng') throw Exception('Product out of stock');
+      if (product.status == 'Hết hàng') throw Exception('Product out of stock');
 
       final cart = await cartRepository.getCart(accountId);
       final cartDetailModel = CartDetailModel(

@@ -130,18 +130,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
     setState(() => _isUploading = true);
 
     try {
-      final imageBase64 = await _getImageBase64();
-
       context.read<ProductBloc>().add(
-            AddProductEvent(
-              name: name,
-              categoryId: categoryId,
-              price: price,
-              stock: stock,
-              imageUrl: imageBase64,
-              description: description,
-            ),
-          );
+        AddProductEvent(
+          name: name,
+          categoryId: categoryId,
+          price: price,
+          stock: stock,
+          imageFile: _imageFile, // Truyền File thay vì base64
+          description: description,
+        ),
+      );
     } catch (e) {
       _showErrorSnackbar('Lỗi khi thêm sản phẩm: ${e.toString()}');
     } finally {
