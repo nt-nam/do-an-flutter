@@ -29,8 +29,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Gửi FetchProductsEvent khi khởi tạo màn hình
     context.read<ProductBloc>().add(const FetchProductsEvent());
+  }
+
+  String _generateHeroTag(Product product) {
+    return 'product_${product.id}';
   }
 
   @override
@@ -134,6 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 10),
                 BlocBuilder<ProductBloc, ProductState>(
+                  // Trong phần builder của BlocBuilder<ProductBloc, ProductState>
                   builder: (context, state) {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
@@ -143,10 +147,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (_products.isEmpty) {
                       return const Text('Không có sản phẩm nào.');
                     }
+
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: _products.take(5).map((product) {
                           return Padding(
                             padding: const EdgeInsets.only(right: 16.0),
@@ -156,17 +160,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               time: product.status == ProductStatus.inStock
                                   ? 'Còn hàng'
                                   : 'Hết hàng',
-                              imageUrl:
-                                  "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
+                              imageUrl: "assets/images/${product.imageUrl ?? HomeScreen.linkImage}",
+                              heroTag: 'featured_${product.id}',
                               onTap: () {
-                                context
-                                    .read<ProductBloc>()
-                                    .add(FetchProductDetailsEvent(product.id));
+                                context.read<ProductBloc>().add(
+                                    FetchProductDetailsEvent(product.id)
+                                );
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailProductScreen()),
+                                    builder: (context) => DetailProductScreen(
+                                      heroTag: 'featured_${product.id}',
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -222,15 +228,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Sản phẩm ngẫu nhiên',
+                      'Sản phẩm phổ biến',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Text(
-                      'Tất cả',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    TextButton(
+                      onPressed: () {},
+                      child: const Text(
+                        'Xem tất cả',
+                        style: TextStyle(color: Colors.deepOrange),
+                      ),
                     ),
                   ],
                 ),
@@ -240,57 +249,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is ProductLoaded) {
-                      _products = state.products
-                        ..shuffle(); // Xáo trộn danh sách sản phẩm
+                      _products = state.products..shuffle();
                     }
                     if (_products.isEmpty) {
                       return const Text('Không có sản phẩm nào.');
                     }
-                    return Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: _products.take(3).map((product) {
-                            return ProductCard(
-                              title: product.name,
-                              calories: '${product.price} VNĐ',
-                              imageName: product.imageUrl ?? '',
-                              onTap: () {
-                                context
-                                    .read<ProductBloc>()
-                                    .add(FetchProductDetailsEvent(product.id));
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailProductScreen()),
-                                );
-                              },
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.75,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: _products.take(4).length,
+                      itemBuilder: (context, index) {
+                        final product = _products[index];
+                        return ProductCard(
+                          title: product.name,
+                          calories: '${product.price} VNĐ',
+                          imageName: product.imageUrl ?? '',
+                          heroTag: _generateHeroTag(product),
+                          onTap: () {
+                            context.read<ProductBloc>().add(FetchProductDetailsEvent(product.id));
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailProductScreen(heroTag: _generateHeroTag(product)),
+                              ),
                             );
-                          }).toList(),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: _products.skip(3).take(3).map((product) {
-                            return ProductCard(
-                              title: product.name,
-                              calories: '${product.price} VNĐ',
-                              imageName: product.imageUrl ?? '',
-                              onTap: () {
-                                context
-                                    .read<ProductBloc>()
-                                    .add(FetchProductDetailsEvent(product.id));
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailProductScreen()),
-                                );
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                          },
+                        );
+                      },
                     );
                   },
                 ),

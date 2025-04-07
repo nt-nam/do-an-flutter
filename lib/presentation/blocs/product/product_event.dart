@@ -1,19 +1,28 @@
+import 'dart:io';
+
 abstract class ProductEvent {
   const ProductEvent();
 }
 
 class FetchProductsEvent extends ProductEvent {
-  final List<int>? categoryIds;
+  final int? categoryId; // Chỉ hỗ trợ một category
   final bool onlyAvailable;
   final String? searchQuery;
+  final int? page; // Thêm phân trang
+  final int? limit;
 
-  const FetchProductsEvent({this.categoryIds, this.onlyAvailable = false,this.searchQuery,});
+  const FetchProductsEvent({
+    this.categoryId,
+    this.onlyAvailable = false,
+    this.searchQuery,
+    this.page,
+    this.limit,
+  });
 }
 
 class FetchProductDetailsEvent extends ProductEvent {
   final int productId;
   const FetchProductDetailsEvent(this.productId);
-
 }
 
 class AddProductEvent extends ProductEvent {
@@ -21,7 +30,7 @@ class AddProductEvent extends ProductEvent {
   final int categoryId;
   final double price;
   final int stock;
-  final String? imageUrl;
+  final File? imageFile; // Thay imageUrl bằng File để upload
   final String? description;
 
   const AddProductEvent({
@@ -29,7 +38,7 @@ class AddProductEvent extends ProductEvent {
     required this.categoryId,
     required this.price,
     required this.stock,
-    this.imageUrl,
+    this.imageFile,
     this.description,
   });
 }
@@ -40,7 +49,7 @@ class UpdateProductEvent extends ProductEvent {
   final int categoryId;
   final double price;
   final int stock;
-  final String? imageUrl;
+  final File? imageFile; // Thay imageUrl bằng File
   final String? description;
 
   const UpdateProductEvent({
@@ -49,16 +58,26 @@ class UpdateProductEvent extends ProductEvent {
     required this.categoryId,
     required this.price,
     required this.stock,
-    this.imageUrl,
+    this.imageFile,
     this.description,
   });
 }
 
 class DeleteProductEvent extends ProductEvent {
   final int productId;
-
   const DeleteProductEvent(this.productId);
 }
+
 class ResetProductsEvent extends ProductEvent {
   const ResetProductsEvent();
+}
+
+class FetchFeaturedProductsEvent extends ProductEvent {
+  final int limit;
+  const FetchFeaturedProductsEvent({this.limit = 5});
+}
+
+class FetchNewProductsEvent extends ProductEvent {
+  final int limit;
+  const FetchNewProductsEvent({this.limit = 5});
 }

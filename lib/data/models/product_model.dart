@@ -1,12 +1,14 @@
+import '../services/api_service.dart';
+
 class ProductModel {
   final int maSP;
   final String tenSP;
-  final String? moTa; // Có thể null
+  final String? moTa;
   final double gia;
   final int maLoai;
-  final String? hinhAnh; // Có thể null
+  final String? hinhAnh;
   final String trangThai; // ENUM: 'Còn hàng', 'Hết hàng'
-  final int soLuongTon; // Thêm stock
+  final int soLuongTon;
 
   ProductModel({
     required this.maSP,
@@ -21,14 +23,22 @@ class ProductModel {
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      maSP: json['MaSP'] is String ? int.tryParse(json['MaSP']) ?? 0 : json['MaSP'] as int,
+      maSP: json['MaSP'] is String
+          ? int.tryParse(json['MaSP']) ?? 0
+          : json['MaSP'] as int,
       tenSP: json['TenSP'] as String,
       moTa: json['MoTa'] as String?,
       gia: (json['Gia'] as num).toDouble(),
-      maLoai: json['MaLoai'] is String ? int.tryParse(json['MaLoai']) ?? 0: json['MaLoai'] as int,
-      hinhAnh: json['HinhAnh'] as String?,
+      maLoai: json['MaLoai'] is String
+          ? int.tryParse(json['MaLoai']) ?? 0
+          : json['MaLoai'] as int,
+      hinhAnh: json['HinhAnh'] != null
+          ? '${ApiService().getBaseUrl()}/${json['HinhAnh']}'
+          : null,
       trangThai: json['TrangThai'] as String,
-      soLuongTon: json['SoLuongTon'] is String ? int.tryParse(json['SoLuongTon']) ?? 0 : json['SoLuongTon'] as int,
+      soLuongTon: json['SoLuongTon'] is String
+          ? int.tryParse(json['SoLuongTon']) ?? 0
+          : json['SoLuongTon'] as int,
     );
   }
 

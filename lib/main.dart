@@ -15,6 +15,7 @@ import '../presentation/pages/screens/auth/LoginScreen.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/cart_repository_impl.dart';
 import 'data/repositories/category_repository_impl.dart';
+import 'data/repositories/offer_repository_impl.dart';
 import 'data/repositories/order_repository_impl.dart';
 import 'data/repositories/product_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
@@ -29,6 +30,8 @@ import 'domain/usecases/cart/update_cart_quantity_usecase.dart';
 import 'domain/usecases/category/add_category_usecase.dart';
 import 'domain/usecases/category/delete_category_usecase.dart';
 import 'domain/usecases/category/update_category_usecase.dart';
+import 'domain/usecases/offer/add_offer_usecase.dart';
+import 'domain/usecases/offer/get_offers_usecase.dart';
 import 'domain/usecases/order/create_order_usecase.dart';
 import 'domain/usecases/order/get_order_details_usecase.dart';
 import 'domain/usecases/order/get_orders_usecase.dart';
@@ -42,6 +45,7 @@ import 'domain/usecases/auth/get_user_usecase.dart';
 import 'domain/usecases/auth/login_usecase.dart';
 import 'domain/usecases/auth/register_use_case.dart';
 import 'domain/usecases/product/update_product_usecase.dart';
+import 'presentation/blocs/offer/offer_bloc.dart';
 import 'presentation/blocs/order/order_bloc.dart';
 
 void main() {
@@ -85,12 +89,19 @@ class MyApp extends StatelessWidget {
     final createOrderUseCase = CreateOrderUseCase(orderRepository);
     final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
     final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
+
     // Cart-related dependencies
     final cartRepository = CartRepositoryImpl(apiService, authService);
     final getCartUseCase = GetCartUseCase(cartRepository);
-    final addToCartUseCase = AddToCartUseCase(cartRepository,productRepository);
+    final addToCartUseCase = AddToCartUseCase(cartRepository, productRepository);
     final removeFromCartUseCase = RemoveFromCartUseCase(cartRepository);
     final updateCartQuantityUseCase = UpdateCartQuantityUseCase(cartRepository);
+
+    // Offer-related dependencies - Thêm mới
+    final offerRepository = OfferRepositoryImpl(apiService, authService);
+    final getOffersUseCase = GetOffersUseCase(offerRepository);
+    final addOfferUseCase = AddOfferUseCase(offerRepository);
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -105,11 +116,6 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => UserBloc(
             userRepository,
-            /*loginUseCase,
-            registerUseCase,
-            getUserProfileUseCase,
-            accountRepository,
-            authService,*/
           ),
         ),
         BlocProvider(
@@ -148,17 +154,26 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => SettingsBloc(),
         ),
+        BlocProvider(
+          create: (context) => OfferBloc(
+            getOffersUseCase,
+            addOfferUseCase,
+            offerRepository,
+          ),
+        ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, settingsState) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
-              primarySwatch: _getMaterialColor(settingsState.settings.themeColor),
+              primarySwatch:
+                  _getMaterialColor(settingsState.settings.themeColor),
               brightness: Brightness.light,
             ),
             darkTheme: ThemeData(
-              primarySwatch: _getMaterialColor(settingsState.settings.themeColor),
+              primarySwatch:
+                  _getMaterialColor(settingsState.settings.themeColor),
               brightness: Brightness.dark,
             ),
             themeMode: settingsState.settings.themeMode == ThemeModeOption.light
@@ -181,17 +196,18 @@ class MyApp extends StatelessWidget {
                 if (accountState is AccountLoading) {
                   return const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
-                  ); // Hiển thị loading khi đang kiểm tra trạng thái
+                  );
                 } else if (accountState is AccountLoggedIn) {
                   return MainScreen();
-                } else if (accountState is AccountLoggedOut || accountState is AccountInitial) {
+                } else if (accountState is AccountLoggedOut ||
+                    accountState is AccountInitial) {
                   return LoginScreen();
                 } else if (accountState is AccountError) {
-                  return LoginScreen(); // Quay lại LoginScreen nếu có lỗi
+                  return LoginScreen();
                 }
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
-                ); // Mặc định hiển thị loading
+                );
               },
             ),
           );

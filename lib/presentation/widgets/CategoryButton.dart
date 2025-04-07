@@ -1,4 +1,3 @@
-// Custom Category Button Widget
 import 'package:flutter/material.dart';
 
 class CategoryButton extends StatelessWidget {

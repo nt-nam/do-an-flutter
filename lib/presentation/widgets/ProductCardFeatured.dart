@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart'; // Thêm import cho Lottie
 
 class FeaturedCard extends StatefulWidget {
   final String title;
   final String price;
   final String time;
   final String imageUrl;
+  final String heroTag;
   final VoidCallback? onTap;
+  final bool isLoading;
 
   const FeaturedCard({
     super.key,
@@ -14,7 +15,9 @@ class FeaturedCard extends StatefulWidget {
     required this.price,
     required this.time,
     required this.imageUrl,
+    required this.heroTag,
     required this.onTap,
+    this.isLoading = false,
   });
 
   @override
@@ -31,7 +34,6 @@ class _FeaturedCardState extends State<FeaturedCard>
   @override
   void initState() {
     super.initState();
-    // Animation cho scale khi nhấn
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -40,7 +42,6 @@ class _FeaturedCardState extends State<FeaturedCard>
       CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
 
-    // Animation cho ngôi sao lấp lánh
     _sparkleController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -57,13 +58,23 @@ class _FeaturedCardState extends State<FeaturedCard>
     super.dispose();
   }
 
+  Future<void> _handleTap() async {
+    if (widget.isLoading) return;
+
+    await _scaleController.forward();
+    await _scaleController.reverse();
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    if (widget.onTap != null) {
+      widget.onTap!();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTapDown: (_) => _scaleController.forward(),
-      onTapUp: (_) => _scaleController.reverse(),
-      onTapCancel: () => _scaleController.reverse(),
-      onTap: widget.onTap,
+      onTap: _handleTap,
       child: AnimatedBuilder(
         animation: Listenable.merge([_scaleController, _sparkleController]),
         builder: (context, child) {
@@ -73,8 +84,7 @@ class _FeaturedCardState extends State<FeaturedCard>
               width: 200,
               height: 230,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  // colors: [Colors.teal.shade100, Colors.teal.shade300],
+                gradient: const LinearGradient(
                   colors: [Colors.black87, Colors.black26],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -90,124 +100,120 @@ class _FeaturedCardState extends State<FeaturedCard>
               ),
               child: Stack(
                 children: [
-                  // Positioned(
-                  //   bottom: 0,
-                  //   left: 0,
-                  //   right: 0,
-                  //   child: ClipRRect(
-                  //     borderRadius: const BorderRadius.vertical(
-                  //       bottom: Radius.circular(20), // Bo hai góc dưới
-                  //     ),
-                  //     child: Lottie.asset(
-                  //       'assets/animation/fire.json',
-                  //       width: double.infinity,
-                  //       height: 200, // Điều chỉnh kích thước tùy ý
-                  //       fit: BoxFit.contain,
-                  //       repeat: true,
-                  //     ),
-                  //   ),
-                  // ),
-                  // Ảnh sản phẩm
+                  // Hero image
                   Positioned(
                     top: 0,
                     left: 0,
                     right: 0,
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
+                    child: Hero(
+                      tag: widget.heroTag,
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(20),
-                          bottom: Radius.circular(20)),
-                      child: Container(
-                        width: double.infinity,
-                        height: 230,
-                        // Chiều cao cố định cho ảnh
-                        color: Colors.white.withOpacity(0.1),
-                        // Nền nhẹ cho ảnh trong suốt
-                        child: Image.network(
-                          widget.imageUrl,
-                          fit: BoxFit.cover, // Giữ nguyên tỷ lệ ảnh
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(Icons.broken_image,
-                                  size: 50, color: Colors.black87),
-                            );
-                          },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          },
+                        ),
+                        child: Container(
+                          height: 160,
+                          color: Colors.white.withOpacity(0.1),
+                          child: widget.isLoading
+                              ? const Center(child: CircularProgressIndicator())
+                              : Image.network(
+                            widget.imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Icon(
+                                  Icons.broken_image,
+                                  size: 50,
+                                  color: Colors.black87,
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  // Nội dung text
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    widget.title,
-                                    style:  TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.redAccent,
-                                      shadows: _shadow(),
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                AnimatedBuilder(
-                                  animation: _sparkleAnimation,
-                                  builder: (context, child) {
-                                    return Opacity(
-                                      opacity: _sparkleAnimation.value,
-                                      child: const Icon(
-                                        Icons.star,
-                                        color: Colors.yellow,
-                                        size: 24,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              widget.price,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.timer,
-                                    size: 14, color: Colors.black87),
-                                const SizedBox(width: 4),
-                                Text(
-                                  widget.time,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+
+                  // Text content
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(20),
                         ),
                       ),
-                    ],
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.title,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.redAccent,
+                                    shadows: _shadow(),
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              AnimatedBuilder(
+                                animation: _sparkleAnimation,
+                                builder: (context, child) {
+                                  return Opacity(
+                                    opacity: _sparkleAnimation.value,
+                                    child: const Icon(
+                                      Icons.star,
+                                      color: Colors.yellow,
+                                      size: 24,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.price,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.timer, size: 14, color: Colors.black87),
+                              const SizedBox(width: 4),
+                              Text(
+                                widget.time,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -217,24 +223,25 @@ class _FeaturedCardState extends State<FeaturedCard>
       ),
     );
   }
+
   List<Shadow> _shadow() {
     return [
-      Shadow(
+      const Shadow(
         color: Colors.white,
         offset: Offset(1, 1),
         blurRadius: 2,
       ),
-      Shadow(
+      const Shadow(
         color: Colors.white,
         offset: Offset(-1, 1),
         blurRadius: 2,
       ),
-      Shadow(
+      const Shadow(
         color: Colors.white,
         offset: Offset(1, -1),
         blurRadius: 2,
       ),
-      Shadow(
+      const Shadow(
         color: Colors.white,
         offset: Offset(-1, -1),
         blurRadius: 2,

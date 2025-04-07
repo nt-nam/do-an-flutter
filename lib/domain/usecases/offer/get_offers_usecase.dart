@@ -12,7 +12,9 @@ class GetOffersUseCase {
       final offerModels = await repository.getOffers();
       var filteredOffers = offerModels;
       if (onlyActive) {
-        filteredOffers = offerModels.where((model) => model.trangThai == 'Hoạt động').toList();
+        filteredOffers = offerModels
+            .where((model) => model.trangThai == OfferStatus.active)
+            .toList();
       }
       return filteredOffers.map(_mapToEntity).toList();
     } catch (e) {
@@ -25,9 +27,17 @@ class GetOffersUseCase {
       id: model.maUD,
       name: model.tenUD,
       discountAmount: model.mucGiam,
+      discountType: model.discountType,
       startDate: model.ngayBatDau,
       endDate: model.ngayKetThuc,
       status: model.trangThai,
+      minBill: model.hoadonMin,
+      productCode: model.masp,
+      productType: model.loaisp,
+      note: model.ghiChu,
+      maxUses: model.soLanMax,
+      customerLimit: model.gioiHanKhach,
+      maxDiscount: model.giaTriMax,
     );
   }
 }

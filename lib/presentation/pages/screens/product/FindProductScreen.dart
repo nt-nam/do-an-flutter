@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../domain/entities/product.dart';
 import '../../../blocs/account/account_bloc.dart';
 import '../../../blocs/account/account_state.dart';
 import '../../../blocs/category/category_bloc.dart';
@@ -30,7 +31,9 @@ class _FindProductScreenState extends State<FindProductScreen> {
     context.read<ProductBloc>().add(const FetchProductsEvent());
     _searchController.addListener(_onSearchChanged);
   }
-
+  String _generateHeroTag(Product product) {
+    return 'product_${product.id}';
+  }
   void _onSearchChanged() {
     final query = _searchController.text.trim();
     context.read<ProductBloc>().add(FetchProductsEvent(
@@ -182,15 +185,14 @@ class _FindProductScreenState extends State<FindProductScreen> {
                               title: product.name,
                               calories: '${product.price} VNĐ',
                               imageName: product.imageUrl ?? '',
+                              heroTag: _generateHeroTag(product),
                               onTap: () {
-                                context
-                                    .read<ProductBloc>()
-                                    .add(FetchProductDetailsEvent(product.id));
+                                context.read<ProductBloc>().add(FetchProductDetailsEvent(product.id));
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailProductScreen()),
+                                    builder: (context) => DetailProductScreen(heroTag: _generateHeroTag(product)),
+                                  ),
                                 );
                               },
                             );

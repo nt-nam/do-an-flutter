@@ -33,11 +33,50 @@ class AccountModel {
 
   factory AccountModel.fromJson(Map<String, dynamic> json) {
     return AccountModel(
-      maTK: json['id'] as int? ?? 0, // Ánh xạ từ 'id'
-      email: json['email'] as String? ?? '', // Đảm bảo không null
-      matKhau: json['MatKhau'] as String? ?? '', // API không trả về MatKhau, cung cấp giá trị mặc định
-      vaiTro: _mapVaiTro(json['role'] as int? ?? 1), // Chuyển đổi từ int sang String
-      trangThai: (json['status'] as int? ?? 1) == 1, // Chuyển đổi từ int sang bool
+      maTK: json['id'] as int? ?? 0,
+      email: json['email'] as String? ?? '',
+      matKhau: json['MatKhau'] as String? ?? '',
+      vaiTro: _mapVaiTro(json['role'] as int? ?? 1),
+      trangThai: (json['status'] as int? ?? 1) == 1,
+    );
+  }
+
+  factory AccountModel.fromApiResponse(Map<String, dynamic> json) {
+    return AccountModel(
+      maTK: json['maTK'] as int,
+      email: json['email'] as String,
+      matKhau: '',
+      vaiTro: _mapVaiTro(json['vaiTro'] as int),
+      trangThai: json['trangThai'] == 1,
+      user: json['hoTen'] != null
+          ? UserModel(
+              maND: 0,
+              maTK: json['maTK'],
+              hoTen: json['hoTen'],
+              sdt: '',
+              diaChi: '',
+              email: '',
+            )
+          : null,
+    );
+  }
+
+  factory AccountModel.fromUserApiResponse(Map<String, dynamic> json) {
+    return AccountModel(
+      maTK: json['MaTK'] as int,
+      email: json['Email'] as String,
+      matKhau: '',
+      // Không lấy mật khẩu
+      vaiTro: _mapVaiTro(json['VaiTro'] as int),
+      trangThai: json['TrangThai'] == 1,
+      user: UserModel(
+        maND: json['MaND'] ?? 0,
+        maTK: json['MaTK'],
+        hoTen: json['HoTen'] ?? '',
+        sdt: json['SDT'] ?? '',
+        diaChi: json['DiaChi'] ?? '',
+        email: '',
+      ),
     );
   }
 
@@ -65,5 +104,25 @@ class AccountModel {
       'VaiTro': vaiTroInt,
       'TrangThai': trangThai ? 1 : 0,
     };
+  }
+
+  Map<String, dynamic> toUpdateRoleJson() {
+    return {
+      'maTK': maTK,
+      'vaiTro': vaiTro == 'Khách hàng' ? 1 : 2,
+    };
+  }
+
+  static int _getRoleValue(String vaiTro) {
+    switch (vaiTro) {
+      case 'Khách hàng':
+        return 1;
+      case 'Nhân viên':
+        return 2;
+      case 'Quản trị':
+        return 3;
+      default:
+        return 1;
+    }
   }
 }

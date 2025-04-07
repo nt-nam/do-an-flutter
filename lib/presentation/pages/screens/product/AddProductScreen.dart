@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,10 +24,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _stockController = TextEditingController();
   final _categoryIdController = TextEditingController();
   final _descriptionController = TextEditingController();
-  File? _imageFile; // Dùng cho di động
-  Uint8List? _imageBytes; // Dùng cho web
-  String? _imageName; // Tên file ảnh để truyền vào imageUrl
+  File? _imageFile;
+  Uint8List? _imageBytes;
+  String? _imageName;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
 
   @override
   void dispose() {
@@ -38,73 +40,113 @@ class _AddProductScreenState extends State<AddProductScreen> {
     super.dispose();
   }
 
-  // Chọn ảnh từ camera
   Future<void> _pickImageFromCamera() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        _imageBytes = await pickedFile.readAsBytes();
-        _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        setState(() {});
-      } else {
-        _imageFile = File(pickedFile.path);
-        await _saveImageLocally(_imageFile!);
-        setState(() {});
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+      );
+      if (pickedFile != null) {
+        await _handlePickedImage(pickedFile);
       }
+    } catch (e) {
+      _showErrorSnackbar('Lỗi khi chụp ảnh: ${e.toString()}');
     }
   }
 
-  // Chọn ảnh từ thư viện
   Future<void> _pickImageFromGallery() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        _imageBytes = await pickedFile.readAsBytes();
-        _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
-        setState(() {});
-      } else {
-        _imageFile = File(pickedFile.path);
-        await _saveImageLocally(_imageFile!);
-        setState(() {});
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+      );
+      if (pickedFile != null) {
+        await _handlePickedImage(pickedFile);
       }
+    } catch (e) {
+      _showErrorSnackbar('Lỗi khi chọn ảnh: ${e.toString()}');
     }
   }
 
-  // Lưu ảnh vào bộ nhớ cục bộ (chỉ cho di động)
+  Future<void> _handlePickedImage(XFile pickedFile) async {
+    if (kIsWeb) {
+      _imageBytes = await pickedFile.readAsBytes();
+      _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    } else {
+      _imageFile = File(pickedFile.path);
+      await _saveImageLocally(_imageFile!);
+    }
+    setState(() {});
+  }
+
   Future<void> _saveImageLocally(File image) async {
     final directory = await getApplicationDocumentsDirectory();
     _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final localPath = '${directory.path}/$_imageName';
     await image.copy(localPath);
-    _imageFile = File(localPath); // Cập nhật _imageFile với đường dẫn mới
-    print('Ảnh đã lưu tại: $localPath');
-    print('File tồn tại: ${File(localPath).existsSync()}');
+    _imageFile = File(localPath);
+  }
+
+  Future<String?> _getImageBase64() async {
+    try {
+      if (kIsWeb && _imageBytes != null) {
+        return 'data:image/jpeg;base64,${base64Encode(_imageBytes!)}';
+      } else if (!kIsWeb && _imageFile != null) {
+        final bytes = await _imageFile!.readAsBytes();
+        return 'data:image/jpeg;base64,${base64Encode(bytes)}';
+      }
+      return null;
+    } catch (e) {
+      _showErrorSnackbar('Lỗi xử lý ảnh: ${e.toString()}');
+      return null;
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   void _submitProduct(BuildContext context) async {
+    if (_isUploading) return;
+
     final name = _nameController.text.trim();
     final price = double.tryParse(_priceController.text.trim()) ?? 0.0;
     final stock = int.tryParse(_stockController.text.trim()) ?? 0;
     final categoryId = int.tryParse(_categoryIdController.text.trim()) ?? 0;
-    final description = _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim();
+    final description = _descriptionController.text.trim().isEmpty
+        ? null
+        : _descriptionController.text.trim();
 
     if (name.isEmpty || price <= 0 || stock < 0 || categoryId <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đầy đủ và đúng thông tin!')),
-      );
+      _showErrorSnackbar('Vui lòng nhập đầy đủ và đúng thông tin!');
       return;
     }
 
-    context.read<ProductBloc>().add(
-      AddProductEvent(
-        name: name,
-        categoryId: categoryId,
-        price: price,
-        stock: stock,
-        imageUrl: _imageName, // Truyền tên file ảnh làm imageUrl
-        description: description,
-      ),
-    );
+    setState(() => _isUploading = true);
+
+    try {
+      final imageBase64 = await _getImageBase64();
+
+      context.read<ProductBloc>().add(
+            AddProductEvent(
+              name: name,
+              categoryId: categoryId,
+              price: price,
+              stock: stock,
+              imageUrl: imageBase64,
+              description: description,
+            ),
+          );
+    } catch (e) {
+      _showErrorSnackbar('Lỗi khi thêm sản phẩm: ${e.toString()}');
+    } finally {
+      setState(() => _isUploading = false);
+    }
   }
 
   @override
@@ -121,116 +163,139 @@ class _AddProductScreenState extends State<AddProductScreen> {
           listener: (context, state) {
             if (state is ProductAdded) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Thêm sản phẩm thành công!')),
+                const SnackBar(
+                  content: Text('Thêm sản phẩm thành công!'),
+                  backgroundColor: Colors.green,
+                ),
               );
               Navigator.pop(context);
             } else if (state is ProductError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Lỗi: ${state.message}')),
-              );
+              _showErrorSnackbar('Lỗi: ${state.message}');
             }
           },
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Tên sản phẩm',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                _buildTextField(_nameController, 'Tên sản phẩm'),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _priceController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Giá (VNĐ)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                _buildNumberField(_priceController, 'Giá (VNĐ)'),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _stockController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Số lượng tồn kho',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                _buildNumberField(_stockController, 'Số lượng tồn kho'),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _categoryIdController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'ID danh mục',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                _buildNumberField(_categoryIdController, 'ID danh mục'),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _descriptionController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Mô tả (tuỳ chọn)',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
+                _buildDescriptionField(),
                 const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                      onPressed: _pickImageFromCamera,
-                      child: const Text('Chụp ảnh'),
-                    ),
-                    ElevatedButton(
-                      onPressed: _pickImageFromGallery,
-                      child: const Text('Chọn từ thư viện'),
-                    ),
-                  ],
-                ),
+                _buildImageButtons(),
                 const SizedBox(height: 16),
-                if (kIsWeb && _imageBytes != null)
-                  Image.memory(
-                    _imageBytes!,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  )
-                else if (!kIsWeb && _imageFile != null)
-                  Image.file(
-                    _imageFile!,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                _buildImagePreview(),
                 const SizedBox(height: 24),
-                BlocBuilder<ProductBloc, ProductState>(
-                  builder: (context, state) {
-                    if (state is ProductLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return ElevatedButton(
-                      onPressed: () => _submitProduct(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text(
-                        'Thêm sản phẩm',
-                        style: TextStyle(fontSize: 16, color: Colors.white),
-                      ),
-                    );
-                  },
-                ),
+                _buildSubmitButton(),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _buildNumberField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _buildDescriptionField() {
+    return TextField(
+      controller: _descriptionController,
+      maxLines: 3,
+      decoration: const InputDecoration(
+        labelText: 'Mô tả (tuỳ chọn)',
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _buildImageButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        ElevatedButton(
+          onPressed: _pickImageFromCamera,
+          child: const Text('Chụp ảnh'),
+        ),
+        ElevatedButton(
+          onPressed: _pickImageFromGallery,
+          child: const Text('Chọn từ thư viện'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImagePreview() {
+    if (kIsWeb && _imageBytes != null) {
+      return Image.memory(
+        _imageBytes!,
+        height: 200,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      );
+    } else if (!kIsWeb && _imageFile != null) {
+      return Image.file(
+        _imageFile!,
+        height: 200,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      );
+    }
+
+    return Container(
+      height: 200,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+      ),
+      child: const Center(
+        child: Text('Chưa có ảnh được chọn'),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return BlocBuilder<ProductBloc, ProductState>(
+      builder: (context, state) {
+        if (state is ProductLoading || _isUploading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return ElevatedButton(
+          onPressed: () => _submitProduct(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.teal,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            minimumSize: const Size(double.infinity, 50),
+          ),
+          child: const Text(
+            'Thêm sản phẩm',
+            style: TextStyle(fontSize: 16, color: Colors.white),
+          ),
+        );
+      },
     );
   }
 }
