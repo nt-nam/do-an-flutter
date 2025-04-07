@@ -39,18 +39,26 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
   Future<void> _onCreateOrder(CreateOrderEvent event, Emitter<OrderState> emit) async {
     emit(const OrderLoading());
     try {
+      // Tính tổng tiền sản phẩm
+      final double itemsTotal = event.items.fold(
+        0.0,
+            (sum, item) => sum + (item.productPrice ?? 0) * item.quantity,
+      );
+      // Tổng tiền bao gồm phí vận chuyển
+      final double totalAmount = itemsTotal + event.deliveryFee;
+
       final order = await createOrderUseCase(
         event.accountId,
         event.items,
         event.deliveryAddress,
         offerId: event.offerId,
         cartId: event.cartId,
+        totalAmount: totalAmount, // Truyền tổng tiền
       );
       emit(OrderCreated(order));
       final orders = await getOrdersUseCase(event.accountId);
       emit(OrderLoaded(orders));
     } catch (e) {
-      // Trích xuất thông báo lỗi chính
       String errorMessage = e.toString();
       if (errorMessage.contains('Exception: Failed to create order: Exception: Failed to create order: Exception: Bad request:')) {
         errorMessage = errorMessage.split('Exception: Bad request: ')[1];

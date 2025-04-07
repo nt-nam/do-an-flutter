@@ -20,6 +20,7 @@ class CreateOrderUseCase {
       String deliveryAddress, {
         int? offerId,
         int? cartId,
+        required double totalAmount,
       }) async {
     try {
       // 1. Tạo đơn hàng
@@ -28,7 +29,7 @@ class CreateOrderUseCase {
         maTK: accountId,
         // maGH: cartId,
         ngayDat: DateTime.now(),
-        tongTien: items.fold(0, (sum, item) => sum + (item.productPrice ?? 0) * (item.quantity ?? 0)),
+        tongTien: totalAmount,
         trangThai: model.OrderStatus.pending,
         diaChiGiao: deliveryAddress,
         maUD: offerId,

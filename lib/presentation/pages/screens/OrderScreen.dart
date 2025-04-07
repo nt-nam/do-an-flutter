@@ -596,10 +596,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                       ),
                       const SizedBox(height: 10),
                       _infoRow('Mã đơn hàng:', '#${order.id ?? 'N/A'}'),
-                      _infoRow("Tên sản phẩm", ''),
                       _infoRow('Ngày đặt:', formatDate(order.orderDate)),
                       _infoRow('Tổng tiền:', '${order.totalAmount.toStringAsFixed(0)} VNĐ'),
-
                       const SizedBox(height: 20),
 
                       // Địa chỉ giao hàng

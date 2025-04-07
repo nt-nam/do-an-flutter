@@ -136,7 +136,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       onPressed: () {
                         Navigator.pop(context); // Đóng dialog
                         Navigator.pop(context); // Quay lại trang trước
-                        Navigator.pop(context); // Quay lại trang trước nữa
+                        context.read<CartBloc>().add(FetchCartEvent(widget.accountId));
                       },
                     ),
                   ],
@@ -495,6 +495,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           _items,
                           widget.deliveryAddress,
                           cartId: _items.isNotEmpty ? _items.first.cartId : null,
+                          deliveryFee: deliveryFee,
                         ),
                       );
                     },

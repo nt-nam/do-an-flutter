@@ -99,7 +99,6 @@ class MenuScreen extends StatelessWidget {
               icon: Icons.local_offer_outlined,
               title: 'Ưu đãi',
               onTap: () {
-                // TODO: Chuyển sang trang Ưu đãi
                 context.read<OfferBloc>().add(const FetchOffersEvent());
                 Navigator.push(
                   context,

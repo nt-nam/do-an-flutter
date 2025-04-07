@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gas_store/presentation/blocs/offer/offer_bloc.dart';
 import 'package:gas_store/presentation/blocs/user/user_bloc.dart';
 import '../presentation/blocs/account/account_bloc.dart';
 import '../presentation/blocs/account/account_state.dart';
@@ -101,6 +102,11 @@ class MyApp extends StatelessWidget {
     );
     final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
     final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
+    // Offer-related dependencies - Thêm mới
+    final offerRepository = OfferRepositoryImpl(apiService, authService);
+    final getOffersUseCase = GetOffersUseCase(offerRepository);
+    final addOfferUseCase = AddOfferUseCase(offerRepository);
+
 
     // Offer-related dependencies - Thêm mới
     final offerRepository = OfferRepositoryImpl(apiService, authService);
