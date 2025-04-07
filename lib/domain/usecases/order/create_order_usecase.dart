@@ -1,9 +1,9 @@
-import 'package:do_an_flutter/domain/entities/cart_detail.dart';
-import 'package:do_an_flutter/domain/entities/order.dart' as entity;
-import 'package:do_an_flutter/domain/repositories/cart_repository.dart';
-import 'package:do_an_flutter/domain/repositories/order_repository.dart';
-import 'package:do_an_flutter/data/models/order_model.dart' as model;
-import 'package:do_an_flutter/data/models/order_detail_model.dart';
+import '../../../domain/entities/cart_detail.dart';
+import '../../../domain/entities/order.dart' as entity;
+import '../../../domain/repositories/cart_repository.dart';
+import '../../../domain/repositories/order_repository.dart';
+import '../../../data/models/order_model.dart' as model;
+import '../../../data/models/order_detail_model.dart';
 
 class CreateOrderUseCase {
   final OrderRepository orderRepository;
@@ -28,7 +28,7 @@ class CreateOrderUseCase {
         maTK: accountId,
         // maGH: cartId,
         ngayDat: DateTime.now(),
-        tongTien: items.fold(0, (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 0)),
+        tongTien: items.fold(0, (sum, item) => sum + (item.productPrice ?? 0) * (item.quantity ?? 0)),
         trangThai: model.OrderStatus.pending,
         diaChiGiao: deliveryAddress,
         maUD: offerId,

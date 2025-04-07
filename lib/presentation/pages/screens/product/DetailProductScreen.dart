@@ -245,9 +245,10 @@ class DetailProductScreen extends StatelessWidget {
                                             CartDetail(
                                               cartDetailId: 0, // Giả định ID tạm thời
                                               cartId: cartId!, // cartId đã được đảm bảo không null
+                                              accountId: accountId,
                                               productId: product.id,
                                               quantity: 1,
-                                              price: product.price,
+                                              createdDate: DateTime.now().toIso8601String() ,
                                               productName: product.name ?? '',
                                               productPrice: product.price,
                                               productImage: product.imageUrl ?? '',
@@ -294,7 +295,7 @@ class DetailProductScreen extends StatelessWidget {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Đã thêm vào giỏ hàng!'),
-                                  duration: Duration(seconds: 2),
+                                  duration: Duration(seconds: 1),
                                 ),
                               );
                             } else if (state is CartError) {

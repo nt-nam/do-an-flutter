@@ -1,6 +1,6 @@
-import 'package:do_an_flutter/domain/entities/cart.dart';
-import 'package:do_an_flutter/domain/entities/cart_detail.dart';
-import 'package:do_an_flutter/domain/repositories/cart_repository.dart';
+import '../../entities/cart.dart';
+import '../../entities/cart_detail.dart';
+import '../../repositories/cart_repository.dart';
 
 class GetCartUseCase {
   final CartRepository cartRepository;
@@ -9,13 +9,19 @@ class GetCartUseCase {
 
   Future<(Cart, List<CartDetail>)> call(int accountId) async {
     try {
+      print('Fetching cart for account ID: $accountId');
       final cart = await cartRepository.getCart(accountId);
+      print('Cart: $cart');
       if (cart.cartId == null) {
-        // return (cart, [""]); // Trả về giỏ hàng rỗng nếu không tìm thấy
+        print('No cart found for account ID: $accountId, returning empty cart details');
+        return (cart, <CartDetail>[]); // Sửa ở đây: Chỉ định rõ kiểu List<CartDetail>
       }
+      print('Fetching cart details for cart ID: ${cart.cartId}');
       final cartDetails = await cartRepository.getCartDetails(cart.cartId!);
+      print('Cart details: $cartDetails');
       return (cart, cartDetails);
     } catch (e) {
+      print('Error in GetCartUseCase: $e');
       throw Exception('Failed to get cart: $e');
     }
   }

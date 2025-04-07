@@ -32,7 +32,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(const CartLoading());
     try {
       final (cart, cartDetails) = await getCartUseCase(event.accountId);
-      _accountId = cart.accountId; // accountId có thể là null, nhưng _accountId đã khai báo là int?
+      _accountId = event.accountId; // accountId có thể là null, nhưng _accountId đã khai báo là int?
       emit(CartLoaded(cartItems: cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
@@ -55,13 +55,19 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onRemoveFromCart(RemoveFromCartEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
-      await removeFromCartUseCase(event.cartId, event.productId);
-      emit(CartItemRemoved(event.cartId));
+      print('Removing cart detail with ID: ${event.cartDetailId}');
+      await removeFromCartUseCase(event.cartDetailId);
       if (_accountId != null) {
+        print('Fetching updated cart for account ID: $_accountId');
         final (_, cartDetails) = await getCartUseCase(_accountId!);
+        print('Updated cart details: $cartDetails');
         emit(CartLoaded(cartItems: cartDetails));
+        emit(CartItemRemoved(event.cartDetailId));
+      } else {
+        throw Exception('Không tìm thấy accountId. Vui lòng tải giỏ hàng trước.');
       }
     } catch (e) {
+      print('Error removing cart detail: $e');
       emit(CartError(e.toString()));
     }
   }
@@ -86,7 +92,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
       if (_accountId != null) {
         final (cart, cartDetails) = await getCartUseCase(_accountId!);
         for (var detail in cartDetails) {
-          await removeFromCartUseCase(detail.cartId!, detail.productId!);
+          await removeFromCartUseCase(detail.cartDetailId);
         }
         emit(const CartLoaded(cartItems: [])); // Sau khi xóa, giỏ hàng sẽ rỗng
       } else {

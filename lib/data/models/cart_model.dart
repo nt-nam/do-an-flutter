@@ -1,5 +1,4 @@
-import 'package:do_an_flutter/domain/entities/cart.dart';
-
+import '../../domain/entities/cart.dart';
 class CartModel {
   final int cartId;
   final int accountId;

@@ -1,11 +1,12 @@
-import 'package:do_an_flutter/domain/entities/cart_detail.dart';
+import '../../domain/entities/cart_detail.dart';
 
 class CartDetailModel {
   final int? maCTGH;
   final int? maGH;
+  final int? maTK; // Thêm trường maTK
   final int? maSP;
   final int? soLuong;
-  final double? donGia;
+  final String? ngayThem;
   final String? tenSP;
   final double? gia;
   final String? hinhAnh;
@@ -13,9 +14,10 @@ class CartDetailModel {
   CartDetailModel({
     this.maCTGH,
     this.maGH,
+    this.maTK,
     this.maSP,
     this.soLuong,
-    this.donGia,
+    this.ngayThem,
     this.tenSP,
     this.gia,
     this.hinhAnh,
@@ -25,9 +27,10 @@ class CartDetailModel {
     return CartDetailModel(
       maCTGH: json['MaCTGH'] as int?,
       maGH: json['MaGH'] as int?,
+      maTK: json['MaTK'] as int?, // Ánh xạ MaTK
       maSP: json['MaSP'] as int?,
       soLuong: json['SoLuong'] as int?,
-      donGia: (json['DonGia'] as num?)?.toDouble(),
+      ngayThem: json['NgayThem'] as String?,
       tenSP: json['TenSP'] as String?,
       gia: (json['Gia'] as num?)?.toDouble(),
       hinhAnh: json['HinhAnh'] as String?,
@@ -38,9 +41,10 @@ class CartDetailModel {
     return {
       'MaCTGH': maCTGH,
       'MaGH': maGH,
+      'MaTK': maTK,
       'MaSP': maSP,
       'SoLuong': soLuong,
-      'DonGia': donGia,
+      'NgayThem': ngayThem,
       'TenSP': tenSP,
       'Gia': gia,
       'HinhAnh': hinhAnh,
@@ -49,11 +53,12 @@ class CartDetailModel {
 
   CartDetail toEntity() {
     return CartDetail(
-      cartDetailId: maCTGH ?? 0, // Sử dụng giá trị mặc định nếu null
+      cartDetailId: maCTGH ?? 0,
       cartId: maGH ?? 0,
+      accountId: maTK ?? 0,
       productId: maSP ?? 0,
       quantity: soLuong ?? 0,
-      price: donGia ?? 0.0,
+      createdDate: ngayThem ?? '',
       productName: tenSP,
       productPrice: gia ?? 0.0,
       productImage: hinhAnh,
@@ -64,9 +69,10 @@ class CartDetailModel {
     return CartDetailModel(
       maCTGH: cartDetail.cartDetailId,
       maGH: cartDetail.cartId,
+      maTK: cartDetail.accountId,
       maSP: cartDetail.productId,
       soLuong: cartDetail.quantity,
-      donGia: cartDetail.price,
+      ngayThem: cartDetail.createdDate,
       tenSP: cartDetail.productName,
       gia: cartDetail.productPrice,
       hinhAnh: cartDetail.productImage,

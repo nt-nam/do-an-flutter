@@ -1,8 +1,8 @@
-import 'package:do_an_flutter/domain/entities/cart.dart';
-import 'package:do_an_flutter/domain/entities/cart_detail.dart';
-import 'package:do_an_flutter/domain/entities/product.dart';
-import 'package:do_an_flutter/domain/repositories/cart_repository.dart';
-import 'package:do_an_flutter/domain/repositories/product_repository.dart';
+import '../../../domain/entities/cart.dart';
+import '../../../domain/entities/cart_detail.dart';
+import '../../../domain/entities/product.dart';
+import '../../../domain/repositories/cart_repository.dart';
+import '../../../domain/repositories/product_repository.dart';
 
 class AddToCartUseCase {
   final CartRepository cartRepository;
@@ -27,11 +27,12 @@ class AddToCartUseCase {
 
       // Tạo chi tiết giỏ hàng
       final cartDetail = CartDetail(
-        cartDetailId: 0, // ID sẽ được tạo bởi API
+        cartDetailId: 0,
         cartId: cartId,
+        accountId: accountId,
         productId: productId,
-        quantity: quantity,
-        price: product.gia ?? 0.0,
+        quantity: quantity, // Số lượng ban đầu (thường là 1)
+        createdDate: DateTime.now().toIso8601String(),
         productName: product.tenSP ?? 'Unknown Product',
         productPrice: product.gia ?? 0.0,
         productImage: product.hinhAnh,

@@ -31,13 +31,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
     super.initState();
     _items = widget.items.map((item) => CartDetail(
       cartDetailId: item.cartDetailId,
+      cartId: item.cartId,
+      accountId: widget.accountId, // Thêm accountId
       productId: item.productId,
       quantity: item.quantity,
-      price: item.price,
+      createdDate: item.createdDate.toString(),
       productName: item.productName,
       productPrice: item.productPrice,
       productImage: item.productImage,
-      cartId: item.cartId,
     )).toList();
   }
 
@@ -46,9 +47,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       _items[index] = CartDetail(
         cartDetailId: _items[index].cartDetailId,
         cartId: _items[index].cartId,
+        accountId: widget.accountId, // Thêm accountId
         productId: _items[index].productId,
         quantity: _items[index].quantity + 1,
-        price: _items[index].price,
+        createdDate: _items[index].createdDate,
         productName: _items[index].productName,
         productPrice: _items[index].productPrice,
         productImage: _items[index].productImage,
@@ -62,9 +64,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _items[index] = CartDetail(
           cartDetailId: _items[index].cartDetailId,
           cartId: _items[index].cartId,
+          accountId: widget.accountId, // Thêm accountId
           productId: _items[index].productId,
           quantity: _items[index].quantity - 1,
-          price: _items[index].price,
+          createdDate: _items[index].createdDate,
           productName: _items[index].productName,
           productPrice: _items[index].productPrice,
           productImage: _items[index].productImage,
@@ -74,7 +77,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   double _calculateTotalAmount() {
-    return _items.fold(0.0, (sum, item) => sum + (item.price ?? 0) * item.quantity);
+    return _items.fold(0.0, (sum, item) => sum + (item.productPrice ?? 0) * item.quantity);
   }
 
   @override
