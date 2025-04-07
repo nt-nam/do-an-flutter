@@ -6,8 +6,11 @@ import '../../../presentation/pages/screens/product/AddProductScreen.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_event.dart';
 import '../../blocs/account/account_state.dart';
+import '../../blocs/offer/offer_bloc.dart';
+import '../../blocs/offer/offer_event.dart';
 import 'SettingScreen.dart';
-import 'auth/LoginScreen.dart'; // Giả sử đường dẫn đúng
+import 'auth/LoginScreen.dart';
+import 'offer/ListOfferScreen.dart'; // Giả sử đường dẫn đúng
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -96,7 +99,11 @@ class MenuScreen extends StatelessWidget {
               icon: Icons.local_offer_outlined,
               title: 'Ưu đãi',
               onTap: () {
-                // TODO: Chuyển sang trang Ưu đãi
+                context.read<OfferBloc>().add(const FetchOffersEvent());
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ListOfferScreen()),
+                );
               },
             ),
             _buildMenuItem(

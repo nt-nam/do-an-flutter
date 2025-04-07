@@ -31,7 +31,7 @@ class OfferUpdated extends OfferState {
 }
 
 class OfferDeleted extends OfferState {
-  final int offerId;
+  final String offerId;
 
   const OfferDeleted(this.offerId);
 }

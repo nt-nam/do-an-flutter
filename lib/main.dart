@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:gas_store/presentation/blocs/offer/offer_bloc.dart';
 import 'package:gas_store/presentation/blocs/user/user_bloc.dart';
 import '../presentation/blocs/account/account_bloc.dart';
 import '../presentation/blocs/account/account_state.dart';
@@ -15,6 +16,7 @@ import '../presentation/pages/screens/auth/LoginScreen.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/cart_repository_impl.dart';
 import 'data/repositories/category_repository_impl.dart';
+import 'data/repositories/offer_repository_impl.dart';
 import 'data/repositories/order_repository_impl.dart';
 import 'data/repositories/product_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
@@ -29,6 +31,8 @@ import 'domain/usecases/cart/update_cart_quantity_usecase.dart';
 import 'domain/usecases/category/add_category_usecase.dart';
 import 'domain/usecases/category/delete_category_usecase.dart';
 import 'domain/usecases/category/update_category_usecase.dart';
+import 'domain/usecases/offer/add_offer_usecase.dart';
+import 'domain/usecases/offer/get_offers_usecase.dart';
 import 'domain/usecases/order/create_order_usecase.dart';
 import 'domain/usecases/order/get_order_details_usecase.dart';
 import 'domain/usecases/order/get_orders_usecase.dart';
@@ -94,6 +98,11 @@ class MyApp extends StatelessWidget {
     );
     final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
     final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
+    // Offer-related dependencies - Thêm mới
+    final offerRepository = OfferRepositoryImpl(apiService, authService);
+    final getOffersUseCase = GetOffersUseCase(offerRepository);
+    final addOfferUseCase = AddOfferUseCase(offerRepository);
+
 
     return MultiBlocProvider(
       providers: [
@@ -151,6 +160,13 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => SettingsBloc(),
+        ),
+        BlocProvider(
+          create: (context) => OfferBloc(
+            getOffersUseCase,
+            addOfferUseCase,
+            offerRepository,
+          ),
         ),
       ],
       child: BlocBuilder<SettingsBloc, SettingsState>(

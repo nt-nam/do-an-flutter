@@ -11,9 +11,16 @@ class OfferRepositoryImpl implements OfferRepository {
 
   @override
   Future<List<OfferModel>> getOffers() async {
-    final token = await authService.getToken();
-    final data = await apiService.get('uudai', token: token);
-    return (data as List).map((json) => OfferModel.fromJson(json)).toList();
+    try {
+      final token = await authService.getToken();
+      print('Token: $token'); // Kiểm tra token
+      final data = await apiService.get('uudai.php', token: token);
+      print('API Response: $data'); // Kiểm tra dữ liệu trả về
+      return (data as List).map((json) => OfferModel.fromJson(json)).toList();
+    } catch (e) {
+      print('Error in getOffers: $e'); // In lỗi cụ thể
+      throw Exception('Failed to load offers: $e');
+    }
   }
 
   @override

@@ -19,8 +19,16 @@ class CreateOrderEvent extends OrderEvent {
   final List<CartDetail> items;
   final String deliveryAddress;
   final int? offerId;
+  final double deliveryFee; // Thêm phí vận chuyển
 
-  const CreateOrderEvent(this.accountId, this.items, this.deliveryAddress, {this.offerId, this.cartId});
+  const CreateOrderEvent(
+      this.accountId,
+      this.items,
+      this.deliveryAddress, {
+        this.offerId,
+        this.cartId,
+        this.deliveryFee = 15000, // Giá trị mặc định là 15.000
+      });
 }
 
 class UpdateOrderStatusEvent extends OrderEvent {
@@ -35,6 +43,7 @@ class FetchOrderDetailsEvent extends OrderEvent {
 
   const FetchOrderDetailsEvent(this.orderId);
 }
+
 class CancelOrderEvent extends OrderEvent {
   final int orderId;
 
