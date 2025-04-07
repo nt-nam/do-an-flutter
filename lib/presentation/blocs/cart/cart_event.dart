@@ -17,10 +17,8 @@ class AddToCartEvent extends CartEvent {
 }
 
 class RemoveFromCartEvent extends CartEvent {
-  final int cartId;
-  final int productId;
-
-  const RemoveFromCartEvent(this.cartId, this.productId);
+  final int cartDetailId; // Sửa: Chỉ cần cartDetailId
+  RemoveFromCartEvent(this.cartDetailId);
 }
 
 class UpdateCartQuantityEvent extends CartEvent {

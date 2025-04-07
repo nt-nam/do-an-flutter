@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://localhost/gas_api'; // Remove trailing slash
+  static const String baseUrl = 'http://localhost/gas_api/'; // Thay bằng URL thực tế của API PHP
 
   Map<String, String> _getHeaders({String? token}) {
     return {

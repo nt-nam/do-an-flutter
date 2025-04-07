@@ -1,12 +1,12 @@
 class Cart {
-  final int id;
-  final int? accountId;
+  final int cartId;
+  final int accountId;
   final DateTime addedDate;
-  final String status; // 'Đang hoạt động', 'Đã thanh toán'
+  final String status;
 
   Cart({
-    required this.id,
-    this.accountId,
+    required this.cartId,
+    required this.accountId,
     required this.addedDate,
     required this.status,
   });

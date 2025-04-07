@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost/gas_api'; // Remove trailing slash
+  static const String baseUrl = 'http://localhost/gas_api/';
   static const String loginEndpoint = '/auth/login';
   static const String registerEndpoint = '/auth/register';
   static const String _tokenKey = 'auth_token';

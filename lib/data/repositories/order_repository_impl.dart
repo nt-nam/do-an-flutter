@@ -70,4 +70,13 @@ class OrderRepositoryImpl implements OrderRepository {
     final data = await apiService.get('donhang/$orderId', token: token);
     return OrderModel.fromJson(data);
   }
+
+  @override
+  Future<void> deleteOrder(int orderId) async {
+    final token = await authService.getToken();
+    final response = await apiService.delete('donhang?MaDH=$orderId', token: token);
+    if (response['status'] != 'success') {
+      throw Exception('Failed to delete order: ${response['message']}');
+    }
+  }
 }

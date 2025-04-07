@@ -1,7 +1,8 @@
-import '../../entities/cart_detail.dart';
-import '../../repositories/cart_repository.dart';
-import '../../repositories/product_repository.dart';
-import '../../../data/models/cart_detail_model.dart';
+import '../../../domain/entities/cart.dart';
+import '../../../domain/entities/cart_detail.dart';
+import '../../../domain/entities/product.dart';
+import '../../../domain/repositories/cart_repository.dart';
+import '../../../domain/repositories/product_repository.dart';
 
 class AddToCartUseCase {
   final CartRepository cartRepository;
@@ -16,20 +17,33 @@ class AddToCartUseCase {
       if (product.status == 'Hết hàng') throw Exception('Product out of stock');
 
       final cart = await cartRepository.getCart(accountId);
-      final cartDetailModel = CartDetailModel(
-        maGH: cart.maGH,
-        maSP: productId,
-        soLuong: quantity,
+      final cartId = cart.cartId;
+      if (cartId == null) {
+        throw Exception('Cart not found for account ID: $accountId');
+      }
+
+      // Lấy thông tin sản phẩm
+      final product = await productRepository.getProductById(productId);
+      if (product == null) {
+        throw Exception('Product not found for ID: $productId');
+      }
+
+      // Tạo chi tiết giỏ hàng
+      final cartDetail = CartDetail(
+        cartDetailId: 0,
+        cartId: cartId,
+        accountId: accountId,
+        productId: productId,
+        quantity: quantity, // Số lượng ban đầu (thường là 1)
+        createdDate: DateTime.now().toIso8601String(),
+        productName: product.tenSP ?? 'Unknown Product',
+        productPrice: product.gia ?? 0.0,
+        productImage: product.hinhAnh,
       );
-      final result = await cartRepository.addToCart(cartDetailModel);
-      return CartDetail(
-        cartId: result.maGH,
-        productId: result.maSP,
-        quantity: result.soLuong,
-        productName: result.tenSP,
-        price: result.gia,
-        image: result.hinhAnh,
-      );
+
+      // Thêm vào giỏ hàng
+      final addedCartDetail = await cartRepository.addToCart(cartDetail);
+      return addedCartDetail;
     } catch (e) {
       throw Exception('Failed to add to cart: $e');
     }

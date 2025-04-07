@@ -7,7 +7,7 @@ abstract class OrderRepository {
   Future<OrderModel> createOrder(OrderModel order);
   Future<OrderModel> updateOrder(OrderModel order);
   Future<OrderModel> getOrderById(int orderId);
-
+  Future<void> deleteOrder(int orderId);
   Future<List<OrderDetailModel>> getOrderDetails(int orderId);
   Future<OrderDetailModel> createOrderDetail(OrderDetailModel detailModel);
 }
