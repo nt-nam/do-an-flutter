@@ -23,7 +23,7 @@ class AddToCartUseCase {
       }
 
       // Lấy thông tin sản phẩm
-      final product = await productRepository.getProductById(productId);
+      // final product = await productRepository.getProductById(productId);
       if (product == null) {
         throw Exception('Product not found for ID: $productId');
       }
@@ -36,9 +36,9 @@ class AddToCartUseCase {
         productId: productId,
         quantity: quantity, // Số lượng ban đầu (thường là 1)
         createdDate: DateTime.now().toIso8601String(),
-        productName: product.tenSP ?? 'Unknown Product',
-        productPrice: product.gia ?? 0.0,
-        productImage: product.hinhAnh,
+        productName: product.name ?? 'Unknown Product',
+        productPrice: product.price ?? 0.0,
+        productImage: product.imageUrl,
       );
 
       // Thêm vào giỏ hàng
