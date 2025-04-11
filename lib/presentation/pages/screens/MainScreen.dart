@@ -21,6 +21,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  // Danh sách các màn hình
   final List<Widget> _screens = [
     const HomeScreen(),
     FindProductScreen(),
@@ -30,11 +31,11 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   void _onItemTapped(int index) {
-    if (_currentIndex == 1 && index != 1) {
-      context.read<ProductBloc>().add(const ResetProductsEvent());
+    if (_currentIndex == 1 && index != 1) { // Kiểm tra khi rời khỏi FindProductScreen
+      context.read<ProductBloc>().add(const ResetProductsEvent()); // Gửi sự kiện reset
     }
     setState(() {
-      _currentIndex = index;
+      _currentIndex = index; // Cập nhật index hiện tại
     });
   }
 

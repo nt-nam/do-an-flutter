@@ -7,11 +7,11 @@ import 'settings_state.dart';
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc() : super(SettingsState(Settings(
     themeMode: ThemeModeOption.light,
-    themeColor: ThemeColor.teal,
+    themeColor: ThemeColor.Teal,
     language: Language.vietnamese,
     soundEnabled: true,
   ))) {
-    _loadSettings(); // Tải cài đặt khi khởi tạo
+    _loadSettings();
     on<ToggleThemeMode>(_onToggleThemeMode);
     on<ChangeThemeColor>(_onChangeThemeColor);
     on<ChangeLanguage>(_onChangeLanguage);
@@ -25,7 +25,7 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
         : ThemeModeOption.light;
     final themeColor = ThemeColor.values.firstWhere(
           (color) => color.toString() == prefs.getString('themeColor'),
-      orElse: () => ThemeColor.teal,
+      orElse: () => ThemeColor.Teal,
     );
     final language = prefs.getString('language') == 'english'
         ? Language.english

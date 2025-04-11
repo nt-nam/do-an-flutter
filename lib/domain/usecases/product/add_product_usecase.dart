@@ -1,8 +1,6 @@
-import 'dart:io';
-
-import '../../../data/models/product_model.dart';
 import '../../entities/product.dart';
 import '../../repositories/product_repository.dart';
+import '../../../data/models/product_model.dart';
 
 class AddProductUseCase {
   final ProductRepository repository;
@@ -14,31 +12,30 @@ class AddProductUseCase {
     required int categoryId,
     required double price,
     required int stock,
-    File? imageFile,
-    String? description,
+    String? imageUrl, // Thêm tham số imageUrl
+    String? description, // Thêm tham số description
   }) async {
     try {
-      // Let the repository handle the File and return a URL/path
       final productModel = ProductModel(
-        id: 0, // API will generate
-        name: name,
-        description: description,
-        price: price,
-        categoryId: categoryId,
-        imageUrl: null, // Repository will set this after uploading
-        status: stock > 0 ? 'Còn hàng' : 'Hết hàng',
-        stock: stock,
+        maSP: 0, // API sẽ sinh
+        tenSP: name,
+        moTa: description,
+        gia: price,
+        maLoai: categoryId,
+        hinhAnh: imageUrl, // Sử dụng imageUrl
+        trangThai: stock > 0 ? 'Còn hàng' : 'Hết hàng',
+        soLuongTon: stock,
       );
-      final result = await repository.createProduct(productModel, imageFile: imageFile);
+      final result = await repository.createProduct(productModel);
       return Product(
-        id: result.id,
-        name: result.name,
-        description: result.description,
-        price: result.price,
-        categoryId: result.categoryId,
-        imageUrl: result.imageUrl,
-        status: result.status == 'Còn hàng' ? ProductStatus.inStock : ProductStatus.outOfStock,
-        stock: result.stock,
+        id: result.maSP,
+        name: result.tenSP,
+        description: result.moTa,
+        price: result.gia,
+        categoryId: result.maLoai,
+        imageUrl: result.hinhAnh,
+        status: result.trangThai == 'Còn hàng' ? ProductStatus.inStock : ProductStatus.outOfStock,
+        stock: result.soLuongTon,
       );
     } catch (e) {
       throw Exception('Failed to add product: $e');

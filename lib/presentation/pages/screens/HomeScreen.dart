@@ -9,7 +9,7 @@ import '../../blocs/category/category_state.dart';
 import '../../blocs/product/product_bloc.dart';
 import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
-import '../../widgets/CategoryButton.dart';
+import '../../widgets/CategoryCheckbox.dart';
 import '../../widgets/ProductCardFeatured.dart';
 import '../../widgets/ProductCard.dart';
 import 'MenuScreen.dart';
@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Gửi FetchProductsEvent khi khởi tạo màn hình
     context.read<ProductBloc>().add(const FetchProductsEvent());
   }
 
@@ -137,7 +138,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(height: 10),
                 BlocBuilder<ProductBloc, ProductState>(
-                  // Trong phần builder của BlocBuilder<ProductBloc, ProductState>
                   builder: (context, state) {
                     if (state is ProductLoading) {
                       return const Center(child: CircularProgressIndicator());
@@ -147,10 +147,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (_products.isEmpty) {
                       return const Text('Không có sản phẩm nào.');
                     }
-
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: _products.take(5).map((product) {
                           return Padding(
                             padding: const EdgeInsets.only(right: 16.0),
@@ -161,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ? 'Còn hàng'
                                   : 'Hết hàng',
                               imageUrl: "assets/images/${product.imageUrl ?? HomeScreen.linkImage}",
-                              heroTag: 'featured_${product.id}',
                               onTap: () {
                                 context.read<ProductBloc>().add(
                                     FetchProductDetailsEvent(product.id)
@@ -169,10 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => DetailProductScreen(
-                                      heroTag: 'featured_${product.id}',
-                                    ),
-                                  ),
+                                      builder: (context) =>
+                                          DetailProductScreen(heroTag: '',)),
                                 );
                               },
                             ),
@@ -208,10 +205,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: categories.map((category) {
                             return Padding(
                               padding: const EdgeInsets.only(right: 8.0),
-                              child: CategoryButton(
-                                label: category.name,
-                                onTap: () {},
-                              ),
+                              // child: CategoryButton(
+                              //   label: category.name,
+                              //   onTap: () {},
+                              // ),
                             );
                           }).toList(),
                         ),
@@ -230,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'Sản phẩm phổ biến',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

@@ -10,7 +10,7 @@ import '../../blocs/offer/offer_bloc.dart';
 import '../../blocs/offer/offer_event.dart';
 import 'SettingScreen.dart';
 import 'auth/LoginScreen.dart';
-import 'offer/ListOfferScreen.dart';
+import 'offer/ListOfferScreen.dart'; // Giả sử đường dẫn đúng
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
@@ -52,7 +52,7 @@ class MenuScreen extends StatelessWidget {
             ),
             _buildMenuItem(
               context,
-              icon: Icons.upgrade_outlined,
+              icon: Icons.person_outline,
               title: 'Thay đổi vai trò',
               onTap: () {
                 // TODO: Chuyển sang trang Hồ sơ
@@ -116,7 +116,7 @@ class MenuScreen extends StatelessWidget {
             ),
             _buildMenuItem(
               context,
-              icon: Icons.plus_one,
+              icon: Icons.star_outline,
               title: 'Thêm sản phẩm',
               onTap: () {
                 // TODO: Chuyển sang trang Thêm sản phẩm

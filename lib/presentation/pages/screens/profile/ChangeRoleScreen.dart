@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../data/models/account_model.dart';
-import '../../../../data/services/auth_service.dart';
 import '../../../../presentation/blocs/account/account_bloc.dart';
 import '../../../../presentation/blocs/account/account_event.dart';
 import '../../../../presentation/blocs/account/account_state.dart';
@@ -19,14 +18,8 @@ class _ChangeRoleScreenState extends State<ChangeRoleScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Kiểm tra đăng nhập trước khi fetch
-      if (await context.read<AuthService>().isLoggedIn()) {
-        context.read<AccountBloc>().add(const FetchAllAccountsEvent());
-      } else {
-        // Chuyển hướng đến màn hình đăng nhập nếu chưa đăng nhập
-        Navigator.pushReplacementNamed(context, '/login');
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AccountBloc>().add(const FetchAllAccountsEvent());
     });
   }
 

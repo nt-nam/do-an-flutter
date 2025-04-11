@@ -46,7 +46,6 @@ import 'domain/usecases/auth/get_user_usecase.dart';
 import 'domain/usecases/auth/login_usecase.dart';
 import 'domain/usecases/auth/register_use_case.dart';
 import 'domain/usecases/product/update_product_usecase.dart';
-import 'presentation/blocs/offer/offer_bloc.dart';
 import 'presentation/blocs/order/order_bloc.dart';
 
 void main() {
@@ -83,13 +82,10 @@ class MyApp extends StatelessWidget {
     final addProductsUseCase = AddProductUseCase(productRepository);
     final updateProductsUseCase = UpdateProductUseCase(productRepository);
     final deleteProductsUseCase = DeleteProductUseCase(productRepository);
-
-    // Thêm OrderRepository và các UseCase cho OrderBloc
-
     // Cart-related dependencies
     final cartRepository = CartRepositoryImpl(apiService, authService);
     final getCartUseCase = GetCartUseCase(cartRepository);
-    final addToCartUseCase = AddToCartUseCase(cartRepository, productRepository);
+    final addToCartUseCase = AddToCartUseCase(cartRepository,productRepository);
     final removeFromCartUseCase = RemoveFromCartUseCase(cartRepository);
     final updateCartQuantityUseCase = UpdateCartQuantityUseCase(cartRepository);
 
@@ -108,11 +104,6 @@ class MyApp extends StatelessWidget {
     final addOfferUseCase = AddOfferUseCase(offerRepository);
 
 
-    // Offer-related dependencies - Thêm mới
-    final offerRepository = OfferRepositoryImpl(apiService, authService);
-    final getOffersUseCase = GetOffersUseCase(offerRepository);
-    final addOfferUseCase = AddOfferUseCase(offerRepository);
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -127,6 +118,11 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (context) => UserBloc(
             userRepository,
+            /*loginUseCase,
+            registerUseCase,
+            getUserProfileUseCase,
+            accountRepository,
+            authService,*/
           ),
         ),
         BlocProvider(
@@ -178,13 +174,11 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: ThemeData(
-              primarySwatch:
-                  _getMaterialColor(settingsState.settings.themeColor),
+              primarySwatch: _getMaterialColor(settingsState.settings.themeColor),
               brightness: Brightness.light,
             ),
             darkTheme: ThemeData(
-              primarySwatch:
-                  _getMaterialColor(settingsState.settings.themeColor),
+              primarySwatch: _getMaterialColor(settingsState.settings.themeColor),
               brightness: Brightness.dark,
             ),
             themeMode: settingsState.settings.themeMode == ThemeModeOption.light
@@ -207,18 +201,17 @@ class MyApp extends StatelessWidget {
                 if (accountState is AccountLoading) {
                   return const Scaffold(
                     body: Center(child: CircularProgressIndicator()),
-                  );
+                  ); // Hiển thị loading khi đang kiểm tra trạng thái
                 } else if (accountState is AccountLoggedIn) {
                   return MainScreen();
-                } else if (accountState is AccountLoggedOut ||
-                    accountState is AccountInitial) {
+                } else if (accountState is AccountLoggedOut || accountState is AccountInitial) {
                   return LoginScreen();
                 } else if (accountState is AccountError) {
-                  return LoginScreen();
+                  return LoginScreen(); // Quay lại LoginScreen nếu có lỗi
                 }
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
-                );
+                ); // Mặc định hiển thị loading
               },
             ),
           );
@@ -229,11 +222,11 @@ class MyApp extends StatelessWidget {
 
   MaterialColor _getMaterialColor(ThemeColor color) {
     switch (color) {
-      case ThemeColor.teal:
+      case ThemeColor.Teal:
         return Colors.teal;
-      case ThemeColor.blue:
+      case ThemeColor.Blue:
         return Colors.blue;
-      case ThemeColor.red:
+      case ThemeColor.Red:
         return Colors.red;
     }
   }

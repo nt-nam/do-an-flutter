@@ -6,7 +6,7 @@ class CategoryModel {
 
   factory CategoryModel.fromJson(Map<String, dynamic> json) {
     return CategoryModel(
-      maLoai: int.tryParse(json['maLoai'].toString()) ?? 0,
+      maLoai: int.tryParse(json['MaLoai'].toString()) ?? 0,
       tenLoai: json['TenLoai'] as String,
     );
   }

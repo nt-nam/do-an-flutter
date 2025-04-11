@@ -5,9 +5,9 @@ class DeleteProductUseCase {
 
   DeleteProductUseCase(this.repository);
 
-  Future<void> call(int id) async {
+  Future<void> call(int Id) async {
     try {
-      await repository.deleteProduct(id);
+      await repository.deleteProduct(Id);
     } catch (e) {
       throw Exception('Failed to delete product: $e');
     }

@@ -6,9 +6,9 @@ enum ThemeModeOption {
 }
 
 enum ThemeColor {
-  teal,
-  blue,
-  red,
+  Teal,
+  Blue,
+  Red,
 }
 
 enum Language {

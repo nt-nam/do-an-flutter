@@ -114,8 +114,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           if(emailController.text == ""){
                             context.read<AccountBloc>().add(
                               LoginEvent(
-                                "1@x.x",
-                                "1",
+                                "test3@mail.xx",
+                                "123",
                               ),
                             );
                           }else{

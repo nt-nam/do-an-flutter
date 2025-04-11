@@ -61,4 +61,3 @@ class AccountRoleUpdated extends AccountState {
 
   const AccountRoleUpdated(this.account);
 }
-

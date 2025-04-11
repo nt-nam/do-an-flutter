@@ -12,10 +12,7 @@ class AddToCartUseCase {
 
   Future<CartDetail> call(int accountId, int productId, int quantity) async {
     try {
-      if (quantity <= 0) throw Exception('Quantity must be positive');
-      final product = await productRepository.getProductById(productId);
-      if (product.status == 'Hết hàng') throw Exception('Product out of stock');
-
+      // Lấy giỏ hàng của tài khoản
       final cart = await cartRepository.getCart(accountId);
       final cartId = cart.cartId;
       if (cartId == null) {
@@ -23,7 +20,7 @@ class AddToCartUseCase {
       }
 
       // Lấy thông tin sản phẩm
-      // final product = await productRepository.getProductById(productId);
+      final product = await productRepository.getProductById(productId);
       if (product == null) {
         throw Exception('Product not found for ID: $productId');
       }
@@ -36,9 +33,9 @@ class AddToCartUseCase {
         productId: productId,
         quantity: quantity, // Số lượng ban đầu (thường là 1)
         createdDate: DateTime.now().toIso8601String(),
-        productName: product.name ?? 'Unknown Product',
-        productPrice: product.price ?? 0.0,
-        productImage: product.imageUrl,
+        productName: product.tenSP ?? 'Unknown Product',
+        productPrice: product.gia ?? 0.0,
+        productImage: product.hinhAnh,
       );
 
       // Thêm vào giỏ hàng

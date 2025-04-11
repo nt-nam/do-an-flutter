@@ -29,15 +29,12 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     on<FetchAccountProfileEvent>(_onFetchAccountProfile);
     on<UpdateAccountEvent>(_onUpdateAccount);
     on<LogoutEvent>(_onLogout);
-    on<FetchAllAccountsEvent>(_onFetchAllAccounts);
-    on<UpdateAccountRoleEvent>(_onUpdateAccountRole);
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
       final (token, account, user) = await loginUseCase(event.email, event.password);
-      await authService.saveCurrentAccountId(account.id); // Lưu ID tài khoản
       emit(AccountLoggedIn(token, account, user ));
       print('Login success: token=$token, account=$account, user=$user');
     } catch (e) {
@@ -62,7 +59,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       final accountModel = await accountRepository.getAccountById(event.accountId);
       final account = Account(
         id: accountModel.maTK,
-        email: accountModel.email,
+        email: accountModel.email, // Đã đảm bảo không null
         password: '', // Không cần trả mật khẩu
         role: accountModel.vaiTro, // Đã đảm bảo không null
         isActive: accountModel.trangThai,
@@ -111,15 +108,12 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   Future<void> _onFetchAllAccounts(FetchAllAccountsEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
-      // Kiểm tra token trực tiếp từ AuthService
-      final token = await authService.getToken();
-      if (token == null) {
-        throw Exception('Authentication token is missing');
+      if (state is! AccountLoggedIn) {
+        throw Exception('Unauthorized');
       }
 
-      // Kiểm tra vai trò người dùng
-      final loggedInAccount = await accountRepository.getAccountById(await authService.getCurrentAccountId());
-      if (loggedInAccount.vaiTro != 'Quản trị') {
+      final loggedInAccount = (state as AccountLoggedIn).account;
+      if (loggedInAccount.role != 'Quản trị') {
         throw Exception('Permission denied');
       }
 
@@ -127,10 +121,6 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       emit(AllAccountsLoaded(accounts));
     } catch (e) {
       emit(AccountError(e.toString()));
-      // Nếu lỗi do token, có thể emit trạng thái yêu cầu đăng nhập lại
-      if (e.toString().contains('token')) {
-        emit(const AccountLoggedOut());
-      }
     }
   }
 
@@ -138,7 +128,7 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     emit(const AccountLoading());
     try {
       if (state is! AccountLoggedIn) {
-        throw Exception('Unauthorized UpdateAccountRoleEvent');
+        throw Exception('Unauthorized');
       }
 
       final loggedInAccount = (state as AccountLoggedIn).account;
@@ -172,5 +162,4 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
       emit(AccountError(e.toString()));
     }
   }
-
 }

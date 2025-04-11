@@ -13,9 +13,7 @@ import '../HomeScreen.dart';
 import '../PaymentScreen.dart';
 
 class DetailProductScreen extends StatelessWidget {
-  final String heroTag;
-
-  const DetailProductScreen({super.key, required this.heroTag});
+  const DetailProductScreen({super.key, required String heroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -57,9 +55,7 @@ class DetailProductScreen extends StatelessWidget {
       body: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
           if (state is ProductLoading) {
-
             return _buildLoadingUI();
-
           } else if (state is ProductDetailsLoaded) {
             final product = state.product;
             return _buildProductDetails(context, product);
@@ -84,7 +80,11 @@ class DetailProductScreen extends StatelessWidget {
           Text(
             'Đang tải thông tin sản phẩm...',
             style: TextStyle(
+              color: Colors.grey[600],
+              fontWeight: FontWeight.w500,
+            ),
           )
+        ],
       ),
     );
   }
@@ -175,47 +175,42 @@ class DetailProductScreen extends StatelessWidget {
                       image: DecorationImage(
                         image: AssetImage(
                           "assets/images/${(product.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (product.imageUrl ?? HomeScreen.linkImage)}",
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Center(
-                              child: Icon(Icons.fastfood, size: 80, color: Colors.grey[400]),
-                            );
-                          },
+                        ),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.4),
+                          ],
+                          stops: const [0.7, 1.0],
                         ),
                       ),
-
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          product.name,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Text(
-                              '${product.price.toStringAsFixed(0)} VNĐ',
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepOrange,
-                              ),
-                            ),
-                            const Spacer(),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
+
+                  // Product badges
+                  Positioned(
+                    right: 16,
+                    top: MediaQuery.of(context).padding.top + 60,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: product.status == ProductStatus.inStock
+                            ? Colors.green.withOpacity(0.9)
+                            : Colors.red.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            product.status == ProductStatus.inStock
                                 ? Icons.check_circle
                                 : Icons.remove_circle,
                             size: 16,
@@ -268,6 +263,7 @@ class DetailProductScreen extends StatelessWidget {
 
                       const SizedBox(height: 16),
 
+                      // Price and inventory status
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -437,93 +433,6 @@ class DetailProductScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BlocBuilder<ProductBloc, ProductState>(
-        builder: (context, state) {
-          if (state is ProductDetailsLoaded) {
-            final product = state.product;
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: product.status == ProductStatus.inStock
-                          ? () {
-                        final accountState = context.read<AccountBloc>().state;
-                        if (accountState is AccountLoggedIn) {
-                          // ... (giữ nguyên logic đặt hàng)
-                        }
-                      }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepOrange,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'Đặt hàng ngay',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  BlocConsumer<CartBloc, CartState>(
-                    listener: (context, state) {
-                      if (state is CartItemAdded) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Đã thêm vào giỏ hàng!'),
-                            behavior: SnackBarBehavior.floating,
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return IconButton(
-                        icon: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.deepPurple,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.shopping_cart,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        onPressed: product.status == ProductStatus.inStock
-                            ? () {
-                          // ... (giữ nguyên logic thêm vào giỏ hàng)
-                        }
-                            : null,
-                      );
-                    },
-                  ),
-                ],
-              ),
-            );
-          }
-          return const SizedBox();
-        },
       ),
     );
   }

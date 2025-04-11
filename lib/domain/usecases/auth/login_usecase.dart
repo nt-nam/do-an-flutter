@@ -23,6 +23,7 @@ class LoginUseCase {
       final accountModel = AccountModel.fromJson(userData);
       final account = _mapToEntity(accountModel);
 
+      // Lấy UserModel dựa trên maTK (account.id)
       UserModel? user;
       try {
         user = await userRepository.getUserByAccountId(account.id); // Dùng maTK thay vì userId

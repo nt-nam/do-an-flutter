@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/entities/category.dart';
 import '../../../domain/usecases/category/add_category_usecase.dart';
 import '../../../domain/usecases/category/delete_category_usecase.dart';
 import '../../../domain/usecases/category/get_categories_usecase.dart';
@@ -13,11 +14,11 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
   final DeleteCategoryUseCase deleteCategoryUseCase;
 
   CategoryBloc(
-    this.getCategoriesUseCase,
-    this.addCategoryUseCase,
-    this.updateCategoryUseCase,
-    this.deleteCategoryUseCase,
-  ) : super(const CategoryInitial()) {
+      this.getCategoriesUseCase,
+      this.addCategoryUseCase,
+      this.updateCategoryUseCase,
+      this.deleteCategoryUseCase,
+      ) : super(const CategoryInitial()) {
     on<FetchCategoriesEvent>(_onFetchCategories);
     on<AddCategoryEvent>(_onAddCategory);
     on<UpdateCategoryEvent>(_onUpdateCategory);
@@ -29,7 +30,20 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     emit(const CategoryLoading());
     try {
       final categories = await getCategoriesUseCase();
-      emit(CategoryLoaded(categories));
+      // Debug: In danh sách categories để kiểm tra
+      print('Raw Categories: ${categories.map((c) => "ID: ${c.id}, Name: ${c.name}").toList()}');
+      // Loại bỏ trùng lặp dựa trên id
+      final uniqueCategories = categories.fold<List<Category>>(
+        [],
+            (list, category) {
+          if (!list.any((c) => c.id == category.id)) {
+            list.add(category);
+          }
+          return list;
+        },
+      );
+      print('Unique Categories: ${uniqueCategories.map((c) => "ID: ${c.id}, Name: ${c.name}").toList()}');
+      emit(CategoryLoaded(uniqueCategories));
     } catch (e) {
       emit(CategoryError(e.toString()));
     }
@@ -39,12 +53,14 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       AddCategoryEvent event, Emitter<CategoryState> emit) async {
     emit(const CategoryLoading());
     try {
-      final category =
-          await addCategoryUseCase(event.name); // Sử dụng AddCategoryUseCase
+      final category = await addCategoryUseCase(event.name);
       emit(CategoryAdded(category));
-      // Tải lại danh sách sau khi thêm
       final categories = await getCategoriesUseCase();
-      emit(CategoryLoaded(categories));
+      final uniqueCategories = categories.fold<List<Category>>(
+        [],
+            (list, category) => list.any((c) => c.id == category.id) ? list : list..add(category ),
+      );
+      emit(CategoryLoaded(uniqueCategories));
     } catch (e) {
       emit(CategoryError(e.toString()));
     }
@@ -54,11 +70,14 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       UpdateCategoryEvent event, Emitter<CategoryState> emit) async {
     emit(const CategoryLoading());
     try {
-      final category =
-          await updateCategoryUseCase(event.categoryId, event.name);
+      final category = await updateCategoryUseCase(event.categoryId, event.name);
       emit(CategoryUpdated(category));
       final categories = await getCategoriesUseCase();
-      emit(CategoryLoaded(categories));
+      final uniqueCategories = categories.fold<List<Category>>(
+        [],
+            (list, category) => list.any((c) => c.id == category.id) ? list : list..add(category),
+      );
+      emit(CategoryLoaded(uniqueCategories));
     } catch (e) {
       emit(CategoryError(e.toString()));
     }
@@ -71,7 +90,11 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       await deleteCategoryUseCase(event.categoryId);
       emit(CategoryDeleted(event.categoryId));
       final categories = await getCategoriesUseCase();
-      emit(CategoryLoaded(categories));
+      final uniqueCategories = categories.fold<List<Category>>(
+        [],
+            (list, category) => list.any((c) => c.id == category.id) ? list : list..add(category),
+      );
+      emit(CategoryLoaded(uniqueCategories));
     } catch (e) {
       emit(CategoryError(e.toString()));
     }

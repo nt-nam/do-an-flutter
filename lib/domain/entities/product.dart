@@ -1,24 +1,26 @@
-// lib/domain/entities/product.dart
-enum ProductStatus { inStock, outOfStock }
+enum ProductStatus {
+  inStock,
+  outOfStock,
+}
 
 class Product {
   final int id;
   final String name;
   final String? description;
   final double price;
-  final int stock;
-  final ProductStatus status;
+  final int categoryId;
   final String? imageUrl;
-  final int? categoryId;
+  final ProductStatus status; // 'Còn hàng', 'Hết hàng'
+  final int stock;
 
   Product({
     required this.id,
     required this.name,
     this.description,
     required this.price,
-    required this.stock,
-    required this.status,
+    required this.categoryId,
     this.imageUrl,
-    this.categoryId,
+    required this.status,
+    required this.stock,
   });
 }

@@ -45,4 +45,3 @@ class UpdateAccountRoleEvent extends AccountEvent {
 
   const UpdateAccountRoleEvent(this.accountId, this.newRole);
 }
-
