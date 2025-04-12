@@ -1,23 +1,34 @@
-enum NotificationStatus {
-  unread,
-  read,
+enum NotificationType {
+  HE_THONG,      // Thông báo hệ thống
+  UU_DAI,        // Ưu đãi, khuyến mãi
+  BAO_MAT,       // Cảnh báo bảo mật
+  SU_KIEN,       // Sự kiện
+  CA_NHAN,       // Thông tin cá nhân
+  THONG_BAO_KHAC // Loại khác
 }
-class Notification {
-  final int id;
-  final int? accountId;
-  final int? orderId;
-  final int? offerId;
-  final String content;
-  final DateTime sentDate;
-  final NotificationStatus status;// 'Chưa đọc', 'Đã đọc'
 
-  Notification({
+class NotificationE {
+  final int id;
+  final String title;
+  final String message;
+  final DateTime date;
+  final NotificationType type;
+  final String? imageUrl;
+  final int priority;
+  final String? creator;
+  final DateTime? displayUntil;
+  final bool isActive;
+
+  NotificationE({
     required this.id,
-    this.accountId,
-    this.orderId,
-    this.offerId,
-    required this.content,
-    required this.sentDate,
-    required this.status,
+    required this.title,
+    required this.message,
+    required this.date,
+    required this.type,
+    this.imageUrl,
+    this.priority = 1,
+    this.creator,
+    this.displayUntil,
+    this.isActive = true,
   });
 }

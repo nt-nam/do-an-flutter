@@ -10,21 +10,60 @@ class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl(this.apiService, this.authService);
 
   @override
-  Future<List<NotificationModel>> getNotifications(int accountId) async {
+  Future<List<NotificationModel>> getSystemNotifications({
+    String? type,
+    bool activeOnly = true,
+    int? limit,
+  }) async {
     final token = await authService.getToken();
-    final data = await apiService.get('thongbao?MaTK=$accountId', token: token);
+    final queryParams = {
+      if (type != null) 'loaiTB': type,
+      'trangThai': activeOnly ? 'ACTIVE' : 'ALL',
+      if (limit != null) 'limit': limit.toString(),
+    };
+
+    final endpoint = 'thongbao?${Uri(queryParameters: queryParams).query}';
+    final data = await apiService.get(endpoint, token: token);
+
     return (data as List).map((json) => NotificationModel.fromJson(json)).toList();
   }
 
   @override
   Future<void> markAsRead(int notificationId) async {
     final token = await authService.getToken();
-    await apiService.put('thongbao/$notificationId', {'TrangThai': 'Đã đọc'}, token: token);
+    await apiService.put(
+      'thongbao/$notificationId',
+      {'TrangThai': 'Đã đọc'},
+      token: token,
+    );
   }
 
   @override
-  Future<void> updateNotification(NotificationModel notification) {
-    // TODO: implement updateNotification
-    throw UnimplementedError();
+  Future<void> updateNotification(NotificationModel notification) async {
+    final token = await authService.getToken();
+    await apiService.put(
+      'thongbao/${notification.id}',
+      notification.toJson(),
+      token: token,
+    );
+  }
+
+  @override
+  Future<void> createNotification(NotificationModel notification) async {
+    final token = await authService.getToken();
+    await apiService.post(
+      'thongbao',
+      notification.toJson(),
+      token: token,
+    );
+  }
+
+  @override
+  Future<void> deleteNotification(int notificationId) async {
+    final token = await authService.getToken();
+    await apiService.delete(
+      'thongbao/$notificationId',
+      token: token,
+    );
   }
 }

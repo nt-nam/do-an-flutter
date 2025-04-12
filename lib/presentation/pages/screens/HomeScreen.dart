@@ -9,7 +9,6 @@ import '../../blocs/category/category_state.dart';
 import '../../blocs/product/product_bloc.dart';
 import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
-import '../../widgets/CategoryCheckbox.dart';
 import '../../widgets/ProductCardFeatured.dart';
 import '../../widgets/ProductCard.dart';
 import 'MenuScreen.dart';

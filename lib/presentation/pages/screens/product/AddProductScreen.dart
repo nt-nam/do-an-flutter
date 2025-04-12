@@ -3,9 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gas_store/domain/entities/category.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../../blocs/category/category_bloc.dart';
+import '../../../blocs/category/category_event.dart';
+import '../../../blocs/category/category_state.dart';
 import '../../../blocs/product/product_bloc.dart';
 import '../../../blocs/product/product_event.dart';
 import '../../../blocs/product/product_state.dart';
@@ -21,19 +25,25 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final _stockController = TextEditingController();
-  final _categoryIdController = TextEditingController();
   final _descriptionController = TextEditingController();
   File? _imageFile; // Dùng cho di động
   Uint8List? _imageBytes; // Dùng cho web
   String? _imageName; // Tên file ảnh để truyền vào imageUrl
   final ImagePicker _picker = ImagePicker();
+  Category? _selectedCategory; // Biến lưu danh mục được chọn
+
+  @override
+  void initState() {
+    super.initState();
+    // Kích hoạt sự kiện lấy danh mục khi màn hình khởi tạo
+    context.read<CategoryBloc>().add(const FetchCategoriesEvent());
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _priceController.dispose();
     _stockController.dispose();
-    _categoryIdController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
@@ -76,7 +86,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     _imageName = 'product_${DateTime.now().millisecondsSinceEpoch}.jpg';
     final localPath = '${directory.path}/$_imageName';
     await image.copy(localPath);
-    _imageFile = File(localPath); // Cập nhật _imageFile với đường dẫn mới
+    _imageFile = File(localPath);
     print('Ảnh đã lưu tại: $localPath');
     print('File tồn tại: ${File(localPath).existsSync()}');
   }
@@ -85,26 +95,29 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final name = _nameController.text.trim();
     final price = double.tryParse(_priceController.text.trim()) ?? 0.0;
     final stock = int.tryParse(_stockController.text.trim()) ?? 0;
-    final categoryId = int.tryParse(_categoryIdController.text.trim()) ?? 0;
-    final description = _descriptionController.text.trim().isEmpty ? null : _descriptionController.text.trim();
+    final description = _descriptionController.text.trim().isEmpty
+        ? null
+        : _descriptionController.text.trim();
 
-    if (name.isEmpty || price <= 0 || stock < 0 || categoryId <= 0) {
+    if (name.isEmpty || price <= 0 || stock < 0 || _selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng nhập đầy đủ và đúng thông tin!')),
+        const SnackBar(
+            content: Text('Vui lòng nhập đầy đủ và đúng thông tin!')),
       );
       return;
     }
 
     context.read<ProductBloc>().add(
-      AddProductEvent(
-        name: name,
-        categoryId: categoryId,
-        price: price,
-        stock: stock,
-        imageUrl: _imageName, // Truyền tên file ảnh làm imageUrl
-        description: description,
-      ),
-    );
+          AddProductEvent(
+            name: name,
+            categoryId: _selectedCategory!.id,
+            // Sử dụng ID của danh mục đã chọn
+            price: price,
+            stock: stock,
+            imageUrl: _imageName,
+            description: description,
+          ),
+        );
   }
 
   @override
@@ -160,13 +173,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _categoryIdController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'ID danh mục',
-                    border: OutlineInputBorder(),
-                  ),
+                // Thay TextField categoryId bằng DropdownButton
+                BlocBuilder<CategoryBloc, CategoryState>(
+                  builder: (context, state) {
+                    if (state is CategoryLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is CategoryLoaded) {
+                      return DropdownButtonFormField<Category>(
+                        decoration: const InputDecoration(
+                          labelText: 'Danh mục',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedCategory,
+                        items: state.categories
+                            .map((category) => DropdownMenuItem<Category>(
+                                  value: category,
+                                  child: Text(category.name),
+                                ))
+                            .toList(),
+                        onChanged: (Category? newValue) {
+                          setState(() {
+                            _selectedCategory = newValue;
+                          });
+                        },
+                        validator: (value) =>
+                            value == null ? 'Vui lòng chọn danh mục' : null,
+                      );
+                    } else if (state is CategoryError) {
+                      return Text('Lỗi: ${state.message}');
+                    }
+                    return const Text('Chưa có danh mục nào');
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextField(

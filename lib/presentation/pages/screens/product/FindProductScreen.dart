@@ -15,7 +15,7 @@ import 'DetailProductScreen.dart';
 class FindProductScreen extends StatefulWidget {
   const FindProductScreen({super.key});
 
-  static final String linkImage = "gasdandung/placeholder.jpg";
+  static const String linkImage = "gasdandung/placeholder.jpg";
 
   @override
   State<FindProductScreen> createState() => _FindProductScreenState();
@@ -47,7 +47,6 @@ class _FindProductScreenState extends State<FindProductScreen> {
       } else {
         _selectedCategoryIds.add(categoryId);
       }
-      // Debug log để kiểm tra
       print('Selected Category IDs: $_selectedCategoryIds');
     });
     context.read<ProductBloc>().add(FetchProductsEvent(
@@ -64,6 +63,11 @@ class _FindProductScreenState extends State<FindProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Tính số cột dựa trên chiều rộng màn hình
+    final screenWidth = MediaQuery.of(context).size.width;
+    const double itemWidth = 180; // Chiều rộng mong muốn cho mỗi card
+    final crossAxisCount = (screenWidth / itemWidth).floor().clamp(2, 4); // Giới hạn từ 2 đến 4 cột
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -149,7 +153,6 @@ class _FindProductScreenState extends State<FindProductScreen> {
                           style: GoogleFonts.poppins(color: Colors.grey[600]),
                         );
                       }
-                      // Debug log để kiểm tra danh mục
                       print('Categories: ${categories.map((c) => c.id).toList()}');
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
@@ -204,11 +207,11 @@ class _FindProductScreenState extends State<FindProductScreen> {
                           );
                         }
                         return GridView.builder(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.7,
+                            childAspectRatio: 0.75, // Tăng tỷ lệ để card gọn hơn
                           ),
                           itemCount: products.length,
                           itemBuilder: (context, index) {

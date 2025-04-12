@@ -1,8 +1,8 @@
 enum OrderStatus {
-  pending,
-  delivering,
-  delivered,
-  cancelled,
+  pending, // Chờ xử lý
+  delivering, // Đang giao hàng
+  delivered, // Đã giao
+  cancelled, // Đã hủy
 }
 
 

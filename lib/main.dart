@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gas_store/presentation/blocs/offer/offer_bloc.dart';
-import 'package:gas_store/presentation/blocs/user/user_bloc.dart';
+import 'package:gas_store/domain/usecases/notification/create_notifications_usecase.dart';
+import 'package:gas_store/domain/usecases/notification/delete_notification_usecase.dart';
+import 'package:gas_store/domain/usecases/notification/get_active_notifications_count_usecase.dart';
+import 'package:gas_store/domain/usecases/notification/get_system_notifications_usecase.dart';
+import 'package:gas_store/domain/usecases/notification/update_notification_usecase.dart';
+import '../presentation/blocs/offer/offer_bloc.dart';
+import '../presentation/blocs/user/user_bloc.dart';
 import '../presentation/blocs/account/account_bloc.dart';
 import '../presentation/blocs/account/account_state.dart';
 import '../presentation/blocs/cart/cart_bloc.dart';
@@ -16,6 +21,7 @@ import '../presentation/pages/screens/auth/LoginScreen.dart';
 import 'data/repositories/account_repository_impl.dart';
 import 'data/repositories/cart_repository_impl.dart';
 import 'data/repositories/category_repository_impl.dart';
+import 'data/repositories/notification_repository_impl.dart';
 import 'data/repositories/offer_repository_impl.dart';
 import 'data/repositories/order_repository_impl.dart';
 import 'data/repositories/product_repository_impl.dart';
@@ -47,6 +53,8 @@ import 'domain/usecases/auth/login_usecase.dart';
 import 'domain/usecases/auth/register_use_case.dart';
 import 'domain/usecases/product/update_product_usecase.dart';
 import 'presentation/blocs/order/order_bloc.dart';
+import 'domain/usecases/notification/mark_notification_as_read_usecase.dart';
+import 'presentation/blocs/notification/notification_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -103,6 +111,14 @@ class MyApp extends StatelessWidget {
     final getOffersUseCase = GetOffersUseCase(offerRepository);
     final addOfferUseCase = AddOfferUseCase(offerRepository);
 
+    // Notification-related dependencies
+    final notificationRepository = NotificationRepositoryImpl(apiService, authService);
+    final createNotificationUseCase = CreateNotificationUseCase(notificationRepository);
+    final deleteNotificationUseCase=DeleteNotificationUseCase(notificationRepository);
+    final getActiveNotificationsCountUseCase=GetActiveNotificationsCountUseCase(notificationRepository);
+    final getSystemNotificationsUseCase=GetSystemNotificationsUseCase(notificationRepository);
+    final markNotificationAsReadUseCase = MarkNotificationAsReadUseCase(notificationRepository);
+    final updateNotificationUseCase = UpdateNotificationUseCase(notificationRepository);
 
     return MultiBlocProvider(
       providers: [
@@ -166,6 +182,16 @@ class MyApp extends StatelessWidget {
             getOffersUseCase,
             addOfferUseCase,
             offerRepository,
+          ),
+        ),
+        BlocProvider(
+          create: (context) => NotificationBloc(
+            createNotificationUseCase: createNotificationUseCase,
+            deleteNotificationUseCase: deleteNotificationUseCase,
+            getActiveNotificationsCountUseCase: getActiveNotificationsCountUseCase,
+            getSystemNotificationsUseCase: getSystemNotificationsUseCase,
+            markNotificationAsReadUseCase: markNotificationAsReadUseCase,
+            updateNotificationUseCase: updateNotificationUseCase
           ),
         ),
       ],

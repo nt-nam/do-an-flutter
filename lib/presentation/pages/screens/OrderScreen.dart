@@ -16,9 +16,16 @@ class OrderScreen extends StatefulWidget {
   State<OrderScreen> createState() => _OrderScreenState();
 }
 
-class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStateMixin {
+class _OrderScreenState extends State<OrderScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _tabs = ['Tất cả', 'Chờ xác nhận', 'Đang giao', 'Đã giao', 'Đã hủy'];
+  final List<String> _tabs = [
+    'Tất cả',
+    'Chờ xác nhận',
+    'Đang giao',
+    'Đã giao',
+    'Đã hủy'
+  ];
 
   @override
   void initState() {
@@ -150,7 +157,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
             return TabBarView(
               controller: _tabController,
               children: List.generate(_tabs.length, (tabIndex) {
-                final filteredOrders = filterOrdersByStatus(state.orders, tabIndex);
+                final filteredOrders =
+                    filterOrdersByStatus(state.orders, tabIndex);
 
                 if (filteredOrders.isEmpty) {
                   return _buildEmptyTabView(_tabs[tabIndex]);
@@ -356,7 +364,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                   child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: getStatusColor(order.status).withOpacity(0.1),
+                        backgroundColor:
+                            getStatusColor(order.status).withOpacity(0.1),
                         child: Icon(
                           getStatusIcon(order.status),
                           color: getStatusColor(order.status),
@@ -387,7 +396,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
                           color: getStatusColor(order.status).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
@@ -461,7 +471,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
 
                 // Footer
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     borderRadius: const BorderRadius.only(
@@ -597,7 +608,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                       const SizedBox(height: 10),
                       _infoRow('Mã đơn hàng:', '#${order.id ?? 'N/A'}'),
                       _infoRow('Ngày đặt:', formatDate(order.orderDate)),
-                      _infoRow('Tổng tiền:', '${order.totalAmount.toStringAsFixed(0)} VNĐ'),
+                      _infoRow('Tổng tiền:',
+                          '${order.totalAmount.toStringAsFixed(0)} VNĐ'),
                       const SizedBox(height: 20),
 
                       // Địa chỉ giao hàng
@@ -617,7 +629,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on, color: Colors.deepPurple),
+                            const Icon(Icons.location_on,
+                                color: Colors.deepPurple),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
@@ -670,7 +683,8 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                                 context: context,
                                 builder: (context) => AlertDialog(
                                   title: const Text('Xác nhận hủy đơn'),
-                                  content: const Text('Bạn có chắc chắn muốn hủy đơn hàng này không?'),
+                                  content: const Text(
+                                      'Bạn có chắc chắn muốn hủy đơn hàng này không?'),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
@@ -679,8 +693,9 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                                     TextButton(
                                       onPressed: () {
                                         // Gọi event hủy đơn hàng trong OrderBloc
-                                        context.read<OrderBloc>().add(CancelOrderEvent(int.parse(order.id.toString())));
-
+                                        context.read<OrderBloc>().add(
+                                            CancelOrderEvent(int.parse(
+                                                order.id.toString())));
 
                                         // Đóng dialog xác nhận
                                         Navigator.pop(context);
@@ -689,14 +704,17 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                                         Navigator.pop(context);
 
                                         // Hiển thị thông báo
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
                                           const SnackBar(
-                                            content: Text('Đơn hàng đã được hủy thành công'),
+                                            content: Text(
+                                                'Đơn hàng đã được hủy thành công'),
                                             backgroundColor: Colors.green,
                                           ),
                                         );
                                       },
-                                      child: const Text('Có', style: TextStyle(color: Colors.red)),
+                                      child: const Text('Có',
+                                          style: TextStyle(color: Colors.red)),
                                     ),
                                   ],
                                 ),
@@ -735,10 +753,39 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                               ),
                             ),
                             child: const Text(
+                              'Đánh giá',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.white
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 8),
+
+                      if (order.status == OrderStatus.delivered)
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Xử lý mua lại
+                              Navigator.pop(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.deepPurple,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
                               'Mua lại',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
+                                color: Colors.white
                               ),
                             ),
                           ),

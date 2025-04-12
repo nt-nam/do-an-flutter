@@ -1,35 +1,61 @@
+import '../../domain/entities/notification.dart';
+
 class NotificationModel {
-  final int maTB;
-  final int? maTK; // Có thể null nếu tài khoản bị xóa
-  final String noiDung;
-  final DateTime ngayGui;
-  final String trangThai; // ENUM: 'Chưa đọc', 'Đã đọc'
+  final int id;
+  final String title;
+  final String message;
+  final DateTime date;
+  final NotificationType type;
+  final String? imageUrl;
+  final int priority;
+  final String? creator;
+  final DateTime? displayUntil;
+  final bool isActive;
 
   NotificationModel({
-    required this.maTB,
-    this.maTK,
-    required this.noiDung,
-    required this.ngayGui,
-    required this.trangThai,
+    required this.id,
+    required this.title,
+    required this.message,
+    required this.date,
+    required this.type,
+    this.imageUrl,
+    this.priority = 1,
+    this.creator,
+    this.displayUntil,
+    this.isActive = true,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     return NotificationModel(
-      maTB: json['MaTB'] as int,
-      maTK: json['MaTK'] as int?,
-      noiDung: json['NoiDung'] as String,
-      ngayGui: DateTime.parse(json['NgayGui'] as String),
-      trangThai: json['TrangThai'] as String,
+      id: json['MaTB'] as int,
+      title: json['TieuDe'] as String,
+      message: json['NoiDung'] as String,
+      date: DateTime.parse(json['NgayGui'] as String),
+      type: NotificationType.values.firstWhere(
+            (e) => e.toString().split('.').last == json['LoaiTB'],
+        orElse: () => NotificationType.HE_THONG,
+      ),
+      imageUrl: json['AnhDaiDien'] as String?,
+      priority: json['DoUuTien'] as int? ?? 1,
+      creator: json['NguoiTao'] as String?,
+      displayUntil: json['HienThiDenNgay'] != null
+          ? DateTime.parse(json['HienThiDenNgay'] as String)
+          : null,
+      isActive: json['TrangThai'] == 'ACTIVE',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'MaTB': maTB,
-      'MaTK': maTK,
-      'NoiDung': noiDung,
-      'NgayGui': ngayGui.toIso8601String(),
-      'TrangThai': trangThai,
+      'MaTB': id,
+      'TieuDe': title,
+      'NoiDung': message,
+      'LoaiTB': type.toString().split('.').last,
+      'AnhDaiDien': imageUrl,
+      'DoUuTien': priority,
+      'NguoiTao': creator,
+      'HienThiDenNgay': displayUntil?.toIso8601String(),
+      'TrangThai': isActive ? 'ACTIVE' : 'INACTIVE',
     };
   }
 }

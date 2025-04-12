@@ -1,37 +1,29 @@
-import '../../data/models/notification_model.dart';
-import 'notification_repository.dart';
+import '../../domain/entities/notification.dart';
 
-class MockNotificationRepository implements NotificationRepository {
+abstract class NotificationRepository {
+  Future<List<NotificationE>> getNotifications();
+}
+
+class NotificationRepositoryImpl implements NotificationRepository {
   @override
-  Future<List<NotificationModel>> getNotifications(int accountId) async {
-    // Dữ liệu giả lập
+  Future<List<NotificationE>> getNotifications() async {
+    // Giả lập dữ liệu hoặc gọi API thực tế
+    await Future.delayed(const Duration(seconds: 1));
     return [
-      NotificationModel(
-        maTB: 1,
-        maTK: 1,
-        noiDung: "Thông báo 1: Chào mừng bạn!",
-        ngayGui: DateTime.now().subtract(const Duration(days: 1)),
-        trangThai: "Chưa đọc",
+      NotificationE(
+        id: 1,
+        title: 'Đơn hàng đã giao',
+        message: 'Đơn hàng #123 đã được giao thành công.',
+        date: DateTime.now().subtract(const Duration(days: 1)),
+        type: NotificationType.THONG_BAO_KHAC,
       ),
-      NotificationModel(
-        maTB: 2,
-        maTK: 1,
-        noiDung: "Thông báo 2: Cập nhật mới!",
-        ngayGui: DateTime.now().subtract(const Duration(hours: 2)),
-        trangThai: "Đã đọc",
+      NotificationE(
+        id: 2,
+        title: 'Cảnh báo thanh toán',
+        message: 'Vui lòng thanh toán đơn hàng #124 trước ngày 15/04.',
+        date: DateTime.now(),
+        type: NotificationType.THONG_BAO_KHAC,
       ),
     ];
-  }
-
-  @override
-  Future<void> markAsRead(int notificationId) async {
-    // Giả lập hành động đánh dấu đã đọc
-    await Future.delayed(const Duration(milliseconds: 500)); // Giả lập độ trễ
-  }
-
-  @override
-  Future<void> updateNotification(NotificationModel notification) async {
-    // Không cần triển khai cho test
-    throw UnimplementedError();
   }
 }

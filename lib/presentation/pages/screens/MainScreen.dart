@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gas_store/presentation/pages/screens/notifiction/ListNotificationScreen.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import '../../blocs/product/product_bloc.dart';
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     FindProductScreen(),
     const CartScreen(),
-    const Placeholder(),
+    const ListNotificationScreen(),
     const OrderScreen(),
   ];
 

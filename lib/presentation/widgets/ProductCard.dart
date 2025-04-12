@@ -20,13 +20,16 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const String defaultImage = "GDD_Gemini_Generated_Image_rzmbjerzmbjerzmb.jpg";
-    final String imageUrl = "assets/images/${imageName.isEmpty ? defaultImage : imageName}";
+    final String imageUrl = "images/${imageName.isEmpty ? defaultImage : imageName}";
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        width: MediaQuery.of(context).size.width / 3.2,
+        // Xóa width cố định, để GridView quản lý
+        constraints: const BoxConstraints(
+          maxWidth: 200, // Giới hạn chiều rộng tối đa
+        ),
         margin: const EdgeInsets.all(6.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -61,7 +64,7 @@ class ProductCard extends StatelessWidget {
                       top: Radius.circular(16),
                     ),
                     child: Container(
-                      height: 110,
+                      height: MediaQuery.of(context).size.width / 4, // Chiều cao ảnh linh hoạt
                       width: double.infinity,
                       decoration: BoxDecoration(
                         color: Colors.grey[100],
@@ -72,7 +75,7 @@ class ProductCard extends StatelessWidget {
                       child: AnimatedScale(
                         scale: 1.0,
                         duration: const Duration(milliseconds: 300),
-                        child: Image.asset( // Changed to Image.asset for local assets
+                        child: Image.asset(
                           imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {

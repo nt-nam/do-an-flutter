@@ -12,10 +12,17 @@ class NotificationLoading extends NotificationState {
   const NotificationLoading();
 }
 
-class NotificationLoaded extends NotificationState {
-  final List<Notification> notifications;
+class SystemNotificationsLoaded extends NotificationState {
+  final List<NotificationE> notifications;
+  final int activeCount;
 
-  const NotificationLoaded(this.notifications);
+  const SystemNotificationsLoaded(this.notifications, this.activeCount);
+}
+
+class NotificationOperationSuccess extends NotificationState {
+  final String message;
+
+  const NotificationOperationSuccess(this.message);
 }
 
 class NotificationMarkedAsRead extends NotificationState {
