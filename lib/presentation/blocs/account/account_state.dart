@@ -18,8 +18,9 @@ class AccountLoggedIn extends AccountState {
   final String token;
   final Account account;
   final UserModel? user;
+  final String cartId;
 
-  const AccountLoggedIn(this.token, this.account, this.user);
+  const AccountLoggedIn(this.token, this.account, this.user,this.cartId);
 }
 
 class AccountProfileLoaded extends AccountState {

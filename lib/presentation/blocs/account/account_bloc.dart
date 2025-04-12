@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../data/models/account_model.dart';
 import '../../../data/services/auth_service.dart';
@@ -7,6 +8,8 @@ import '../../../domain/repositories/account_repository.dart';
 import '../../../domain/usecases/auth/get_user_usecase.dart';
 import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_use_case.dart';
+import '../cart/cart_bloc.dart';
+import '../cart/cart_event.dart';
 import 'account_event.dart';
 import 'account_state.dart';
 
@@ -32,20 +35,38 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AccountState> emit) async {
+    if (state is AccountLoggedIn) {
+      print('Already logged in, ignoring LoginEvent');
+      return;
+    }
+
     emit(const AccountLoading());
     try {
+      print('Calling loginUseCase with email: ${event.email}');
       final (token, account, user) = await loginUseCase(event.email, event.password);
-      emit(AccountLoggedIn(token, account, user ));
-      print('Login success: token=$token, account=$account, user=$user');
+      print('loginUseCase success: token=$token, account=$account, user=$user');
+
+      print('Fetching cartId for account ID: ${account.id}');
+      final cartId = await accountRepository.getCartId(account.id.toString());
+      print('cartId fetched: $cartId');
+
+      print('Saving cartId to SharedPreferences');
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('cartId', cartId);
+      print('cartId saved to SharedPreferences');
+
+      emit(AccountLoggedIn(token, account, user, cartId));
+      print('Login success: token=$token, account=$account, user=$user, cartId=$cartId');
     } catch (e) {
-      emit(AccountError(e.toString()));
+      print('Login error: $e');
+      emit(AccountError('Đăng nhập thất bại: ${e.toString()}'));
     }
   }
 
   Future<void> _onRegister(RegisterEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
-      final account = await registerUseCase(event.email, event.password);
+      final account = await registerUseCase(event.email, event.password, event.fullName);
       emit(AccountRegistered(account));
     } catch (e) {
       emit(AccountError(e.toString()));

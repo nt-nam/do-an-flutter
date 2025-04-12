@@ -98,6 +98,13 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
     return formatter.format(date);
   }
 
+  String _formatCurrency(double amount) {
+    return amount.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,7 +117,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.teal,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
@@ -124,15 +131,18 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
           padding: const EdgeInsets.symmetric(horizontal: 8),
         ),
       ),
-      body: BlocConsumer<OrderBloc, OrderState>(
+      body:BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
           if (state is OrderError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+            // Bỏ qua thông báo lỗi nếu liên quan đến "Không tìm thấy dữ liệu"
+            if (!state.message.contains('Không tìm thấy dữ liệu')) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           }
         },
         builder: (context, state) {
@@ -146,21 +156,17 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
             if (state.orders.isEmpty) {
               return _buildEmptyOrdersView();
             }
-
             return TabBarView(
               controller: _tabController,
               children: List.generate(_tabs.length, (tabIndex) {
                 final filteredOrders = filterOrdersByStatus(state.orders, tabIndex);
-
                 if (filteredOrders.isEmpty) {
                   return _buildEmptyTabView(_tabs[tabIndex]);
                 }
-
                 return _buildOrdersList(filteredOrders);
               }),
             );
           }
-
           return Center(
             child: BlocBuilder<AccountBloc, AccountState>(
               builder: (context, accountState) {
@@ -185,7 +191,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
             ),
           );
         },
-      ),
+      )
     );
   }
 
@@ -324,8 +330,6 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
         final order = orders[index];
         return InkWell(
           onTap: () {
-            // Có thể điều hướng đến chi tiết đơn hàng
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(order: order)));
             _showOrderDetails(order);
           },
           child: Container(
@@ -421,7 +425,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                             ),
                           ),
                           Text(
-                            '${order.totalAmount.toStringAsFixed(0)} VNĐ',
+                            '${_formatCurrency(order.totalAmount)} VNĐ',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,
@@ -597,7 +601,7 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                       const SizedBox(height: 10),
                       _infoRow('Mã đơn hàng:', '#${order.id ?? 'N/A'}'),
                       _infoRow('Ngày đặt:', formatDate(order.orderDate)),
-                      _infoRow('Tổng tiền:', '${order.totalAmount.toStringAsFixed(0)} VNĐ'),
+                      _infoRow('Tổng tiền:', '${_formatCurrency(order.totalAmount)} VNĐ'),
                       const SizedBox(height: 20),
 
                       // Địa chỉ giao hàng
@@ -680,7 +684,6 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                                       onPressed: () {
                                         // Gọi event hủy đơn hàng trong OrderBloc
                                         context.read<OrderBloc>().add(CancelOrderEvent(int.parse(order.id.toString())));
-
 
                                         // Đóng dialog xác nhận
                                         Navigator.pop(context);

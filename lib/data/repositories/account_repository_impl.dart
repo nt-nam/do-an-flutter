@@ -35,4 +35,24 @@ class AccountRepositoryImpl implements AccountRepository {
     final token = await authService.getToken();
     await apiService.delete('taikhoan/$id', token: token);
   }
+
+  @override
+  Future<String> getCartId(String accountId) async {
+    final token = await authService.getToken();
+    if (token == null) {
+      throw Exception('No token found. Please login first.');
+    }
+
+    final data = await apiService.get('giohang?MaTK=$accountId', token: token);
+    if (data['status'] != 'success') {
+      throw Exception('Failed to get cart: ${data['message']}');
+    }
+
+    final cartId = data['data']['MaGH'].toString();
+    if (cartId == null) {
+      throw Exception('Cart ID not found in response');
+    }
+
+    return cartId;
+  }
 }

@@ -37,7 +37,7 @@ class _CartScreenState extends State<CartScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.teal.shade300,
         elevation: 0,
         title: const Text(
           'Giỏ hàng',
@@ -59,9 +59,9 @@ class _CartScreenState extends State<CartScreen> {
             _showSnackBar(context, state.message, isError: true);
           } else if (state is CartItemRemoved) {
             _showSnackBar(context, 'Đã xóa sản phẩm khỏi giỏ hàng');
-            _loadCartData(); // Tự động load lại sau khi xóa
+            _loadCartData(); // Chỉ reload khi xóa sản phẩm
           } else if (state is CartItemUpdated) {
-            _showSnackBar(context, 'Đã cập nhật số lượng');
+            // _showSnackBar(context, 'Đã cập nhật số lượng');
           }
         },
         builder: (context, state) {
@@ -77,7 +77,6 @@ class _CartScreenState extends State<CartScreen> {
             }
             return _buildLoadedCart(context, state);
           }
-
           return _buildLoginPrompt();
         },
       ),
@@ -103,26 +102,6 @@ class _CartScreenState extends State<CartScreen> {
               color: Colors.grey[700],
             ),
           ),
-          const SizedBox(height: 20),
-          // ElevatedButton(
-          //   onPressed: () {
-          //     Navigator.pop(context); // Quay lại trang sản phẩm
-          //   },
-          //   style: ElevatedButton.styleFrom(
-          //     backgroundColor: Colors.deepPurple,
-          //     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(12),
-          //     ),
-          //   ),
-          //   child: const Text(
-          //     'Tiếp tục mua sắm',
-          //     style: TextStyle(
-          //       fontSize: 16,
-          //       fontWeight: FontWeight.bold,
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
@@ -131,7 +110,6 @@ class _CartScreenState extends State<CartScreen> {
   Widget _buildLoadedCart(BuildContext context, CartLoaded state) {
     double totalAmount = 0;
     for (var item in state.cartItems) {
-      // Sử dụng productPrice thay vì price
       double itemPrice = item.productPrice ?? 0;
       totalAmount += itemPrice * item.quantity;
     }
@@ -165,7 +143,6 @@ class _CartScreenState extends State<CartScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Hình ảnh sản phẩm
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: item.productImage != null && item.productImage!.isNotEmpty
@@ -183,7 +160,6 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
             const SizedBox(width: 12),
-            // Thông tin sản phẩm
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +183,6 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Điều khiển số lượng
                   Row(
                     children: [
                       _buildQuantityControl(
@@ -252,7 +227,6 @@ class _CartScreenState extends State<CartScreen> {
                         },
                       ),
                       const Spacer(),
-                      // Nút xóa
                       IconButton(
                         icon: const Icon(Icons.delete_outline, color: Colors.red),
                         onPressed: () => _showDeleteConfirmation(context, item),
@@ -363,7 +337,7 @@ class _CartScreenState extends State<CartScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
+              backgroundColor: Colors.teal,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -470,7 +444,6 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   String _formatCurrency(double amount) {
-    // Format số tiền có dấu phẩy ngăn cách hàng nghìn
     return amount.toStringAsFixed(0).replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]}.',

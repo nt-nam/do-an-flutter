@@ -24,6 +24,7 @@ class CartDetailModel {
   });
 
   factory CartDetailModel.fromJson(Map<String, dynamic> json) {
+    print('Parsing CartDetailModel from JSON: $json');
     return CartDetailModel(
       maCTGH: json['MaCTGH'] as int?,
       maGH: json['MaGH'] as int?,

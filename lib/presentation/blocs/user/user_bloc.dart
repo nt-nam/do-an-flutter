@@ -71,7 +71,6 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   Future<void> _onUpdateUser(UpdateUser event, Emitter<UserState> emit) async {
     emit(const UserLoading());
     try {
-      // Chuyển đổi từ User sang UserModel trước khi gửi đến repository
       final userModel = UserModel(
         maND: event.user.id,
         maTK: event.user.accountId,
@@ -84,7 +83,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       final updatedUser = _mapToEntity(updatedUserModel);
       emit(UserLoaded(updatedUser));
     } catch (e) {
-      emit(UserError(e.toString()));
+      emit(UserError('Lỗi cập nhật người dùng: $e')); // Cải thiện thông báo lỗi
     }
   }
 }

@@ -3,13 +3,11 @@ class CartModel {
   final int cartId;
   final int accountId;
   final DateTime addedDate;
-  final String status;
 
   CartModel({
     required this.cartId,
     required this.accountId,
     required this.addedDate,
-    required this.status,
   });
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
@@ -17,12 +15,15 @@ class CartModel {
     if (cartId == null || cartId == 0) {
       throw Exception('Invalid cart ID received from API');
     }
+    if (json.containsKey('status')) {
+      print('Status field in json: ${json['status']} (${json['status'].runtimeType})');
+    }
+
 
     return CartModel(
       cartId: cartId,
       accountId: json['MaTK'] ?? 0,
       addedDate: DateTime.parse(json['NgayThem'] ?? DateTime.now().toString()),
-      status: json['TrangThai'] ?? 'active',
     );
   }
 
@@ -31,7 +32,6 @@ class CartModel {
       'MaGH': cartId,
       'MaTK': accountId,
       'NgayThem': addedDate.toIso8601String(),
-      'TrangThai': status,
     };
   }
 
@@ -40,7 +40,7 @@ class CartModel {
       cartId: cartId,
       accountId: accountId,
       addedDate: addedDate,
-      status: status,
+
     );
   }
 }

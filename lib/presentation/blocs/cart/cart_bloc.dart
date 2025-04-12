@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../domain/entities/cart.dart';
 import '../../../domain/entities/cart_detail.dart';
 import '../../../domain/usecases/cart/add_to_cart_usecase.dart';
@@ -14,6 +15,8 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   final RemoveFromCartUseCase removeFromCartUseCase;
   final UpdateCartQuantityUseCase updateCartQuantityUseCase;
   int? _accountId;
+  int? _cartId; // Lưu trữ cartId
+  List<CartDetail> _currentCartItems = [];
 
   CartBloc({
     required this.getCartUseCase,
@@ -32,7 +35,9 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(const CartLoading());
     try {
       final (cart, cartDetails) = await getCartUseCase(event.accountId);
-      _accountId = event.accountId; // accountId có thể là null, nhưng _accountId đã khai báo là int?
+      _accountId = event.accountId;
+      _cartId = cart.cartId; // Lưu cartId
+      _currentCartItems = cartDetails;
       emit(CartLoaded(cartItems: cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
@@ -42,10 +47,23 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   Future<void> _onAddToCart(AddToCartEvent event, Emitter<CartState> emit) async {
     emit(const CartLoading());
     try {
+      // Kiểm tra cartId từ shared_preferences
+      final prefs = await SharedPreferences.getInstance();
+      String? cartId = prefs.getString('cartId');
+      if (cartId == null) {
+        // Nếu không có cartId, gọi FetchCartEvent để lấy
+        await _onFetchCart(FetchCartEvent(event.accountId), emit);
+        cartId = _cartId?.toString();
+        if (cartId == null) {
+          throw Exception('Không tìm thấy giỏ hàng cho tài khoản ID: ${event.accountId}');
+        }
+      }
+
       final cartDetail = await addToCartUseCase(event.accountId, event.productId, event.quantity);
       emit(CartItemAdded(cartDetail));
       _accountId ??= event.accountId;
       final (_, cartDetails) = await getCartUseCase(_accountId!);
+      _currentCartItems = cartDetails;
       emit(CartLoaded(cartItems: cartDetails));
     } catch (e) {
       emit(CartError(e.toString()));
@@ -61,6 +79,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         print('Fetching updated cart for account ID: $_accountId');
         final (_, cartDetails) = await getCartUseCase(_accountId!);
         print('Updated cart details: $cartDetails');
+        _currentCartItems = cartDetails;
         emit(CartLoaded(cartItems: cartDetails));
         emit(CartItemRemoved(event.cartDetailId));
       } else {
@@ -73,14 +92,16 @@ class CartBloc extends Bloc<CartEvent, CartState> {
   }
 
   Future<void> _onUpdateCartQuantity(UpdateCartQuantityEvent event, Emitter<CartState> emit) async {
-    emit(const CartLoading());
     try {
-      final cartDetail = await updateCartQuantityUseCase(event.cartId, event.productId, event.newQuantity);
-      emit(CartItemUpdated(cartDetail));
-      if (_accountId != null) {
-        final (_, cartDetails) = await getCartUseCase(_accountId!);
-        emit(CartLoaded(cartItems: cartDetails));
+      final updatedCartDetail = await updateCartQuantityUseCase(event.cartId, event.productId, event.newQuantity);
+      final updatedCartItems = [..._currentCartItems];
+      final index = updatedCartItems.indexWhere((item) => item.cartId == event.cartId && item.productId == event.productId);
+      if (index != -1) {
+        updatedCartItems[index] = updatedCartDetail;
       }
+      _currentCartItems = updatedCartItems;
+      emit(CartItemUpdated(updatedCartDetail));
+      emit(CartLoaded(cartItems: updatedCartItems));
     } catch (e) {
       emit(CartError(e.toString()));
     }
@@ -94,8 +115,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         for (var detail in cartDetails) {
           await removeFromCartUseCase(detail.cartDetailId);
         }
-        emit(const CartLoaded(cartItems: [])); // Sau khi xóa, giỏ hàng sẽ rỗng
+        _currentCartItems = [];
+        emit(const CartLoaded(cartItems: []));
       } else {
+        _currentCartItems = [];
         emit(const CartLoaded(cartItems: []));
       }
     } catch (e) {

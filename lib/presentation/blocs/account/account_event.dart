@@ -6,6 +6,7 @@ class LoginEvent extends AccountEvent {
   final String email;
   final String password;
 
+
   const LoginEvent(this.email, this.password);
 }
 
@@ -31,8 +32,10 @@ class LogoutEvent extends AccountEvent {
 class RegisterEvent extends AccountEvent {
   final String email;
   final String password;
+  final String fullName;
 
-  const RegisterEvent(this.email, this.password);
+
+  const RegisterEvent(this.email, this.password, this.fullName);
 }
 
 class FetchAllAccountsEvent extends AccountEvent {

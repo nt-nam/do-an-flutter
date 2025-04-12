@@ -1,8 +1,10 @@
-import '../../data/models/cart_model.dart';
-import '../../data/models/cart_detail_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../domain/entities/cart.dart';
 import '../../domain/entities/cart_detail.dart';
 import '../../domain/repositories/cart_repository.dart';
+import '../models/cart_detail_model.dart';
+import '../models/cart_model.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
 
@@ -16,16 +18,37 @@ class CartRepositoryImpl implements CartRepository {
   Future<Cart> getCart(int accountId) async {
     final token = await authService.getToken();
     final data = await apiService.get('giohang?MaTK=$accountId', token: token);
-    return CartModel.fromJson(data).toEntity();
+    print('Raw JSON response: $data');
+    if (data['status'] != 'success') {
+      throw Exception('Failed to get cart: ${data['message']}');
+    }
+    return CartModel.fromJson(data['data']).toEntity();
   }
 
   @override
   Future<List<CartDetail>> getCartDetails(int cartId) async {
     final token = await authService.getToken();
     final data = await apiService.get('giohang/chitiet?MaGH=$cartId', token: token);
-    return (data as List)
-        .map((json) => CartDetailModel.fromJson(json).toEntity())
+    print('Raw JSON response from getCartDetails: $data');
+
+    // Kiểm tra nếu data là một List trực tiếp (không có status và data)
+    if (data is List) {
+      final cartDetails = (data as List)
+          .map((json) => CartDetailModel.fromJson(json as Map<String, dynamic>).toEntity())
+          .toList();
+      print('Parsed cart details: $cartDetails');
+      return cartDetails;
+    }
+
+    // Trường hợp API trả về cấu trúc {status: ..., data: ...} (nếu có trong tương lai)
+    if (data['status'] != 'success') {
+      throw Exception('Failed to get cart details: ${data['message']}');
+    }
+    final cartDetails = (data['data'] as List)
+        .map((json) => CartDetailModel.fromJson(json as Map<String, dynamic>).toEntity())
         .toList();
+    print('Parsed cart details: $cartDetails');
+    return cartDetails;
   }
 
   @override
@@ -39,6 +62,10 @@ class CartRepositoryImpl implements CartRepository {
       throw Exception('Không tìm thấy giỏ hàng cho tài khoản ID: ${cartDetail.accountId}');
     }
 
+    // Lưu cartId vào shared_preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('cartId', cartId.toString());
+
     // Lấy danh sách chi tiết giỏ hàng để kiểm tra số lượng hiện tại
     final cartDetails = await getCartDetails(cartId);
     final existingCartDetail = cartDetails.firstWhere(
@@ -48,7 +75,7 @@ class CartRepositoryImpl implements CartRepository {
         cartId: cartId,
         accountId: cartDetail.accountId,
         productId: cartDetail.productId,
-        quantity: 0, // Số lượng mặc định là 0 nếu sản phẩm chưa tồn tại
+        quantity: 0,
         createdDate: cartDetail.createdDate,
         productName: cartDetail.productName,
         productPrice: cartDetail.productPrice,
@@ -70,7 +97,26 @@ class CartRepositoryImpl implements CartRepository {
       token: token,
     );
 
-    final updatedCartDetails = (data as List)
+    // Kiểm tra nếu data là một List trực tiếp (không có status và data)
+    if (data is List) {
+      final updatedCartDetails = (data as List)
+          .map((json) => CartDetailModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      final addedCartDetail = updatedCartDetails.firstWhere(
+            (detail) => detail.maSP == cartDetail.productId,
+        orElse: () => throw Exception('Không tìm thấy chi tiết giỏ hàng vừa thêm'),
+      );
+
+      return addedCartDetail.toEntity();
+    }
+
+    // Trường hợp API trả về cấu trúc {status: ..., data: ...} (nếu có trong tương lai)
+    if (data['status'] != 'success') {
+      throw Exception('Failed to add to cart: ${data['message']}');
+    }
+
+    final updatedCartDetails = (data['data'] as List)
         .map((json) => CartDetailModel.fromJson(json as Map<String, dynamic>))
         .toList();
 
@@ -102,7 +148,11 @@ class CartRepositoryImpl implements CartRepository {
       token: token,
     );
 
-    final cartDetails = (data as List)
+    if (data['status'] != 'success') {
+      throw Exception('Failed to update cart detail: ${data['message']}');
+    }
+
+    final cartDetails = (data['data'] as List)
         .map((json) => CartDetailModel.fromJson(json as Map<String, dynamic>))
         .toList();
 

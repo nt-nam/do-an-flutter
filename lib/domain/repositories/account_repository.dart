@@ -5,4 +5,5 @@ abstract class AccountRepository {
   Future<AccountModel> getAccountById(int id);
   Future<AccountModel> updateAccount(AccountModel account);
   Future<void> deleteAccount(int id);
+  Future<String> getCartId(String accountId);
 }

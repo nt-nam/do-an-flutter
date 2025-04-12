@@ -17,8 +17,17 @@ class DetailProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final Color primaryColor = Color(0xFF2E7D32);      // Xanh lá đậm
+    final Color secondaryColor = Color(0xFF1E88E5);    // Xanh dương
+    final Color accentColor = Color(0xFFFFA000);       // Cam vàng
+    final Color textDarkColor = Color(0xFF424242);     // Xám đậm
+    final Color textLightColor = Color(0xFF757575);    // Xám nhạt
+    final Color backgroundColor = Color(0xFFF5F5F5);   // Xám nhạt nhất
+    final Color surfaceColor = Colors.white;           // Trắng
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: backgroundColor,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -28,21 +37,21 @@ class DetailProductScreen extends StatelessWidget {
           child: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: surfaceColor.withOpacity(0.9),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.arrow_back, color: Colors.deepPurple),
+            child: Icon(Icons.arrow_back, color: primaryColor),
           ),
         ),
         actions: [
           Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.9),
+              color: surfaceColor.withOpacity(0.9),
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.favorite_border, color: Colors.deepPurple),
+              icon: Icon(Icons.favorite_border, color: accentColor),
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Đã thêm vào danh sách yêu thích')),
@@ -55,12 +64,22 @@ class DetailProductScreen extends StatelessWidget {
       body: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
           if (state is ProductLoading) {
-            return _buildLoadingUI();
+            return _buildLoadingUI(primaryColor);
           } else if (state is ProductDetailsLoaded) {
             final product = state.product;
-            return _buildProductDetails(context, product);
+            return _buildProductDetails(
+                context,
+                product,
+                primaryColor,
+                secondaryColor,
+                accentColor,
+                textDarkColor,
+                textLightColor,
+                backgroundColor,
+                surfaceColor
+            );
           } else if (state is ProductError) {
-            return _buildErrorUI(state.message);
+            return _buildErrorUI(state.message, primaryColor);
           }
           return _buildEmptyUI();
         },
@@ -68,13 +87,13 @@ class DetailProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadingUI() {
+  Widget _buildLoadingUI(Color primaryColor) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: Colors.deepPurple,
+          CircularProgressIndicator(
+            color: primaryColor,
           ),
           const SizedBox(height: 20),
           Text(
@@ -89,7 +108,7 @@ class DetailProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorUI(String message) {
+  Widget _buildErrorUI(String message, Color primaryColor) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -120,7 +139,7 @@ class DetailProductScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
+              backgroundColor: primaryColor,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -157,7 +176,17 @@ class DetailProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductDetails(BuildContext context, dynamic product) {
+  Widget _buildProductDetails(
+      BuildContext context,
+      dynamic product,
+      Color primaryColor,
+      Color secondaryColor,
+      Color accentColor,
+      Color textDarkColor,
+      Color textLightColor,
+      Color backgroundColor,
+      Color surfaceColor
+      ) {
     return Stack(
       children: [
         CustomScrollView(
@@ -202,8 +231,8 @@ class DetailProductScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: product.status == ProductStatus.inStock
-                            ? Colors.green.withOpacity(0.9)
-                            : Colors.red.withOpacity(0.9),
+                            ? Color(0xFF43A047).withOpacity(0.9)  // Xanh lá
+                            : Color(0xFFE53935).withOpacity(0.9), // Đỏ
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
@@ -235,15 +264,15 @@ class DetailProductScreen extends StatelessWidget {
               ),
             ),
 
-            // Product information section with curved top edges - SỬA MARGIN ÂM
+            // Product information section with curved top edges
             SliverToBoxAdapter(
               child: Transform.translate(
                 offset: const Offset(0, -20),
                 child: Container(
                   padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    color: surfaceColor,
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
@@ -251,13 +280,13 @@ class DetailProductScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Product name with animated color
+                      // Product name with primary color
                       Text(
                         product.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 26,
                           fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
+                          color: textDarkColor,
                         ),
                       ),
 
@@ -272,19 +301,19 @@ class DetailProductScreen extends StatelessWidget {
                             children: [
                               Text(
                                 _formatCurrency(product.price),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w800,
-                                  color: Colors.deepPurple,
+                                  color: Colors.red,
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Text(
+                              Text(
                                 'VNĐ',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.deepPurple,
+                                  color: Colors.red,
                                 ),
                               ),
                             ],
@@ -292,22 +321,22 @@ class DetailProductScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.grey[100],
+                              color: backgroundColor,
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.inventory_2,
                                   size: 16,
-                                  color: Colors.grey,
+                                  color: textLightColor,
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Kho: ${product.stock}',
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.grey[700],
+                                    color: textLightColor,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -323,27 +352,27 @@ class DetailProductScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.grey[50],
+                          color: backgroundColor,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: Colors.grey.withOpacity(0.2)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Row(
+                            Row(
                               children: [
                                 Icon(
                                   Icons.description,
                                   size: 20,
-                                  color: Colors.deepPurple,
+                                  color: secondaryColor,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Mô tả sản phẩm',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.deepPurple,
+                                    color: secondaryColor,
                                   ),
                                 ),
                               ],
@@ -354,7 +383,7 @@ class DetailProductScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 15,
                                 height: 1.6,
-                                color: Colors.grey[800],
+                                color: textDarkColor,
                               ),
                             ),
                           ],
@@ -364,7 +393,7 @@ class DetailProductScreen extends StatelessWidget {
                       const SizedBox(height: 30),
 
                       // Feature badges
-                      _buildFeatureBadges(),
+                      _buildFeatureBadges(primaryColor, secondaryColor, accentColor, textDarkColor, surfaceColor),
 
                       // Add padding at the bottom to ensure content is visible above the action buttons
                       const SizedBox(height: 100),
@@ -381,30 +410,43 @@ class DetailProductScreen extends StatelessWidget {
           bottom: 0,
           left: 0,
           right: 0,
-          child: _buildActionButtons(context, product),
+          child: _buildActionButtons(context, product, primaryColor, secondaryColor, accentColor, surfaceColor),
         ),
       ],
     );
   }
 
-  Widget _buildFeatureBadges() {
+  Widget _buildFeatureBadges(
+      Color primaryColor,
+      Color secondaryColor,
+      Color accentColor,
+      Color textDarkColor,
+      Color surfaceColor
+      ) {
+    // Dùng màu khác nhau cho từng badge để tạo điểm nhấn
     return Wrap(
       spacing: 12,
       runSpacing: 12,
       children: [
-        _buildFeatureBadge(Icons.local_shipping_outlined, 'Giao hàng miễn phí'),
-        _buildFeatureBadge(Icons.verified_outlined, 'Bảo hành 12 tháng'),
-        _buildFeatureBadge(Icons.cached_outlined, 'Đổi trả trong 7 ngày'),
-        _buildFeatureBadge(Icons.check_circle_outline, 'Sản phẩm chính hãng'),
+        _buildFeatureBadge(Icons.local_shipping_outlined, 'Giao hàng miễn phí', primaryColor, textDarkColor, surfaceColor),
+        _buildFeatureBadge(Icons.verified_outlined, 'Bảo hành 12 tháng', secondaryColor, textDarkColor, surfaceColor),
+        _buildFeatureBadge(Icons.cached_outlined, 'Đổi trả trong 7 ngày', accentColor, textDarkColor, surfaceColor),
+        _buildFeatureBadge(Icons.check_circle_outline, 'Sản phẩm chính hãng', Colors.teal, textDarkColor, surfaceColor),
       ],
     );
   }
 
-  Widget _buildFeatureBadge(IconData icon, String text) {
+  Widget _buildFeatureBadge(
+      IconData icon,
+      String text,
+      Color iconColor,
+      Color textColor,
+      Color backgroundColor
+      ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -421,7 +463,7 @@ class DetailProductScreen extends StatelessWidget {
           Icon(
             icon,
             size: 16,
-            color: Colors.deepPurple,
+            color: iconColor,
           ),
           const SizedBox(width: 8),
           Text(
@@ -429,7 +471,7 @@ class DetailProductScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[800],
+              color: textColor,
             ),
           ),
         ],
@@ -437,11 +479,18 @@ class DetailProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtons(BuildContext context, dynamic product) {
+  Widget _buildActionButtons(
+      BuildContext context,
+      dynamic product,
+      Color primaryColor,
+      Color secondaryColor,
+      Color accentColor,
+      Color surfaceColor
+      ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
@@ -503,13 +552,13 @@ class DetailProductScreen extends StatelessWidget {
               builder: (context, state) {
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.deepPurple.withOpacity(0.1),
+                    color: primaryColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.shopping_cart_outlined,
-                      color: Colors.deepPurple,
+                      color: primaryColor,
                       size: 28,
                     ),
                     onPressed: product.status == ProductStatus.inStock
@@ -528,7 +577,7 @@ class DetailProductScreen extends StatelessWidget {
                           );
                         }
                       } else {
-                        _showLoginRequiredDialog(context);
+                        _showLoginRequiredDialog(context, primaryColor);
                       }
                     }
                         : null,
@@ -558,7 +607,7 @@ class DetailProductScreen extends StatelessWidget {
                           deliveryAddress = accountState.user!.diaChi ?? '123 Main St';
                         }
                         if (deliveryAddress.isEmpty) {
-                          _showAddressRequiredAlert(context);
+                          _showAddressRequiredAlert(context, accentColor);
                           return;
                         }
 
@@ -618,12 +667,12 @@ class DetailProductScreen extends StatelessWidget {
                           ),
                         );
                       } else {
-                        _showLoginRequiredDialog(context);
+                        _showLoginRequiredDialog(context, primaryColor);
                       }
                     }
                         : null,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
+                      backgroundColor: Colors.teal,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -633,7 +682,7 @@ class DetailProductScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'Mua ngay',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -649,7 +698,7 @@ class DetailProductScreen extends StatelessWidget {
     );
   }
 
-  void _showLoginRequiredDialog(BuildContext context) {
+  void _showLoginRequiredDialog(BuildContext context, Color primaryColor) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -658,7 +707,7 @@ class DetailProductScreen extends StatelessWidget {
         ),
         title: Row(
           children: [
-            const Icon(Icons.account_circle, color: Colors.deepPurple),
+            Icon(Icons.account_circle, color: primaryColor),
             const SizedBox(width: 10),
             const Text('Đăng nhập'),
           ],
@@ -676,7 +725,7 @@ class DetailProductScreen extends StatelessWidget {
               // Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
+              backgroundColor: primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -688,7 +737,7 @@ class DetailProductScreen extends StatelessWidget {
     );
   }
 
-  void _showAddressRequiredAlert(BuildContext context) {
+  void _showAddressRequiredAlert(BuildContext context, Color accentColor) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -698,7 +747,7 @@ class DetailProductScreen extends StatelessWidget {
             const Expanded(child: Text('Vui lòng cập nhật địa chỉ của bạn!')),
           ],
         ),
-        backgroundColor: Colors.orange[700],
+        backgroundColor: accentColor,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),

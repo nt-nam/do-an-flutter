@@ -5,6 +5,7 @@ import '../../../blocs/account/account_bloc.dart';
 import '../../../blocs/account/account_event.dart';
 import '../../../blocs/account/account_state.dart';
 import '../HomeScreen.dart';
+import '../MainScreen.dart';
 import 'RegisterScreen.dart'; // Import RegisterScreen
 
 class LoginScreen extends StatefulWidget { // Chuyển sang StatefulWidget
@@ -116,6 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               LoginEvent(
                                 "1@x.x",
                                 "1",
+
                               ),
                             );
                           }else{
@@ -123,6 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               LoginEvent(
                                 emailController.text,
                                 passwordController.text,
+
                               ),
                             );
                           }

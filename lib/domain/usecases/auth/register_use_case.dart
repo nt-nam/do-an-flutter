@@ -7,9 +7,9 @@ class RegisterUseCase {
 
   RegisterUseCase(this.authService);
 
-  Future<Account> call(String email, String password) async {
+  Future<Account> call(String email, String password, String fullName) async {
     try {
-      final response = await authService.register(email, password);
+      final response = await authService.register(email, password,fullName);
       final userData = response['user'] as Map<String, dynamic>?;
 
       if (userData == null) {
