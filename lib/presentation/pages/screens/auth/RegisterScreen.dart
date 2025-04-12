@@ -5,7 +5,7 @@ import '../../../blocs/account/account_bloc.dart';
 import '../../../blocs/account/account_event.dart';
 import '../../../blocs/account/account_state.dart';
 
-class RegisterScreen extends StatefulWidget { // Chuyển sang StatefulWidget
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
@@ -16,8 +16,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController = TextEditingController();
-  bool _obscurePassword = true; // Trạng thái hiển thị mật khẩu
-  bool _obscureConfirmPassword = true; // Trạng thái hiển thị xác nhận mật khẩu
+  final TextEditingController fullNameController = TextEditingController(); // Thêm controller cho họ tên
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           // Nền với hình ảnh minh họa
           Image.asset(
             'assets/images/placeholder.jpg',
-            fit: BoxFit.cover, // Đảm bảo ảnh nền phủ toàn bộ màn hình
+            fit: BoxFit.cover,
             width: double.infinity,
             height: double.infinity,
           ),
@@ -39,7 +40,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Đăng ký thành công với ${state.account.email}')),
                   );
-                  // Chuyển về màn hình đăng nhập sau khi đăng ký thành công
                   Navigator.pop(context);
                 } else if (state is AccountError) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end, // Đặt nội dung ở dưới cùng
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     // Khẩu hiệu
                     const Text(
@@ -63,6 +63,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 24.0),
+                    // Trường nhập họ tên
+                    TextField(
+                      controller: fullNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Họ và tên',
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.9),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
                     // Trường nhập email
                     TextField(
                       controller: emailController,
@@ -95,12 +109,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           onPressed: () {
                             setState(() {
-                              _obscurePassword = !_obscurePassword; // Đổi trạng thái
+                              _obscurePassword = !_obscurePassword;
                             });
                           },
                         ),
                       ),
-                      obscureText: _obscurePassword, // Sử dụng biến trạng thái
+                      obscureText: _obscurePassword,
                     ),
                     const SizedBox(height: 16.0),
                     // Trường xác nhận mật khẩu
@@ -121,12 +135,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           onPressed: () {
                             setState(() {
-                              _obscureConfirmPassword = !_obscureConfirmPassword; // Đổi trạng thái
+                              _obscureConfirmPassword = !_obscureConfirmPassword;
                             });
                           },
                         ),
                       ),
-                      obscureText: _obscureConfirmPassword, // Sử dụng biến trạng thái
+                      obscureText: _obscureConfirmPassword,
                     ),
                     const SizedBox(height: 24.0),
                     // Nút Đăng ký
@@ -134,6 +148,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                          // Kiểm tra các trường nhập
+                          if (emailController.text.isEmpty ||
+                              passwordController.text.isEmpty ||
+                              confirmPasswordController.text.isEmpty ||
+                              fullNameController.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Vui lòng nhập đầy đủ thông tin')),
+                            );
+                            return;
+                          }
                           // Kiểm tra mật khẩu và xác nhận mật khẩu có khớp không
                           if (passwordController.text != confirmPasswordController.text) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -141,15 +165,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             );
                             return;
                           }
+                          // Gửi sự kiện đăng ký
                           context.read<AccountBloc>().add(
                             RegisterEvent(
                               emailController.text,
                               passwordController.text,
+                              fullNameController.text, // Truyền fullName
                             ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1A3C34), // Màu nút giống LoginScreen
+                          backgroundColor: const Color(0xFF1A3C34),
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -168,7 +194,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     // Nút Quay lại đăng nhập
                     TextButton(
                       onPressed: () {
-                        // Quay lại màn hình đăng nhập
                         Navigator.pop(context);
                       },
                       child: const Text(
@@ -188,5 +213,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    fullNameController.dispose(); // Dispose controller mới
+    super.dispose();
   }
 }

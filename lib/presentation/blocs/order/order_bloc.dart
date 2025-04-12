@@ -30,7 +30,11 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     emit(const OrderLoading());
     try {
       final orders = await getOrdersUseCase(event.accountId, page: event.page, limit: event.limit);
-      emit(OrderLoaded(orders));
+      if (orders.isEmpty) {
+        emit(const OrderLoaded([])); // Trạng thái danh sách rỗng
+      } else {
+        emit(OrderLoaded(orders));
+      }
     } catch (e) {
       emit(OrderError(e.toString()));
     }

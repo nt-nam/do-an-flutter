@@ -39,10 +39,17 @@ class OrderRepositoryImpl implements OrderRepository {
   Future<List<OrderModel>> getOrdersByAccount(int accountId) async {
     final token = await authService.getToken();
     final data = await apiService.get('donhang?MaTK=$accountId', token: token);
+
+    // Kiểm tra nếu API trả về lỗi "Không tìm thấy dữ liệu"
+    if (data is Map<String, dynamic> && data['status'] == 'error' && data['message'] == 'Không tìm thấy dữ liệu') {
+      return []; // Trả về danh sách rỗng thay vì ném lỗi
+    }
+
     // Kiểm tra nếu data là Map và lấy danh sách từ key "data"
     if (data is Map<String, dynamic> && data.containsKey('data')) {
       return (data['data'] as List).map((json) => OrderModel.fromJson(json)).toList();
     }
+
     return (data as List).map((json) => OrderModel.fromJson(json)).toList();
   }
 

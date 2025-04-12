@@ -28,8 +28,10 @@ class ProfileScreen extends StatelessWidget {
             );
           } else if (accountState is AccountLoggedIn) {
             final accountId = accountState.account.id;
-            // Trigger loading user profile
-            context.read<UserBloc>().add(LoadUserByAccountId(accountId));
+            // Chỉ gửi LoadUserByAccountId nếu chưa có dữ liệu
+            if (!(context.read<UserBloc>().state is UserLoaded)) {
+              context.read<UserBloc>().add(LoadUserByAccountId(accountId));
+            }
 
             return BlocBuilder<UserBloc, UserState>(
               builder: (context, userState) {
@@ -55,20 +57,21 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        _buildProfileField('Họ tên', user.fullName),
+                        _buildProfileField('Họ tên', user.fullName ?? 'Chưa cập nhật'),
                         _buildProfileField('Số điện thoại', user.phoneNumber ?? 'Chưa cập nhật'),
                         _buildProfileField('Địa chỉ', user.address ?? 'Chưa cập nhật'),
-                        _buildProfileField('Email', user.email),
+                        _buildProfileField('Email', user.email ?? 'Chưa cập nhật'),
                         const SizedBox(height: 30),
                         Center(
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
+                            onPressed: () async {
+                              await Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => EditProfileScreen(user: user),
                                 ),
                               );
+                              // Không cần làm mới thủ công, vì UserBloc sẽ phát ra trạng thái UserLoaded
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.deepPurple,

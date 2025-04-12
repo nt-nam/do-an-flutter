@@ -9,6 +9,8 @@ import '../../blocs/category/category_state.dart';
 import '../../blocs/product/product_bloc.dart';
 import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
+import '../../blocs/user/user_bloc.dart'; // Thêm import
+import '../../blocs/user/user_state.dart'; // Thêm import
 import '../../widgets/ProductCardFeatured.dart';
 import '../../widgets/ProductCard.dart';
 import 'MenuScreen.dart';
@@ -28,7 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Gửi FetchProductsEvent khi khởi tạo màn hình
     context.read<ProductBloc>().add(const FetchProductsEvent());
   }
 
@@ -52,62 +53,63 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: SafeArea(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: BlocBuilder<AccountBloc, AccountState>(
-                builder: (context, state) {
-                  print('AppBar state: $state');
-                  String userName = 'Quý khách';
-                  if (state is AccountLoggedIn && state.user != null) {
-                    userName = state.user!.hoTen;
-                    print('User name: $userName');
-                  }
-                  print('AppBar state: $userName');
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Kính chào',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          Text(
+                      Text(
+                        'Kính chào',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      BlocBuilder<UserBloc, UserState>(
+                        builder: (context, userState) {
+                          String userName = 'Quý khách';
+                          if (userState is UserLoaded && userState.user != null) {
+                            userName = userState.user.fullName ?? 'Quý khách';
+                          } else {
+                            // Fallback: nếu UserBloc chưa có dữ liệu, sử dụng AccountBloc
+                            final accountState = context.watch<AccountBloc>().state;
+                            if (accountState is AccountLoggedIn && accountState.user != null) {
+                              userName = accountState.user!.hoTen ?? 'Quý khách';
+                            }
+                          }
+                          return Text(
                             userName,
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.teal,
                             ),
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MenuScreen()),
                           );
                         },
-                        child: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.teal.withOpacity(0.2),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.teal,
-                            size: 24,
-                          ),
-                        ),
                       ),
                     ],
-                  );
-                },
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MenuScreen()),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.teal.withOpacity(0.2),
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.teal,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -116,18 +118,12 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: BlocBuilder<AccountBloc, AccountState>(
         builder: (context, state) {
-          String userName = 'Quý khách';
-          if (state is AccountLoggedIn && state.user != null) {
-            userName = state.user!.hoTen;
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                // Featured Section
                 const Text(
                   'Yêu thích',
                   style: TextStyle(
@@ -179,7 +175,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Category Section
                 const Text(
                   'Loại',
                   style: TextStyle(
@@ -219,7 +214,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Popular Recipes Section
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

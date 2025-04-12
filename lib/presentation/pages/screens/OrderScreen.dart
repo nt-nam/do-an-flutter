@@ -105,6 +105,13 @@ class _OrderScreenState extends State<OrderScreen>
     return formatter.format(date);
   }
 
+  String _formatCurrency(double amount) {
+    return amount.toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,7 +124,7 @@ class _OrderScreenState extends State<OrderScreen>
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.teal,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,
@@ -131,15 +138,18 @@ class _OrderScreenState extends State<OrderScreen>
           padding: const EdgeInsets.symmetric(horizontal: 8),
         ),
       ),
-      body: BlocConsumer<OrderBloc, OrderState>(
+      body:BlocConsumer<OrderBloc, OrderState>(
         listener: (context, state) {
           if (state is OrderError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+            // Bỏ qua thông báo lỗi nếu liên quan đến "Không tìm thấy dữ liệu"
+            if (!state.message.contains('Không tìm thấy dữ liệu')) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           }
         },
         builder: (context, state) {
@@ -153,7 +163,6 @@ class _OrderScreenState extends State<OrderScreen>
             if (state.orders.isEmpty) {
               return _buildEmptyOrdersView();
             }
-
             return TabBarView(
               controller: _tabController,
               children: List.generate(_tabs.length, (tabIndex) {
@@ -163,12 +172,10 @@ class _OrderScreenState extends State<OrderScreen>
                 if (filteredOrders.isEmpty) {
                   return _buildEmptyTabView(_tabs[tabIndex]);
                 }
-
                 return _buildOrdersList(filteredOrders);
               }),
             );
           }
-
           return Center(
             child: BlocBuilder<AccountBloc, AccountState>(
               builder: (context, accountState) {
@@ -193,7 +200,7 @@ class _OrderScreenState extends State<OrderScreen>
             ),
           );
         },
-      ),
+      )
     );
   }
 
@@ -332,8 +339,6 @@ class _OrderScreenState extends State<OrderScreen>
         final order = orders[index];
         return InkWell(
           onTap: () {
-            // Có thể điều hướng đến chi tiết đơn hàng
-            // Navigator.push(context, MaterialPageRoute(builder: (context) => OrderDetailScreen(order: order)));
             _showOrderDetails(order);
           },
           child: Container(
@@ -431,7 +436,7 @@ class _OrderScreenState extends State<OrderScreen>
                             ),
                           ),
                           Text(
-                            '${order.totalAmount.toStringAsFixed(0)} VNĐ',
+                            '${_formatCurrency(order.totalAmount)} VNĐ',
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.deepPurple,

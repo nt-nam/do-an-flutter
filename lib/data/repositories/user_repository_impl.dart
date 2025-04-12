@@ -26,23 +26,37 @@ class UserRepositoryImpl implements UserRepository {
     return UserModel.fromJson(data);
   }
 
-  @override
   Future<UserModel> updateUser(UserModel user) async {
     final token = await authService.getToken();
-    final data = await apiService.put('nguoidung/${user.maND}', user.toJson(), token: token);
-    // API trả về object trực tiếp
-    return UserModel.fromJson(data);
-  }
+    final response = await apiService.put(
+      'nguoidung?id=${user.maND}',
+      user.toJson(),
+      token: token,
+    );
+    print('Update user response: $response'); // Debug
 
+    // Kiểm tra trạng thái của phản hồi
+    if (response['status'] == 'success' && response['data'] != null) {
+      return UserModel.fromJson(response['data']);
+    } else {
+      throw Exception(response['message'] ?? 'Cập nhật người dùng thất bại');
+    }
+  }
   @override
   Future<UserModel> getUserByAccountId(int accountId) async {
     final token = await authService.getToken();
     try {
       final response = await apiService.get('nguoidung?MaTK=$accountId', token: token);
       print('getUserByAccountId response: $response'); // Debug
-      // API trả về {"status": "success", "data": {...}}
       if (response['status'] == 'success' && response['data'] != null) {
-        return UserModel.fromJson(response['data']);
+        final userData = response['data'];
+        if (userData['MaND'] == null || userData['MaND'] <= 0) {
+          throw Exception('API response thiếu hoặc MaND không hợp lệ: ${userData['MaND']}');
+        }
+        if (userData['HoTen'] == null) {
+          throw Exception('API response thiếu trường HoTen');
+        }
+        return UserModel.fromJson(userData);
       } else {
         throw Exception('No user found for MaTK: $accountId');
       }

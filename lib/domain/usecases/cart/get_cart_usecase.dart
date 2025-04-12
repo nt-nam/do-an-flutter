@@ -11,6 +11,7 @@ class GetCartUseCase {
     try {
       print('Fetching cart for account ID: $accountId');
       final cart = await cartRepository.getCart(accountId);
+
       print('Cart: $cart');
       if (cart.cartId == null) {
         print('No cart found for account ID: $accountId, returning empty cart details');

@@ -44,7 +44,7 @@ class AuthService {
   }
 
   // Đăng ký và trả về toàn bộ phản hồi từ API
-  Future<Map<String, dynamic>> register(String email, String password) async {
+  Future<Map<String, dynamic>> register(String email, String password, String fullName) async {
     try {
       final response = await _client.post(
         Uri.parse('$baseUrl$registerEndpoint'),
@@ -52,15 +52,22 @@ class AuthService {
         body: jsonEncode({
           'email': email, // API mong đợi 'email'
           'password': password, // API mong đợi 'password'
+          'hoTen': fullName, // API mong đợi 'hoTen' để tạo bản ghi trong bảng nguoidung
         }),
       );
+
+      print('Register API response: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['status'] == 'success') {
-          // Nếu API trả về token (trong trường hợp đăng ký tự động đăng nhập), lưu token
+          // Lưu token nếu API trả về
           if (data['token'] != null) {
             await _saveToken(data['token']);
+          }
+          // Lưu cartId nếu API trả về (dùng để quản lý giỏ hàng sau này)
+          if (data['cartId'] != null) {
+            await _saveCartId(data['cartId'].toString());
           }
           return data; // Trả về toàn bộ dữ liệu từ API
         } else {
@@ -70,6 +77,7 @@ class AuthService {
         throw Exception('Registration failed: ${response.body}');
       }
     } catch (e) {
+      print('Error during registration: $e');
       throw Exception('Error during registration: $e');
     }
   }
@@ -96,5 +104,12 @@ class AuthService {
   Future<bool> isLoggedIn() async {
     final token = await getToken();
     return token != null;
+  }
+
+
+  Future<void> _saveCartId(String cartId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('cartId', cartId);
+    print('Saved cartId: $cartId');
   }
 }
