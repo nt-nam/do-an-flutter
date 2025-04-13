@@ -18,7 +18,7 @@ class CreateOrderEvent extends OrderEvent {
   final int? cartId;
   final List<CartDetail> items;
   final String deliveryAddress;
-  final int? offerId;
+  final String? offerId;
   final double deliveryFee; // Thêm phí vận chuyển
 
   const CreateOrderEvent(

@@ -1,28 +1,31 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../domain/usecases/review/add_review_usecase.dart';
 import '../../../domain/usecases/review/get_reviews_usecase.dart';
 import '../../../domain/usecases/review/update_review_usecase.dart';
 import '../../../domain/usecases/review/delete_review_usecase.dart';
-import '../../../domain/usecases/review/submit_review_usecase.dart';
+import '../../../domain/usecases/review/add_shop_reply_usecase.dart';
 import 'review_event.dart';
 import 'review_state.dart';
 
 class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   final GetReviewsUseCase getReviewsUseCase;
-  final SubmitReviewUseCase submitReviewUseCase;
+  final AddReviewUseCase addReviewUseCase;
   final UpdateReviewUseCase updateReviewUseCase;
   final DeleteReviewUseCase deleteReviewUseCase;
+  final AddShopReplyUseCase addShopReplyUseCase;
 
   ReviewBloc({
     required this.getReviewsUseCase,
-    required this.submitReviewUseCase,
+    required this.addReviewUseCase,
     required this.updateReviewUseCase,
     required this.deleteReviewUseCase,
+    required this.addShopReplyUseCase,
   }) : super(const ReviewInitial()) {
     on<FetchReviewsEvent>(_onFetchReviews);
-    on<FetchReviewDetailsEvent>(_onFetchReviewDetails);
     on<AddReviewEvent>(_onAddReview);
     on<UpdateReviewEvent>(_onUpdateReview);
     on<DeleteReviewEvent>(_onDeleteReview);
+    on<AddShopReplyEvent>(_onAddShopReply);
   }
 
   Future<void> _onFetchReviews(FetchReviewsEvent event, Emitter<ReviewState> emit) async {
@@ -30,19 +33,12 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     try {
       final reviews = await getReviewsUseCase(
         productId: event.productId,
-        accountId: event.accountId, // Đã sửa ở trên
-        onlyApproved: event.onlyApproved,
+        accountId: event.accountId,
+        orderId: event.orderId,
+        withImagesOnly: event.withImagesOnly,
+        withShopReply: event.withShopReply,
       );
       emit(ReviewsLoaded(reviews));
-    } catch (e) {
-      emit(ReviewError(e.toString()));
-    }
-  }
-
-  Future<void> _onFetchReviewDetails(FetchReviewDetailsEvent event, Emitter<ReviewState> emit) async {
-    emit(const ReviewLoading());
-    try {
-      emit(const ReviewError('Fetch review details not implemented yet'));
     } catch (e) {
       emit(ReviewError(e.toString()));
     }
@@ -51,12 +47,14 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
   Future<void> _onAddReview(AddReviewEvent event, Emitter<ReviewState> emit) async {
     emit(const ReviewLoading());
     try {
-      final review = await submitReviewUseCase(
-        event.accountId, // Positional argument
-        event.productId, // Positional argument
-        event.rating,    // Positional argument
-        event.orderId,   // Positional argument
-        comment: event.comment, // Named argument
+      final review = await addReviewUseCase(
+        productId: event.productId,
+        accountId: event.accountId,
+        orderId: event.orderId,
+        rating: event.rating,
+        comment: event.comment,
+        images: event.images,
+        isAnonymous: event.isAnonymous,
       );
       emit(ReviewAdded(review));
     } catch (e) {
@@ -71,7 +69,8 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
         reviewId: event.reviewId,
         rating: event.rating,
         comment: event.comment,
-        maHD: event.maHD,  // Add this
+        images: event.images,
+        isAnonymous: event.isAnonymous,
       );
       emit(ReviewUpdated(review));
     } catch (e) {
@@ -84,6 +83,19 @@ class ReviewBloc extends Bloc<ReviewEvent, ReviewState> {
     try {
       await deleteReviewUseCase(reviewId: event.reviewId);
       emit(ReviewDeleted(event.reviewId));
+    } catch (e) {
+      emit(ReviewError(e.toString()));
+    }
+  }
+
+  Future<void> _onAddShopReply(AddShopReplyEvent event, Emitter<ReviewState> emit) async {
+    emit(const ReviewLoading());
+    try {
+      await addShopReplyUseCase(
+        reviewId: event.reviewId,
+        reply: event.reply,
+      );
+      emit(ShopReplyAdded(event.reviewId));
     } catch (e) {
       emit(ReviewError(e.toString()));
     }

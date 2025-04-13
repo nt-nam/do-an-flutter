@@ -18,7 +18,7 @@ class CreateOrderUseCase {
       int accountId,
       List<CartDetail> items,
       String deliveryAddress, {
-        int? offerId,
+        String? offerId,
         int? cartId,
         required double totalAmount,
       }) async {

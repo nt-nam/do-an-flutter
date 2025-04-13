@@ -1,15 +1,25 @@
-import '../../data/models/review_model.dart';
+import '../../domain/entities/review.dart';
 
 abstract class ReviewRepository {
-  Future<List<ReviewModel>> getReviews({
+  Future<List<Review>> getReviews({
     int? productId,
-    int? accountId, // Thêm accountId
-    bool? onlyApproved,
+    int? accountId,
+    int? orderId,
+    bool? withImagesOnly,
+    bool? withShopReply,
   });
 
-  Future<ReviewModel> addReview(ReviewModel review, {required int orderId});
+  Future<Review> addReview({
+    required Review review,
+    required int orderId,
+  });
 
-  Future<ReviewModel> updateReview(ReviewModel review);
+  Future<Review> updateReview(Review review);
 
   Future<void> deleteReview(int reviewId);
+
+  Future<void> addShopReply({
+    required int reviewId,
+    required String reply,
+  });
 }

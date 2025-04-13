@@ -1,6 +1,5 @@
 import '../../entities/review.dart';
 import '../../repositories/review_repository.dart';
-import '../../../data/models/review_model.dart';
 
 class UpdateReviewUseCase {
   final ReviewRepository repository;
@@ -10,32 +9,27 @@ class UpdateReviewUseCase {
   Future<Review> call({
     required int reviewId,
     required int rating,
-    required String comment,
-    required int maHD
+    String? comment,
+    List<String>? images,
+    bool isAnonymous = false,
   }) async {
     try {
       if (rating < 1 || rating > 5) {
         throw Exception('Rating must be between 1 and 5');
       }
-      final reviewModel = ReviewModel(
-        maDG: reviewId,
-        maTK: null,
-        maSP: null,
-        diem: rating.toDouble(),
-        nhanXet: comment,
-        ngayDanhGia: DateTime.now(),
-        maDH: maHD,
+      final review = Review(
+        id: reviewId,
+        accountId: null, // Will be validated by backend
+        productId: null, // Not updated
+        orderId: 0, // Not updated
+        rating: rating,
+        comment: comment,
+        images: images,
+        shopReply: null, // Not updated by user
+        reviewDate: DateTime.now(),
+        isAnonymous: isAnonymous,
       );
-      final result = await repository.updateReview(reviewModel);
-      return Review(
-        id: result.maDG,
-        accountId: result.maTK,
-        productId: result.maSP,
-        rating: result.diem,
-        comment: result.nhanXet,
-        reviewDate: result.ngayDanhGia,
-        orderId: null,
-      );
+      return await repository.updateReview(review);
     } catch (e) {
       throw Exception('Failed to update review: $e');
     }

@@ -112,4 +112,21 @@ class AuthService {
     await prefs.setString('cartId', cartId);
     print('Saved cartId: $cartId');
   }
+
+  // Future<int?> verifyToken(String token) async {
+  //   try {
+  //     final response = await _client.post(
+  //       Uri.parse('$baseUrl/auth/verify'),
+  //       headers: {'Authorization': 'Bearer $token'},
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
+  //       return data['userId'] as int?;
+  //     }
+  //     return null;
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
 }

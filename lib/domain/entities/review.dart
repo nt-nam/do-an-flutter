@@ -1,19 +1,25 @@
 class Review {
   final int id;
-  final int? accountId; // Có thể null nếu tài khoản bị xóa
-  final int? productId; // Có thể null nếu sản phẩm bị xóa
-  final double rating; // Từ 1 đến 5
-  final String? comment; // Có thể null
+  final int? accountId;
+  final int? productId;
+  final int orderId;
+  final int rating; // Thay đổi từ double sang int (1-5)
+  final String? comment;
+  final List<String>? images; // Thêm trường hình ảnh
+  final String? shopReply; // Thêm phản hồi từ shop
   final DateTime reviewDate;
-  final int? orderId; // Liên kết với đơn hàng đã giao
+  final bool isAnonymous; // Thêm trường ẩn danh
 
   Review({
     required this.id,
     this.accountId,
     this.productId,
+    required this.orderId,
     required this.rating,
     this.comment,
+    this.images,
+    this.shopReply,
     required this.reviewDate,
-    this.orderId,
+    this.isAnonymous = false,
   });
 }

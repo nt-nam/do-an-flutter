@@ -13,7 +13,7 @@ class Order {
   final double totalAmount;
   final OrderStatus status;
   final String? deliveryAddress;
-  final int? offerId;
+  final String? offerId;
 
   Order({
     required this.id,

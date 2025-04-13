@@ -14,7 +14,7 @@ class OrderModel {
   final double tongTien;
   final OrderStatus trangThai;
   final String? diaChiGiao;
-  final int? maUD;
+  final String? maUD;
 
   OrderModel({
     required this.maDH,
@@ -48,7 +48,7 @@ class OrderModel {
       tongTien: (json['TongTien'] as num?)?.toDouble() ?? 0.0,
       trangThai: status,
       diaChiGiao: json['DiaChiGiao'] as String?,
-      maUD: json['MaUD'] as int?,
+      maUD: json['MaUD'] as String?,
     );
   }
 

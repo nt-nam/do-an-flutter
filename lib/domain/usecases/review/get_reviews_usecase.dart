@@ -1,6 +1,5 @@
 import '../../entities/review.dart';
 import '../../repositories/review_repository.dart';
-import '../../../data/models/review_model.dart';
 
 class GetReviewsUseCase {
   final ReviewRepository repository;
@@ -9,26 +8,21 @@ class GetReviewsUseCase {
 
   Future<List<Review>> call({
     int? productId,
-    int? accountId, // Thêm accountId
-    bool? onlyApproved,
+    int? accountId,
+    int? orderId,
+    bool? withImagesOnly,
+    bool? withShopReply,
   }) async {
-    final reviewModels = await repository.getReviews(
-      productId: productId,
-      accountId: accountId, // Truyền accountId
-      onlyApproved: onlyApproved,
-    );
-    return reviewModels.map((model) => _mapToEntity(model)).toList();
-  }
-
-  Review _mapToEntity(ReviewModel model) {
-    return Review(
-      id: model.maDG,
-      accountId: model.maTK,
-      productId: model.maSP,
-      rating: model.diem,
-      comment: model.nhanXet,
-      reviewDate: model.ngayDanhGia,
-      orderId: model.maDH,
-    );
+    try {
+      return await repository.getReviews(
+        productId: productId,
+        accountId: accountId,
+        orderId: orderId,
+        withImagesOnly: withImagesOnly,
+        withShopReply: withShopReply,
+      );
+    } catch (e) {
+      throw Exception('Failed to fetch reviews: $e');
+    }
   }
 }
