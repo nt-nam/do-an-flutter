@@ -25,6 +25,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     required this.getActiveNotificationsCountUseCase,
   }) : super(const NotificationInitial()) {
     on<FetchSystemNotificationsEvent>(_onFetchSystemNotifications);
+    on<FetchSpecialNotificationsEvent>(_onFetchSpecialNotifications);
     on<CreateNotificationEvent>(_onCreateNotification);
     on<UpdateNotificationEvent>(_onUpdateNotification);
     on<DeleteNotificationEvent>(_onDeleteNotification);
@@ -32,9 +33,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   }
 
   Future<void> _onFetchSystemNotifications(
-      FetchSystemNotificationsEvent event,
-      Emitter<NotificationState> emit,
-      ) async {
+    FetchSystemNotificationsEvent event,
+    Emitter<NotificationState> emit,
+  ) async {
     emit(const NotificationLoading());
     try {
       final notifications = await getSystemNotificationsUseCase(
@@ -52,13 +53,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   }
 
   Future<void> _onCreateNotification(
-      CreateNotificationEvent event,
-      Emitter<NotificationState> emit,
-      ) async {
+    CreateNotificationEvent event,
+    Emitter<NotificationState> emit,
+  ) async {
     emit(const NotificationLoading());
     try {
       await createNotificationUseCase(event.notification);
-      emit(const NotificationOperationSuccess('Notification created successfully'));
+      emit(const NotificationOperationSuccess(
+          'Notification created successfully'));
       add(FetchSystemNotificationsEvent());
     } catch (e) {
       emit(NotificationError('Failed to create notification: ${e.toString()}'));
@@ -66,13 +68,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   }
 
   Future<void> _onUpdateNotification(
-      UpdateNotificationEvent event,
-      Emitter<NotificationState> emit,
-      ) async {
+    UpdateNotificationEvent event,
+    Emitter<NotificationState> emit,
+  ) async {
     emit(const NotificationLoading());
     try {
       await updateNotificationUseCase(event.notification);
-      emit(const NotificationOperationSuccess('Notification updated successfully'));
+      emit(const NotificationOperationSuccess(
+          'Notification updated successfully'));
       add(FetchSystemNotificationsEvent());
     } catch (e) {
       emit(NotificationError('Failed to update notification: ${e.toString()}'));
@@ -80,13 +83,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   }
 
   Future<void> _onDeleteNotification(
-      DeleteNotificationEvent event,
-      Emitter<NotificationState> emit,
-      ) async {
+    DeleteNotificationEvent event,
+    Emitter<NotificationState> emit,
+  ) async {
     emit(const NotificationLoading());
     try {
       await deleteNotificationUseCase(event.notificationId);
-      emit(const NotificationOperationSuccess('Notification deleted successfully'));
+      emit(const NotificationOperationSuccess(
+          'Notification deleted successfully'));
       add(FetchSystemNotificationsEvent());
     } catch (e) {
       emit(NotificationError('Failed to delete notification: ${e.toString()}'));
@@ -94,16 +98,37 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   }
 
   Future<void> _onMarkNotificationAsRead(
-      MarkNotificationAsReadEvent event,
-      Emitter<NotificationState> emit,
-      ) async {
+    MarkNotificationAsReadEvent event,
+    Emitter<NotificationState> emit,
+  ) async {
     emit(const NotificationLoading());
     try {
       await markNotificationAsReadUseCase(event.notificationId);
       emit(NotificationMarkedAsRead(event.notificationId));
       add(FetchSystemNotificationsEvent());
     } catch (e) {
-      emit(NotificationError('Failed to mark notification as read: ${e.toString()}'));
+      emit(NotificationError(
+          'Failed to mark notification as read: ${e.toString()}'));
+    }
+  }
+
+  Future<void> _onFetchSpecialNotifications(
+      FetchSpecialNotificationsEvent event,
+      Emitter<NotificationState> emit,
+      ) async {
+    emit(const NotificationLoading());
+    try {
+      final notifications = await getSystemNotificationsUseCase(
+        type: event.type,
+        activeOnly: event.activeOnly,
+        limit: event.limit,
+        onlyUnread: event.onlyUnread,
+        priority: 4, // Chỉ lấy thông báo có priority >= 4
+      );
+
+      emit(SpecialNotificationsLoaded(notifications, notifications.length));
+    } catch (e) {
+      emit(NotificationError('Failed to fetch special notifications: ${e.toString()}'));
     }
   }
 }

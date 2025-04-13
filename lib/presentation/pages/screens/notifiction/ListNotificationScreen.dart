@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../blocs/notification/notification_bloc.dart';
 import '../../../blocs/notification/notification_event.dart';
 import '../../../blocs/notification/notification_state.dart';
@@ -25,23 +26,26 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Thông báo',
-          style: TextStyle(
+          style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.teal,
         elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: _showFilterOptions,
+            tooltip: 'Lọc thông báo',
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _refreshNotifications,
+            tooltip: 'Làm mới',
           ),
         ],
       ),
@@ -51,7 +55,11 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: Colors.red,
+                backgroundColor: Colors.redAccent,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             );
           }
@@ -60,47 +68,126 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
           if (state is NotificationLoading) {
             return const Center(
               child: CircularProgressIndicator(
-                color: Colors.deepPurple,
+                color: Colors.teal,
               ),
             );
           } else if (state is SystemNotificationsLoaded) {
+            // Get special notifications (priority >= 4)
+            final specialNotifications =
+                state.notifications.where((n) => n.priority >= 4).toList();
+
+            // Get normal notifications
+            final normalNotifications =
+                state.notifications.where((n) => n.priority < 4).toList();
+
             if (state.notifications.isEmpty) {
               return _buildEmptyNotificationsView();
             }
 
             return RefreshIndicator(
+              color: Colors.teal,
               onRefresh: _refreshNotifications,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: state.notifications.length,
-                itemBuilder: (context, index) {
-                  final notification = state.notifications[index];
-                  final shouldExpand = notification.priority >= 4 ||
-                      notification.message.length < 100;
+              child: CustomScrollView(
+                slivers: [
+                  // Special notifications section
+                  if (specialNotifications.isNotEmpty)
+                    SliverPadding(
+                      padding:
+                          const EdgeInsets.only(top: 16, left: 16, right: 16),
+                      sliver: SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Thông báo quan trọng',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.teal,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                    ),
 
-                  return NotificationCard(
-                    notification: notification,
-                    isExpanded: shouldExpand,
-                    onTap: () {
-                      if (!shouldExpand || notification.imageUrl != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => DetailNotificationScreen(
-                              notification: notification,
+                  if (specialNotifications.isNotEmpty)
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final notification = specialNotifications[index];
+                          return NotificationCard(
+                            notification: notification,
+                            isExpanded: true,
+                            // Always expand important notifications
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => DetailNotificationScreen(
+                                    notification: notification,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                        childCount: specialNotifications.length,
+                      ),
+                    ),
+
+                  // Normal notifications section
+                  SliverPadding(
+                    padding:
+                        const EdgeInsets.only(top: 16, left: 16, right: 16),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tất cả thông báo',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
                             ),
                           ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final notification = normalNotifications[index];
+                        return NotificationCard(
+                          notification: notification,
+                          isExpanded: false,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DetailNotificationScreen(
+                                  notification: notification,
+                                ),
+                              ),
+                            );
+                          },
                         );
-                      }
-                    },
-                  );
-                },
+                      },
+                      childCount: normalNotifications.length,
+                    ),
+                  ),
+                ],
               ),
             );
           }
 
           return const Center(
-            child: CircularProgressIndicator(color: Colors.deepPurple),
+            child: CircularProgressIndicator(color: Colors.teal),
           );
         },
       ),
@@ -118,20 +205,36 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Không có thông báo nào',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Colors.grey,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Tất cả thông báo sẽ hiển thị tại đây',
-            style: TextStyle(
+            style: GoogleFonts.poppins(
               fontSize: 16,
               color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: _refreshNotifications,
+            child: Text(
+              'Làm mới',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -146,25 +249,28 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
   void _showFilterOptions() {
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
       builder: (context) {
         return Container(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Lọc thông báo',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               const SizedBox(height: 16),
-              // Các tùy chọn lọc có thể thêm ở đây
               ListTile(
-                leading: const Icon(Icons.filter_alt),
-                title: const Text('Chỉ xem thông báo chưa đọc'),
+                leading: Icon(Icons.filter_alt, color: Colors.teal),
+                title: Text('Chỉ xem thông báo chưa đọc',
+                    style: GoogleFonts.poppins()),
                 trailing: Switch(
+                  activeColor: Colors.teal,
                   value: false,
                   onChanged: (value) {
                     // Implement filter logic
@@ -172,9 +278,10 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.priority_high),
-                title: const Text('Ưu tiên cao'),
+                leading: Icon(Icons.priority_high, color: Colors.teal),
+                title: Text('Ưu tiên cao', style: GoogleFonts.poppins()),
                 trailing: Switch(
+                  activeColor: Colors.teal,
                   value: false,
                   onChanged: (value) {
                     // Implement filter logic
@@ -182,9 +289,25 @@ class _ListNotificationScreenState extends State<ListNotificationScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Áp dụng'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Áp dụng',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),

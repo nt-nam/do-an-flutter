@@ -14,6 +14,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
     String? type,
     bool activeOnly = true,
     int? limit,
+    int? priority,
   }) async {
     final token = await authService.getToken();
     final queryParams = {

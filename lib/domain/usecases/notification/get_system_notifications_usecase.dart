@@ -12,12 +12,14 @@ class GetSystemNotificationsUseCase {
     bool activeOnly = true,
     int? limit,
     bool onlyUnread = false,
+    int? priority,
   }) async {
     try {
       final notificationModels = await repository.getSystemNotifications(
         type: type?.toString().split('.').last,
         activeOnly: activeOnly,
         limit: limit,
+          priority: priority,
       );
 
       // Lọc thông báo chưa đọc nếu cần

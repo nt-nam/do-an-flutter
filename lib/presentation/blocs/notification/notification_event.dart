@@ -9,12 +9,14 @@ class FetchSystemNotificationsEvent extends NotificationEvent {
   final bool activeOnly;
   final int? limit;
   final bool onlyUnread;
+  final int? priority;
 
   const FetchSystemNotificationsEvent({
     this.type,
     this.activeOnly = true,
     this.limit,
     this.onlyUnread = false,
+    this.priority
   });
 }
 
@@ -40,4 +42,20 @@ class MarkNotificationAsReadEvent extends NotificationEvent {
   final int notificationId;
 
   const MarkNotificationAsReadEvent(this.notificationId);
+}
+
+class FetchSpecialNotificationsEvent extends NotificationEvent {
+  final NotificationType? type;
+  final bool activeOnly;
+  final int? limit;
+  final bool onlyUnread;
+  final int? priority;
+
+  const FetchSpecialNotificationsEvent({
+    this.type,
+    this.activeOnly = true,
+    this.limit,
+    this.onlyUnread = false,
+    this.priority,
+  });
 }

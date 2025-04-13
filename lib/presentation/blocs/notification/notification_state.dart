@@ -36,3 +36,10 @@ class NotificationError extends NotificationState {
 
   const NotificationError(this.message);
 }
+
+class SpecialNotificationsLoaded extends NotificationState {
+  final List<NotificationE> notifications;
+  final int activeCount;
+
+  const SpecialNotificationsLoaded(this.notifications, this.activeCount);
+}

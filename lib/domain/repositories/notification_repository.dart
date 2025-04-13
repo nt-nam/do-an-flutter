@@ -5,6 +5,7 @@ abstract class NotificationRepository {
     String? type,
     bool activeOnly = true,
     int? limit,
+    int? priority,
   });
   Future<void> markAsRead(int notificationId);
   Future<void> updateNotification(NotificationModel notification);

@@ -1,21 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gas_store/presentation/pages/screens/product/DetailProductScreen.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
-import '../../../presentation/pages/screens/product/DetailProductScreen.dart';
+import '../../../domain/entities/notification.dart';
 import '../../../domain/entities/product.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import '../../blocs/category/category_bloc.dart';
 import '../../blocs/category/category_state.dart';
+import '../../blocs/notification/notification_bloc.dart';
+import '../../blocs/notification/notification_event.dart';
+import '../../blocs/notification/notification_state.dart';
 import '../../blocs/product/product_bloc.dart';
 import '../../blocs/product/product_event.dart';
 import '../../blocs/product/product_state.dart';
 import '../../blocs/user/user_bloc.dart';
 import '../../blocs/user/user_state.dart';
-import '../../widgets/ProductCardFeatured.dart';
 import '../../widgets/ProductCard.dart';
+import '../../widgets/ProductCardFeatured.dart';
 import 'MenuScreen.dart';
+import 'product/FindProductScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,34 +32,50 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> {
   List<Product> _products = [];
-  late AnimationController _waveController;
-  late Animation<double> _waveAnimation;
+  List<NotificationE> _specialNotifications = [];
+  StreamSubscription? _notificationSubscription;
 
   @override
   void initState() {
     super.initState();
     context.read<ProductBloc>().add(const FetchProductsEvent());
-
-    // Animation for wave effect
-    _waveController = AnimationController(
-      duration: const Duration(seconds: 4),
-      vsync: this,
-    )..repeat(reverse: true);
-    _waveAnimation = Tween<double>(begin: -10, end: 10).animate(
-      CurvedAnimation(parent: _waveController, curve: Curves.easeInOutSine),
-    );
+    _loadSpecialNotifications();
   }
 
   @override
   void dispose() {
-    _waveController.dispose();
+    _notificationSubscription?.cancel();
     super.dispose();
   }
 
   String _generateHeroTag(Product product) {
     return 'product_${product.id}';
+  }
+
+  void _navigateToFindProduct({List<int>? categoryIds}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FindProductScreen(
+          preselectedCategoryIds: categoryIds,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _loadSpecialNotifications() async {
+    final notificationBloc = context.read<NotificationBloc>();
+    notificationBloc.add(FetchSpecialNotificationsEvent(priority: 4, limit: 3));
+
+    _notificationSubscription = notificationBloc.stream.listen((state) {
+      if (state is SpecialNotificationsLoaded && mounted) {
+        setState(() {
+          _specialNotifications = state.notifications;
+        });
+      }
+    });
   }
 
   @override
@@ -62,172 +84,178 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          // AppBar với hiệu ứng gradient và animation
           SliverAppBar(
-            expandedHeight: 180,
-            floating: false,
             pinned: true,
+            expandedHeight: 120,
             flexibleSpace: FlexibleSpaceBar(
-              background: AnimatedBuilder(
-                animation: _waveAnimation,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(0, _waveAnimation.value),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.purpleAccent.shade200,
-                            Colors.deepPurple.shade400,
-                            Colors.indigo.shade400,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Xin chào 👋',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          color: Colors.white.withOpacity(0.9),
-                                        ),
-                                      ),
-                                      BlocBuilder<UserBloc, UserState>(
-                                        builder: (context, userState) {
-                                          String userName = 'Khách hàng';
-                                          if (userState is UserLoaded && userState.user != null) {
-                                            userName = userState.user.fullName ?? 'Khách hàng';
-                                          } else {
-                                            final accountState = context.watch<AccountBloc>().state;
-                                            if (accountState is AccountLoggedIn && accountState.user != null) {
-                                              userName = accountState.user!.hoTen ?? 'Khách hàng';
-                                            }
-                                          }
-                                          return Text(
-                                            userName,
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => MenuScreen()),
-                                      );
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white.withOpacity(0.5),
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: 20,
-                                        backgroundColor: Colors.white.withOpacity(0.2),
-                                        child: Icon(
-                                          Icons.person,
-                                          color: Colors.white,
-                                          size: 24,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              // Search bar with animation
-                              AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                padding: const EdgeInsets.symmetric(horizontal: 16),
-                                child: Hero(
-                                  tag: 'search-bar',
-                                  child: Material(
-                                    color: Colors.transparent,
-                                    child: InkWell(
-                                      borderRadius: BorderRadius.circular(16),
-                                      onTap: () {
-                                        // Navigate to search screen
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(16),
-                                          border: Border.all(
-                                            color: Colors.white.withOpacity(0.3),
-                                          ),
-                                        ),
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.search, color: Colors.white),
-                                            const SizedBox(width: 10),
-                                            Text(
-                                              'Tìm kiếm món ngon...',
-                                              style: GoogleFonts.poppins(
-                                                color: Colors.white.withOpacity(0.8),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.restaurant, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text(
+                    'FoodExpress',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
-                  );
-                },
+                  ),
+                ],
+              ),
+              centerTitle: true,
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.teal.shade600,
+                      Colors.teal.shade800,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        BlocBuilder<UserBloc, UserState>(
+                          builder: (context, userState) {
+                            String userName = 'Khách hàng';
+                            if (userState is UserLoaded && userState.user != null) {
+                              userName = userState.user.fullName ?? 'Khách hàng';
+                            } else {
+                              final accountState = context.watch<AccountBloc>().state;
+                              if (accountState is AccountLoggedIn && accountState.user != null) {
+                                userName = accountState.user!.hoTen ?? 'Khách hàng';
+                              }
+                            }
+                            return Text(
+                              'Xin chào, $userName',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: Colors.white.withOpacity(0.6),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.person, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MenuScreen()),
+                  ).then((_) => _loadSpecialNotifications());
+                },
+              ),
+            ],
           ),
-
-          // Nội dung chính
           SliverPadding(
             padding: const EdgeInsets.all(16.0),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Section 1: Featured products with animation
-                _buildSectionHeader('Món nổi bật', 'Xem tất cả'),
+                // Thông báo đặc biệt - chỉ hiển thị từ state local
+                if (_specialNotifications.isNotEmpty)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Thông báo đặc biệt',
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 120,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _specialNotifications.length,
+                          itemBuilder: (context, index) {
+                            final notification = _specialNotifications[index];
+                            return Container(
+                              width: 250,
+                              margin: const EdgeInsets.only(right: 12),
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.teal.shade50,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.teal.shade100,
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.notifications_active,
+                                        color: Colors.teal.shade700,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          notification.title,
+                                          style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Expanded(
+                                    child: Text(
+                                      notification.message,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                      ),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+
+                // Các phần khác giữ nguyên
+                _buildSectionHeader('Món nổi bật', 'Xem tất cả', () {
+                  _navigateToFindProduct();
+                }),
                 const SizedBox(height: 12),
                 _buildFeaturedProducts(),
 
-                // Section 2: Categories with animation
                 _buildSectionHeader('Danh mục', ''),
                 const SizedBox(height: 12),
                 _buildCategories(),
 
-                // Section 3: Popular products
-                _buildSectionHeader('Món phổ biến', 'Xem tất cả'),
+                _buildSectionHeader('Món phổ biến', 'Xem tất cả', () {
+                  _navigateToFindProduct();
+                }),
                 const SizedBox(height: 12),
                 _buildPopularProducts(),
-
-                // Section 4: Special offers
-                _buildSpecialOffers(),
               ]),
             ),
           ),
@@ -236,25 +264,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSectionHeader(String title, String actionText) {
+  // Các phương thức helper giữ nguyên
+  Widget _buildSectionHeader(String title, String actionText, [VoidCallback? onAction]) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           title,
           style: GoogleFonts.poppins(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Colors.teal.shade700,
           ),
         ),
         if (actionText.isNotEmpty)
           TextButton(
-            onPressed: () {},
+            onPressed: onAction,
             child: Text(
               actionText,
               style: GoogleFonts.poppins(
-                color: Colors.deepPurple,
+                color: Colors.teal,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -267,12 +296,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {
         if (state is ProductLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: Colors.teal));
         } else if (state is ProductLoaded) {
           _products = state.products;
         }
         if (_products.isEmpty) {
-          return const Text('Không có sản phẩm nào.');
+          return Text(
+            'Không có sản phẩm nào.',
+            style: GoogleFonts.poppins(color: Colors.grey[600]),
+          );
         }
         return SizedBox(
           height: 230,
@@ -289,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   time: product.status == ProductStatus.inStock
                       ? 'Còn hàng'
                       : 'Hết hàng',
-                  imageUrl: "assets/images/${product.imageUrl ?? HomeScreen.linkImage}",
+                  imageUrl: product.imageUrl ?? '',
                   onTap: () {
                     context.read<ProductBloc>().add(
                         FetchProductDetailsEvent(product.id)
@@ -314,11 +346,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return BlocBuilder<CategoryBloc, CategoryState>(
       builder: (context, state) {
         if (state is CategoryLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: Colors.teal));
         } else if (state is CategoryLoaded) {
           final categories = state.categories;
           if (categories.isEmpty) {
-            return const Text('Không có danh mục nào.');
+            return Text(
+              'Không có danh mục nào.',
+              style: GoogleFonts.poppins(color: Colors.grey[600]),
+            );
           }
           return SizedBox(
             height: 100,
@@ -327,40 +362,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
-                return Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      // Handle category tap
-                    },
+                return GestureDetector(
+                  onTap: () {
+                    _navigateToFindProduct(categoryIds: [category.id]);
+                  },
+                  child: Container(
+                    width: 80,
+                    margin: const EdgeInsets.only(right: 12),
                     child: Column(
                       children: [
                         Container(
-                          width: 70,
-                          height: 70,
+                          width: 60,
+                          height: 60,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.purpleAccent.shade100,
-                                Colors.deepPurple.shade300,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                            color: Colors.teal.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.teal.withOpacity(0.3),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.deepPurple.withOpacity(0.2),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: Center(
                             child: Icon(
                               _getCategoryIcon(category.name),
+                              color: Colors.teal.shade700,
                               size: 30,
-                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -371,6 +396,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -406,12 +434,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return BlocBuilder<ProductBloc, ProductState>(
       builder: (context, state) {
         if (state is ProductLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator(color: Colors.teal));
         } else if (state is ProductLoaded) {
           _products = state.products..shuffle();
         }
         if (_products.isEmpty) {
-          return const Text('Không có sản phẩm nào.');
+          return Text(
+            'Không có sản phẩm nào.',
+            style: GoogleFonts.poppins(color: Colors.grey[600]),
+          );
         }
         return GridView.builder(
           shrinkWrap: true,
@@ -427,8 +458,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             final product = _products[index];
             return ProductCard(
               title: product.name,
-              calories: '${product.price} VNĐ',
-              imageName: product.imageUrl ?? '',
+              price: '${product.price} VNĐ',
+              imageUrl: product.imageUrl ?? '',
               heroTag: _generateHeroTag(product),
               onTap: () {
                 context.read<ProductBloc>().add(FetchProductDetailsEvent(product.id));
@@ -443,93 +474,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         );
       },
-    );
-  }
-
-  Widget _buildSpecialOffers() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('Ưu đãi đặc biệt', ''),
-        const SizedBox(height: 12),
-        Container(
-          height: 150,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              colors: [
-                Colors.orange.shade300,
-                Colors.deepOrange.shade400,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.deepOrange.withOpacity(0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Lottie.asset(
-                  'assets/animations/fire.json',
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Giảm giá 30%',
-                      style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Text(
-                      'Cho tất cả các món vào thứ 3 hàng tuần',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                    ),
-                    const Spacer(),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        'Đặt ngay',
-                        style: GoogleFonts.poppins(
-                          color: Colors.deepOrange,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
