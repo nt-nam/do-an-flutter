@@ -4,6 +4,7 @@ import '../../../domain/repositories/cart_repository.dart';
 import '../../../domain/repositories/order_repository.dart';
 import '../../../data/models/order_model.dart' as model;
 import '../../../data/models/order_detail_model.dart';
+import '../../entities/order.dart';
 
 class CreateOrderUseCase {
   final OrderRepository orderRepository;
@@ -30,7 +31,7 @@ class CreateOrderUseCase {
         // maGH: cartId,
         ngayDat: DateTime.now(),
         tongTien: totalAmount,
-        trangThai: model.OrderStatus.pending,
+        trangThai: OrderStatus.pending,
         diaChiGiao: deliveryAddress,
         maUD: offerId,
       );
@@ -80,15 +81,15 @@ class CreateOrderUseCase {
     }
   }
 
-  entity.OrderStatus _mapOrderStatus(model.OrderStatus? status) {
+  entity.OrderStatus _mapOrderStatus(OrderStatus? status) {
     switch (status) {
-      case model.OrderStatus.pending:
+      case OrderStatus.pending:
         return entity.OrderStatus.pending;
-      case model.OrderStatus.delivering:
+      case OrderStatus.delivering:
         return entity.OrderStatus.delivering;
-      case model.OrderStatus.delivered:
+      case OrderStatus.delivered:
         return entity.OrderStatus.delivered;
-      case model.OrderStatus.cancelled:
+      case OrderStatus.cancelled:
         return entity.OrderStatus.cancelled;
       default:
         return entity.OrderStatus.pending;

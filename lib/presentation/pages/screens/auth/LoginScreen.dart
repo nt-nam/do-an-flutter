@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Điều hướng sang HomeScreen
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                    MaterialPageRoute(builder: (context) => MainScreen()),
                   );
                 } else if (state is AccountError) {
                   ScaffoldMessenger.of(context).showSnackBar(

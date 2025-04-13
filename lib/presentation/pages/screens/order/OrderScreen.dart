@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/entities/cart_detail.dart';
-import '../../../domain/entities/order.dart';
-import '../../blocs/account/account_bloc.dart';
-import '../../blocs/account/account_state.dart';
-import '../../blocs/order/order_bloc.dart';
-import '../../blocs/order/order_event.dart';
-import '../../blocs/order/order_state.dart';
+import '../../../../domain/entities/cart_detail.dart';
+import '../../../../domain/entities/order.dart';
+import '../../../blocs/account/account_bloc.dart';
+import '../../../blocs/account/account_state.dart';
+import '../../../blocs/order/order_bloc.dart';
+import '../../../blocs/order/order_event.dart';
+import '../../../blocs/order/order_state.dart';
 import 'package:intl/intl.dart';
 
 class OrderScreen extends StatefulWidget {
@@ -742,12 +742,12 @@ class _OrderScreenState extends State<OrderScreen>
                           ),
                         ),
 
-                      if (order.status == OrderStatus.delivered)
+                      const SizedBox(height: 8),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Xử lý mua lại
+                              // Xử lý xem chi tiết
                               Navigator.pop(context);
                             },
                             style: ElevatedButton.styleFrom(
@@ -758,7 +758,7 @@ class _OrderScreenState extends State<OrderScreen>
                               ),
                             ),
                             child: const Text(
-                              'Đánh giá',
+                              'Chi Tiết',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

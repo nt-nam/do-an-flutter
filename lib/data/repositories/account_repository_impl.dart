@@ -12,8 +12,12 @@ class AccountRepositoryImpl implements AccountRepository {
   @override
   Future<List<AccountModel>> getAccounts() async {
     final token = await authService.getToken();
+    if (token == null) {
+      throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
+    }
     final data = await apiService.get('taikhoan', token: token);
-    return (data as List).map((json) => AccountModel.fromJson(json)).toList();
+    return (data['data'] as List).map((json) => AccountModel.fromJson(json)).toList();
+    // return (data as List).map((json) => AccountModel.fromJson(json)).toList();
   }
 
   @override
@@ -26,8 +30,15 @@ class AccountRepositoryImpl implements AccountRepository {
   @override
   Future<AccountModel> updateAccount(AccountModel account) async {
     final token = await authService.getToken();
-    final data = await apiService.put('taikhoan/${account.maTK}', account.toJson(), token: token);
-    return AccountModel.fromJson(data);
+    final data = await apiService.put(
+      'taikhoan',
+      {'maTK': account.maTK, 'vaiTro': account.vaiTro}, // Gửi dữ liệu dạng {maTK: 1, vaiTro: 2}
+      token: token,
+    );
+    return account; // Hoặc xử lý response từ server nếu cần
+
+    //   final data = await apiService.put('taikhoan/${account.maTK}', account.toJson(), token: token);
+    //   return AccountModel.fromJson(data);
   }
 
   @override

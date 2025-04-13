@@ -20,7 +20,9 @@ import '../../blocs/user/user_bloc.dart';
 import '../../blocs/user/user_state.dart';
 import '../../widgets/ProductCard.dart';
 import '../../widgets/ProductCardFeatured.dart';
+import 'MenuManagerScreen.dart';
 import 'MenuScreen.dart';
+import 'auth/LoginScreen.dart';
 import 'product/FindProductScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -91,10 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.restaurant, color: Colors.white),
+                  const Icon(Icons.gas_meter, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
-                    'FoodExpress',
+                    'GasExpress',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -152,10 +154,23 @@ class _HomeScreenState extends State<HomeScreen> {
               IconButton(
                 icon: const Icon(Icons.person, color: Colors.white),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MenuScreen()),
-                  ).then((_) => _loadSpecialNotifications());
+                  final accountBloc = context.read<AccountBloc>();
+                  if (accountBloc.state is AccountLoggedIn) {
+                    final role = (accountBloc.state as AccountLoggedIn).account.role;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => role == 'Quản trị'
+                            ? const MenuManagerScreen()
+                            : const MenuScreen(),
+                      ),
+                    ).then((_) => _loadSpecialNotifications());
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  }
                 },
               ),
             ],

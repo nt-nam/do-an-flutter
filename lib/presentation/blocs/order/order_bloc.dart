@@ -24,6 +24,7 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
     on<UpdateOrderStatusEvent>(_onUpdateOrderStatus);
     on<FetchOrderDetailsEvent>(_onFetchOrderDetails);
     on<CancelOrderEvent>(_onCancelOrder);
+    // on<FetchAllOrdersEvent>(_onFetchAllOrders);
   }
 
   Future<void> _onFetchOrders(FetchOrdersEvent event, Emitter<OrderState> emit) async {
@@ -117,4 +118,13 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
       emit(OrderError(e.toString()));
     }
   }
+  // Future<void> _onFetchAllOrders(FetchAllOrdersEvent event, Emitter<OrderState> emit) async {
+  //   emit(const OrderLoading());
+  //   try {
+  //     final orders = await getOrdersUseCase(event.accountId, page: event.page, limit: event.limit);
+  //     emit(AllOrdersLoaded(orders));
+  //   } catch (e) {
+  //     emit(OrderError(e.toString()));
+  //   }
+  // }
 }

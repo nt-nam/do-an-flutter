@@ -10,10 +10,11 @@ import '../../blocs/offer/offer_bloc.dart';
 import '../../blocs/offer/offer_event.dart';
 import 'SettingScreen.dart';
 import 'auth/LoginScreen.dart';
-import 'offer/ListOfferScreen.dart'; // Giả sử đường dẫn đúng
+import 'offer/ListOfferScreen.dart';
+import 'order/OrderManagerScreen.dart'; // Giả sử đường dẫn đúng
 
-class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key});
+class MenuManagerScreen extends StatelessWidget {
+  const MenuManagerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,52 +50,49 @@ class MenuScreen extends StatelessWidget {
                 );
               },
             ),
-            // _buildMenuItem(
-            //   context,
-            //   icon: Icons.person_outline,
-            //   title: 'Thay đổi vai trò',
-            //   onTap: () {
-            //     final accountBloc = context.read<AccountBloc>();
-            //     if (accountBloc.state is AccountLoggedIn &&
-            //         (accountBloc.state as AccountLoggedIn).account.role == 'Quản trị') {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => BlocProvider.value(
-            //             value: accountBloc, // Giữ nguyên Bloc instance
-            //             child: const ChangeRoleScreen(),
-            //           ),
-            //         ),
-            //       );
-            //     } else {
-            //       ScaffoldMessenger.of(context).showSnackBar(
-            //         const SnackBar(content: Text('Bạn không có quyền truy cập')),
-            //       );
-            //     }
-            //   },
-            // ),
+            _buildMenuItem(
+              context,
+              icon: Icons.person_outline,
+              title: 'Thay đổi vai trò',
+              onTap: () {
+                final accountBloc = context.read<AccountBloc>();
+                if (accountBloc.state is AccountLoggedIn &&
+                    (accountBloc.state as AccountLoggedIn).account.role == 'Quản trị') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider.value(
+                        value: accountBloc, // Giữ nguyên Bloc instance
+                        child: const ChangeRoleScreen(),
+                      ),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Bạn không có quyền truy cập')),
+                  );
+                }
+              },
+            ),
             _buildMenuItem(
               context,
               icon: Icons.message_outlined,
               title: 'Tin nhắn',
-              hasNotification: false, // Box báo hiệu mặc định ẩn
+              hasNotification: true,
               onTap: () {
               },
             ),
-            // _buildMenuItem(
-            //   context,
-            //   icon: Icons.local_shipping_outlined,
-            //   title: 'Đang giao',
-            //   onTap: () {
-            //   },
-            // ),
-            // _buildMenuItem(
-            //   context,
-            //   icon: Icons.check_circle_outline,
-            //   title: 'Đã giao',
-            //   onTap: () {
-            //   },
-            // ),
+            _buildMenuItem(
+              context,
+              icon: Icons.local_shipping_outlined,
+              title: 'Quản lý đơn hàng',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OrderManagerScreen()),
+                );
+              },
+            ),
             _buildMenuItem(
               context,
               icon: Icons.local_offer_outlined,
@@ -112,6 +110,17 @@ class MenuScreen extends StatelessWidget {
               icon: Icons.star_outline,
               title: 'Đánh giá',
               onTap: () {
+              },
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.star_outline,
+              title: 'Thêm sản phẩm',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddProductScreen()),
+                );
               },
             ),
             _buildMenuItem(

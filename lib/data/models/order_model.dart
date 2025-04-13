@@ -1,10 +1,6 @@
-enum OrderStatus {
-  pending, // Chờ xử lý
-  delivering, // Đang giao hàng
-  delivered, // Đã giao
-  cancelled, // Đã hủy
-}
 
+
+import 'package:gas_store/domain/entities/order.dart';
 
 class OrderModel {
   final int? maDH;

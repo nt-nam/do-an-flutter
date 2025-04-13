@@ -34,14 +34,4 @@ class OrderDetailModel {
       'DONGIA': donGia, // Sửa từ GiaLucMua thành DONGIA
     };
   }
-
-  OrderDetail toEntity() {
-    return OrderDetail(
-      id: maCTDH,
-      orderId: maDH,
-      productId: maSP,
-      quantity: soLuong,
-      priceAtPurchase: donGia,
-    );
-  }
 }

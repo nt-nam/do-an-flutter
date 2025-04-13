@@ -32,6 +32,8 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     on<FetchAccountProfileEvent>(_onFetchAccountProfile);
     on<UpdateAccountEvent>(_onUpdateAccount);
     on<LogoutEvent>(_onLogout);
+    on<FetchAllAccountsEvent>(_onFetchAllAccounts);
+    on<UpdateAccountRoleEvent>(_onUpdateAccountRole);
   }
 
   Future<void> _onLogin(LoginEvent event, Emitter<AccountState> emit) async {
@@ -126,16 +128,22 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     }
   }
 
+
+
   Future<void> _onFetchAllAccounts(FetchAllAccountsEvent event, Emitter<AccountState> emit) async {
     emit(const AccountLoading());
     try {
-      if (state is! AccountLoggedIn) {
-        throw Exception('Unauthorized');
+      final token = await authService.getToken();
+      if (token == null) {
+        throw Exception('Token không tồn tại. Vui lòng đăng nhập lại.');
       }
 
-      final loggedInAccount = (state as AccountLoggedIn).account;
-      if (loggedInAccount.role != 'Quản trị') {
-        throw Exception('Permission denied');
+      final loggedInAccount = (state is AccountLoggedIn)
+          ? (state as AccountLoggedIn).account
+          : null;
+
+      if (loggedInAccount == null || loggedInAccount.role != 'Quản trị') {
+        throw Exception('Permission denied fetch accounts');
       }
 
       final accounts = await accountRepository.getAccounts();
@@ -149,12 +157,12 @@ class AccountBloc extends Bloc<AccountEvent, AccountState> {
     emit(const AccountLoading());
     try {
       if (state is! AccountLoggedIn) {
-        throw Exception('Unauthorized');
+        throw Exception('Unauthorized UpdateAccountRole');
       }
 
       final loggedInAccount = (state as AccountLoggedIn).account;
       if (loggedInAccount.role != 'Quản trị') {
-        throw Exception('Permission denied');
+        throw Exception('Permission denied update account role');
       }
 
       final targetAccount = await accountRepository.getAccountById(event.accountId);

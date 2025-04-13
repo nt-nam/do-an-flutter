@@ -1,4 +1,5 @@
 import '../../entities/order.dart' as entity;
+import '../../entities/order.dart';
 import '../../repositories/order_repository.dart';
 import '../../../data/models/order_model.dart' as model;
 
@@ -25,15 +26,15 @@ class GetOrdersUseCase {
     }
   }
 
-  entity.OrderStatus _mapOrderStatus(model.OrderStatus status) {
+  entity.OrderStatus _mapOrderStatus(OrderStatus status) {
     switch (status) {
-      case model.OrderStatus.pending:
+      case OrderStatus.pending:
         return entity.OrderStatus.pending;
-      case model.OrderStatus.delivering:
+      case OrderStatus.delivering:
         return entity.OrderStatus.delivering;
-      case model.OrderStatus.delivered:
+      case OrderStatus.delivered:
         return entity.OrderStatus.delivered;
-      case model.OrderStatus.cancelled:
+      case OrderStatus.cancelled:
         return entity.OrderStatus.cancelled;
     }
   }

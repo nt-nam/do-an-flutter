@@ -1,4 +1,5 @@
 import '../../entities/order.dart' as entity;
+import '../../entities/order.dart';
 import '../../repositories/order_repository.dart';
 import '../../../data/models/order_model.dart' as model;
 
@@ -36,28 +37,28 @@ class UpdateOrderStatusUseCase {
     }
   }
 
-  model.OrderStatus _mapToModelOrderStatus(entity.OrderStatus status) {
+  OrderStatus _mapToModelOrderStatus(entity.OrderStatus status) {
     switch (status) {
       case entity.OrderStatus.pending:
-        return model.OrderStatus.pending;
+        return OrderStatus.pending;
       case entity.OrderStatus.delivering:
-        return model.OrderStatus.delivering;
+        return OrderStatus.delivering;
       case entity.OrderStatus.delivered:
-        return model.OrderStatus.delivered;
+        return OrderStatus.delivered;
       case entity.OrderStatus.cancelled:
-        return model.OrderStatus.cancelled;
+        return OrderStatus.cancelled;
     }
   }
 
-  entity.OrderStatus _mapOrderStatus(model.OrderStatus status) {
+  entity.OrderStatus _mapOrderStatus(OrderStatus status) {
     switch (status) {
-      case model.OrderStatus.pending:
+      case OrderStatus.pending:
         return entity.OrderStatus.pending;
-      case model.OrderStatus.delivering:
+      case OrderStatus.delivering:
         return entity.OrderStatus.delivering;
-      case model.OrderStatus.delivered:
+      case OrderStatus.delivered:
         return entity.OrderStatus.delivered;
-      case model.OrderStatus.cancelled:
+      case OrderStatus.cancelled:
         return entity.OrderStatus.cancelled;
     }
   }

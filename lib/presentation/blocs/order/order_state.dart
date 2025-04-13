@@ -42,3 +42,8 @@ class OrderError extends OrderState {
 
   const OrderError(this.message);
 }
+
+class AllOrdersLoaded extends OrderState {
+  final List<Order> orders;
+  const AllOrdersLoaded(this.orders);
+}

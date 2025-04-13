@@ -106,6 +106,8 @@ class MyApp extends StatelessWidget {
     );
     final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
     final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
+
+
     // Offer-related dependencies - Thêm mới
     final offerRepository = OfferRepositoryImpl(apiService, authService);
     final getOffersUseCase = GetOffersUseCase(offerRepository);

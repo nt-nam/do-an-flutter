@@ -49,3 +49,13 @@ class CancelOrderEvent extends OrderEvent {
 
   const CancelOrderEvent(this.orderId);
 }
+
+class FetchAllOrdersEvent extends OrderEvent {}
+class ConfirmOrderEvent extends OrderEvent {
+  final int orderId;
+  const ConfirmOrderEvent(this.orderId);
+}
+class CompleteOrderEvent extends OrderEvent {
+  final int orderId;
+  const CompleteOrderEvent(this.orderId);
+}
