@@ -8,8 +8,6 @@ import '../../../domain/repositories/account_repository.dart';
 import '../../../domain/usecases/auth/get_user_usecase.dart';
 import '../../../domain/usecases/auth/login_usecase.dart';
 import '../../../domain/usecases/auth/register_use_case.dart';
-import '../cart/cart_bloc.dart';
-import '../cart/cart_event.dart';
 import 'account_event.dart';
 import 'account_state.dart';
 

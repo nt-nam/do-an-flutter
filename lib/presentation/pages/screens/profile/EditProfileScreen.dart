@@ -109,7 +109,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Chỉnh sửa hồ sơ'),
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.teal,
         ),
         body: SingleChildScrollView(
           child: Padding(
@@ -147,7 +147,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       return ElevatedButton(
                         onPressed: state is UserLoading ? null : () => _saveProfile(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: Colors.teal,
                           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),

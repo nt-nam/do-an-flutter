@@ -71,7 +71,7 @@ class _ChangeRoleScreenState extends State<ChangeRoleScreen> {
         child: Scaffold(
           appBar: AppBar(
             title: const Text('Quản lý quyền'),
-            backgroundColor: Colors.deepPurple,
+            backgroundColor: Colors.teal,
             foregroundColor: Colors.white,
           ),
           body: BlocConsumer<AccountBloc, AccountState>(

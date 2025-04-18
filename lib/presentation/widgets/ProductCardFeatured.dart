@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart'; // Thêm import cho Lottie
+import 'package:lottie/lottie.dart';
+
+import '../pages/screens/HomeScreen.dart'; // Thêm import cho Lottie
 
 class FeaturedCard extends StatefulWidget {
   final String title;
@@ -123,7 +125,8 @@ class _FeaturedCardState extends State<FeaturedCard>
                         color: Colors.white.withOpacity(0.1),
                         // Nền nhẹ cho ảnh trong suốt
                         child: Image.network(
-                          widget.imageUrl,
+                          // widget.imageUrl
+                          "assets/images/${widget.imageUrl == "" ? HomeScreen.linkImage : widget.imageUrl}",
                           fit: BoxFit.cover, // Giữ nguyên tỷ lệ ảnh
                           errorBuilder: (context, error, stackTrace) {
                             return const Center(
@@ -155,7 +158,7 @@ class _FeaturedCardState extends State<FeaturedCard>
                                 Expanded(
                                   child: Text(
                                     widget.title,
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.redAccent,
@@ -217,6 +220,7 @@ class _FeaturedCardState extends State<FeaturedCard>
       ),
     );
   }
+
   List<Shadow> _shadow() {
     return [
       Shadow(

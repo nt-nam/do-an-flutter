@@ -66,20 +66,6 @@ class ApiService {
     }
   }
 
-  // // Thêm vào class ApiService
-  // Future<dynamic> patch(String endpoint, Map<String, dynamic> data, {String? token}) async {
-  //   try {
-  //     final response = await http.patch(
-  //       Uri.parse('$baseUrl/$endpoint'),
-  //       headers: _getHeaders(token: token),
-  //       body: jsonEncode(data),
-  //     );
-  //     return _handleResponse(response);
-  //   } catch (e) {
-  //     throw Exception('Failed to perform PATCH request: $e');
-  //   }
-  // }
-
   // Xử lý phản hồi từ server
   dynamic _handleResponse(http.Response response) {
     switch (response.statusCode) {
