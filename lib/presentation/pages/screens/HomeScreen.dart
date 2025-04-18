@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Icon(Icons.gas_meter, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
-                    'GasExpress',
+                    'GasStore',
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                 // Các phần khác giữ nguyên
-                _buildSectionHeader('Món nổi bật', 'Xem tất cả', () {
+                _buildSectionHeader('Sản phẩm nổi bật', 'Xem tất cả', () {
                   _navigateToFindProduct();
                 }),
                 const SizedBox(height: 12),
@@ -266,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 _buildCategories(),
 
-                _buildSectionHeader('Món phổ biến', 'Xem tất cả', () {
+                _buildSectionHeader('Sản phẩm phổ biến', 'Xem tất cả', () {
                   _navigateToFindProduct();
                 }),
                 const SizedBox(height: 12),
@@ -371,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
           return SizedBox(
-            height: 100,
+            height: 110,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: categories.length,
@@ -398,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Center(
                             child: Icon(
-                              _getCategoryIcon(category.name),
+                              _getCategoryIcon(category.id),
                               color: Colors.teal.shade700,
                               size: 30,
                             ),
@@ -430,18 +430,18 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  IconData _getCategoryIcon(String categoryName) {
-    switch (categoryName.toLowerCase()) {
-      case 'đồ uống':
-        return Icons.local_drink;
-      case 'món chính':
-        return Icons.set_meal;
-      case 'tráng miệng':
-        return Icons.icecream;
-      case 'đồ nhanh':
-        return Icons.fastfood;
+  IconData _getCategoryIcon(int id) {
+    switch (id) {
+      case 1:
+        return Icons.gas_meter;
+      case 2:
+        return Icons.gas_meter_sharp;
+      case 3:
+        return Icons.soup_kitchen;
+      case 4:
+        return Icons.settings_suggest;
       default:
-        return Icons.restaurant;
+        return Icons.gas_meter;
     }
   }
 

@@ -51,36 +51,12 @@ class MenuScreen extends StatelessWidget {
             ),
             // _buildMenuItem(
             //   context,
-            //   icon: Icons.person_outline,
-            //   title: 'Thay đổi vai trò',
+            //   icon: Icons.message_outlined,
+            //   title: 'Tin nhắn',
+            //   hasNotification: false, // Box báo hiệu mặc định ẩn
             //   onTap: () {
-            //     final accountBloc = context.read<AccountBloc>();
-            //     if (accountBloc.state is AccountLoggedIn &&
-            //         (accountBloc.state as AccountLoggedIn).account.role == 'Quản trị') {
-            //       Navigator.push(
-            //         context,
-            //         MaterialPageRoute(
-            //           builder: (context) => BlocProvider.value(
-            //             value: accountBloc, // Giữ nguyên Bloc instance
-            //             child: const ChangeRoleScreen(),
-            //           ),
-            //         ),
-            //       );
-            //     } else {
-            //       ScaffoldMessenger.of(context).showSnackBar(
-            //         const SnackBar(content: Text('Bạn không có quyền truy cập')),
-            //       );
-            //     }
             //   },
             // ),
-            _buildMenuItem(
-              context,
-              icon: Icons.message_outlined,
-              title: 'Tin nhắn',
-              hasNotification: false, // Box báo hiệu mặc định ẩn
-              onTap: () {
-              },
-            ),
             // _buildMenuItem(
             //   context,
             //   icon: Icons.local_shipping_outlined,

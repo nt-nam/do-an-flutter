@@ -69,7 +69,7 @@ class CategoryCheckbox extends StatelessWidget {
             Text(
               label,
               style: GoogleFonts.poppins(
-                color: isSelected ? Colors.deepPurple : Colors.black87,
+                color: isSelected ? Colors.teal : Colors.black87,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 fontSize: 14,
               ),
