@@ -15,7 +15,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hồ sơ cá nhân'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
       ),
       body: BlocBuilder<AccountBloc, AccountState>(
@@ -23,7 +23,7 @@ class ProfileScreen extends StatelessWidget {
           if (accountState is AccountLoading) {
             return const Center(
               child: CircularProgressIndicator(
-                color: Colors.deepPurple,
+                color: Colors.teal,
               ),
             );
           } else if (accountState is AccountLoggedIn) {
@@ -38,7 +38,7 @@ class ProfileScreen extends StatelessWidget {
                 if (userState is UserLoading) {
                   return const Center(
                     child: CircularProgressIndicator(
-                      color: Colors.deepPurple,
+                      color: Colors.teal,
                     ),
                   );
                 } else if (userState is UserLoaded) {
@@ -53,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
+                            color: Colors.teal,
                           ),
                         ),
                         const SizedBox(height: 20),

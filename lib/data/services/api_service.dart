@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://localhost/gas_api/'; // Thay bằng URL thực tế của API PHP
+  static const String baseUrl = 'http://192.168.160.1/gas_api/'; // Thay bằng URL thực tế của API PHP
 
   // Headers mặc định, có thể thêm token sau khi xác thực
   Map<String, String> _getHeaders({String? token}) {
@@ -65,20 +65,6 @@ class ApiService {
       throw Exception('Failed to perform DELETE request: $e');
     }
   }
-
-  // // Thêm vào class ApiService
-  // Future<dynamic> patch(String endpoint, Map<String, dynamic> data, {String? token}) async {
-  //   try {
-  //     final response = await http.patch(
-  //       Uri.parse('$baseUrl/$endpoint'),
-  //       headers: _getHeaders(token: token),
-  //       body: jsonEncode(data),
-  //     );
-  //     return _handleResponse(response);
-  //   } catch (e) {
-  //     throw Exception('Failed to perform PATCH request: $e');
-  //   }
-  // }
 
   // Xử lý phản hồi từ server
   dynamic _handleResponse(http.Response response) {

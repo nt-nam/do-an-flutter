@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../pages/screens/HomeScreen.dart';
+
 class ProductCard extends StatelessWidget {
   final String title;
   final String price;
@@ -59,7 +61,7 @@ class ProductCard extends StatelessWidget {
                       width: double.infinity,
                       color: Colors.teal.shade50,
                       child: Image.network(
-                        imageUrl,
+                        "assets/images/${imageUrl == "" ? HomeScreen.linkImage : imageUrl}",
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return Center(
