@@ -74,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                               // Không cần làm mới thủ công, vì UserBloc sẽ phát ra trạng thái UserLoaded
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.deepPurple,
+                              backgroundColor: Colors.teal,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 32,
                                 vertical: 16,

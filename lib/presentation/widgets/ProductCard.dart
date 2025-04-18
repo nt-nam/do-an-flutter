@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../pages/screens/HomeScreen.dart';
 
 class ProductCard extends StatelessWidget {
@@ -47,7 +46,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Phần hình ảnh với hiệu ứng
+            // Phần hình ảnh
             Stack(
               children: [
                 Hero(
@@ -66,7 +65,7 @@ class ProductCard extends StatelessWidget {
                         errorBuilder: (context, error, stackTrace) {
                           return Center(
                             child: Icon(
-                              Icons.fastfood,
+                              Icons.propane_tank_outlined,
                               size: 40,
                               color: Colors.teal.shade200,
                             ),
@@ -93,8 +92,7 @@ class ProductCard extends StatelessWidget {
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.teal,
                         borderRadius: BorderRadius.circular(12),
@@ -149,17 +147,20 @@ class ProductCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        price,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.teal.shade700,
+                      Flexible(
+                        child: Text(
+                          price,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal.shade700,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.teal.shade100,
                           borderRadius: BorderRadius.circular(8),

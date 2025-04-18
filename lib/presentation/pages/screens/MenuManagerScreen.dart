@@ -74,14 +74,14 @@ class MenuManagerScreen extends StatelessWidget {
                 }
               },
             ),
-            _buildMenuItem(
-              context,
-              icon: Icons.message_outlined,
-              title: 'Tin nhắn',
-              hasNotification: true,
-              onTap: () {
-              },
-            ),
+            // _buildMenuItem(
+            //   context,
+            //   icon: Icons.message_outlined,
+            //   title: 'Tin nhắn',
+            //   hasNotification: true,
+            //   onTap: () {
+            //   },
+            // ),
             _buildMenuItem(
               context,
               icon: Icons.local_shipping_outlined,
