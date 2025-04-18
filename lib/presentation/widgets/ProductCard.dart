@@ -4,8 +4,8 @@ import '../pages/screens/HomeScreen.dart';
 
 class ProductCard extends StatelessWidget {
   final String title;
+  final String? imageUrl; // Hỗ trợ null
   final String price;
-  final String imageUrl;
   final String heroTag;
   final VoidCallback? onTap;
   final bool isFeatured;
@@ -22,6 +22,13 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Chuẩn hóa đường dẫn asset
+    final assetPath = (imageUrl ?? HomeScreen.linkImage).isEmpty
+        ? 'default.jpg'
+        : (imageUrl ?? HomeScreen.linkImage).replaceFirst(RegExp(r'^assets/images/'), '');
+
+    print("Loading image: assets/images/$assetPath");
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -59,28 +66,23 @@ class ProductCard extends StatelessWidget {
                       height: MediaQuery.of(context).size.width / 3,
                       width: double.infinity,
                       color: Colors.teal.shade50,
-                      child: Image.network(
-                        "assets/images/${imageUrl == "" ? HomeScreen.linkImage : imageUrl}",
+                      child: Image.asset(
+                        "assets/images/$assetPath",
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
-                          return Center(
-                            child: Icon(
-                              Icons.propane_tank_outlined,
-                              size: 40,
-                              color: Colors.teal.shade200,
-                            ),
-                          );
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                                  : null,
-                              color: Colors.teal,
-                            ),
+                          print("Error loading image: $error, URL: $imageUrl, AssetPath: assets/images/$assetPath, StackTrace: $stackTrace");
+                          return Image.asset(
+                            "assets/images/default.jpg",
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Center(
+                                child: Icon(
+                                  Icons.propane_tank_outlined,
+                                  size: 40,
+                                  color: Theme.of(context).primaryColor.withOpacity(0.5),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),

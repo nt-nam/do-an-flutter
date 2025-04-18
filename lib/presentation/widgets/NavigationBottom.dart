@@ -70,7 +70,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
               }).toList(),
             ),
             Positioned(
-              top: MediaQuery.of(context).size.height * -0.025,
+              top: MediaQuery.of(context).size.height * -0.02,
               left: 0,
               right: 0,
               child: Center(
