@@ -124,21 +124,30 @@ class _FeaturedCardState extends State<FeaturedCard>
                         // Chiều cao cố định cho ảnh
                         color: Colors.white.withOpacity(0.1),
                         // Nền nhẹ cho ảnh trong suốt
-                        child: Image.network(
+                        child: Image.asset(
                           // widget.imageUrl
-                          "assets/images/${widget.imageUrl == "" ? HomeScreen.linkImage : widget.imageUrl}",
+                          "assets/images/${(widget.imageUrl ?? HomeScreen.linkImage) == "" ? HomeScreen.linkImage : (widget.imageUrl ?? HomeScreen.linkImage)}",
                           fit: BoxFit.cover, // Giữ nguyên tỷ lệ ảnh
                           errorBuilder: (context, error, stackTrace) {
-                            return const Center(
-                              child: Icon(Icons.broken_image,
-                                  size: 50, color: Colors.black87),
+                            return Image.asset(
+                              "assets/images/default.jpg",
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Icon(
+                                    Icons.propane_tank_outlined,
+                                    size: 40,
+                                    color: Theme.of(context).primaryColor.withOpacity(0.5),
+                                  ),
+                                );
+                              },
                             );
                           },
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return const Center(
-                                child: CircularProgressIndicator());
-                          },
+                          // loadingBuilder: (context, child, loadingProgress) {
+                          //   if (loadingProgress == null) return child;
+                          //   return const Center(
+                          //       child: CircularProgressIndicator());
+                          // },
                         ),
                       ),
                     ),
