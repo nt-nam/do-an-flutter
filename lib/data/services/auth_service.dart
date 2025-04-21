@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://192.168.160.1/gas_api/';
-  static const String loginEndpoint = 'auth/login';
-  static const String registerEndpoint = 'auth/register';
+  // static const String baseUrl = 'http://localhost/gas_api/';
+  static const String baseUrl = 'http://192.168.248.1/gas_api/';
+  static const String loginEndpoint = '/auth/login';
+  static const String registerEndpoint = '/auth/register';
   static const String _tokenKey = 'auth_token'; // Key để lưu token trong SharedPreferences
 
   final http.Client _client;
