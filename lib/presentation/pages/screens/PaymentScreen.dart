@@ -11,12 +11,18 @@ class PaymentScreen extends StatefulWidget {
   final List<CartDetail> items;
   final int accountId;
   final String deliveryAddress;
+  final Map<int, bool>? buyShellMap;
+  final Map<int, int>? shellQuantityMap;
+  final double? shellPrice;
 
   const PaymentScreen({
     super.key,
     required this.items,
     required this.accountId,
     required this.deliveryAddress,
+    this.buyShellMap,
+    this.shellQuantityMap,
+    this.shellPrice,
   });
 
   @override
@@ -25,6 +31,9 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   late List<CartDetail> _items;
+  late Map<int, bool> _buyShellMap;
+  late Map<int, int> _shellQuantityMap;
+  late double _shellPrice;
 
   // Định nghĩa bảng màu mới
   final Color primaryColor = Colors.teal;
@@ -49,6 +58,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
       productPrice: item.productPrice,
       productImage: item.productImage,
     )).toList();
+    
+    // Khởi tạo các map
+    _buyShellMap = widget.buyShellMap ?? {};
+    _shellQuantityMap = widget.shellQuantityMap ?? {};
+    _shellPrice = widget.shellPrice ?? 300000; // Giá mặc định nếu không được truyền vào
   }
 
   void _incrementQuantity(int index) {
@@ -89,6 +103,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return _items.fold(0.0, (sum, item) => sum + (item.productPrice ?? 0) * item.quantity);
   }
 
+  double _calculateShellAmount() {
+    double total = 0;
+    for (var item in _items) {
+      if (_buyShellMap[item.productId] == true) {
+        total += _shellPrice * (_shellQuantityMap[item.productId] ?? 0);
+      }
+    }
+    return total;
+  }
+
   String _formatCurrency(double amount) {
     return amount.toStringAsFixed(0).replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -99,7 +123,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final double deliveryFee = 15000; // Phí giao hàng cố định
-    final double totalWithDelivery = _calculateTotalAmount() + deliveryFee;
+    final double productAmount = _calculateTotalAmount();
+    final double shellAmount = _calculateShellAmount();
+    final double totalWithDelivery = productAmount + shellAmount + deliveryFee;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -365,6 +391,44 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                         );
                       }).toList(),
+                      // Hiển thị thông tin vỏ cho các sản phẩm
+                      ..._items.asMap().entries.where((entry) => 
+                        _buyShellMap[entry.value.productId] == true
+                      ).map((entry) {
+                        final item = entry.value;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8, left: 16),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.grey[100],
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.add_circle_outline, color: Colors.teal, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Vỏ gas (${_shellQuantityMap[item.productId]} cái)',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '${_formatCurrency(_shellPrice * (_shellQuantityMap[item.productId] ?? 0))} VNĐ',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     ],
                   ),
                 ),
@@ -462,11 +526,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         children: [
                           Text('Tạm tính', style: TextStyle(color: textSecondaryColor)),
                           Text(
-                            '${_formatCurrency(_calculateTotalAmount())} VNĐ',
+                            '${_formatCurrency(productAmount)} VNĐ',
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
+                      
+                      // Hiển thị tiền vỏ nếu có
+                      if (shellAmount > 0) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Tiền vỏ gas', style: TextStyle(color: textSecondaryColor)),
+                            Text(
+                              '${_formatCurrency(shellAmount)} VNĐ',
+                              style: const TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ],
+                      
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -513,6 +593,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   padding: const EdgeInsets.all(16),
                   child: ElevatedButton(
                     onPressed: () {
+                      // Tạo đối tượng chứa thông tin vỏ
+                      final shellData = {
+                        'buyShell': _buyShellMap,
+                        'shellQuantity': _shellQuantityMap,
+                        'shellPrice': _shellPrice,
+                        'totalShellAmount': shellAmount
+                      };
+                      
                       context.read<OrderBloc>().add(
                         CreateOrderEvent(
                           widget.accountId,
@@ -520,6 +608,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           widget.deliveryAddress,
                           cartId: _items.isNotEmpty ? _items.first.cartId : null,
                           deliveryFee: deliveryFee,
+                          additionalData: shellData, // Thêm thông tin vỏ gas
                         ),
                       );
                     },

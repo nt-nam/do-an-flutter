@@ -15,6 +15,13 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  // Thêm biến để lưu trữ trạng thái "mua vỏ" và số lượng vỏ cho từng sản phẩm
+  Map<int, bool> _buyShellMap = {};  // productId -> có mua vỏ hay không
+  Map<int, int> _shellQuantityMap = {};  // productId -> số lượng vỏ
+  
+  // Giả định giá vỏ gas 300,000 VNĐ - trong thực tế có thể lấy từ API hoặc cấu hình
+  final double _shellPrice = 300000;
+  
   @override
   void initState() {
     super.initState();
@@ -132,6 +139,14 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCartItem(BuildContext context, dynamic item) {
+    // Kiểm tra nếu sản phẩm chưa có trong map thì khởi tạo giá trị mặc định
+    if (!_buyShellMap.containsKey(item.productId)) {
+      _buyShellMap[item.productId] = false;
+    }
+    if (!_shellQuantityMap.containsKey(item.productId)) {
+      _shellQuantityMap[item.productId] = 1;
+    }
+    
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -197,6 +212,15 @@ class _CartScreenState extends State<CartScreen> {
                                 item.quantity - 1,
                               ),
                             );
+                            
+                            // Cập nhật số lượng vỏ tối đa nếu mua vỏ
+                            if (_buyShellMap[item.productId] == true) {
+                              setState(() {
+                                if (_shellQuantityMap[item.productId]! > item.quantity - 1) {
+                                  _shellQuantityMap[item.productId] = item.quantity - 1;
+                                }
+                              });
+                            }
                           } else {
                             _showDeleteConfirmation(context, item);
                           }
@@ -233,6 +257,79 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ],
                   ),
+                  
+                  // Thêm phần tùy chọn mua vỏ cho sản phẩm loại gas (maLoai = 1)
+                  FutureBuilder<bool>(
+                    future: _isGasProduct(item.productId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data == true) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _buyShellMap[item.productId] ?? false,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _buyShellMap[item.productId] = value ?? false;
+                                    });
+                                  },
+                                ),
+                                Text(
+                                  'Mua vỏ (${_formatCurrency(_shellPrice)} VNĐ/vỏ)',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            // Hiển thị dropdown chọn số lượng vỏ nếu checkbox được chọn
+                            if (_buyShellMap[item.productId] == true)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 32, bottom: 8),
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      'Số lượng vỏ: ',
+                                      style: TextStyle(fontSize: 14),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.grey.shade400),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: DropdownButton<int>(
+                                        value: _shellQuantityMap[item.productId],
+                                        underline: const SizedBox(),
+                                        items: List.generate(
+                                          item.quantity,
+                                          (index) => DropdownMenuItem(
+                                            value: index + 1,
+                                            child: Text('${index + 1}'),
+                                          ),
+                                        ),
+                                        onChanged: (value) {
+                                          setState(() {
+                                            _shellQuantityMap[item.productId] = value!;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        );
+                      }
+                      return const SizedBox.shrink(); // Không hiển thị gì nếu không phải sản phẩm gas
+                    },
+                  ),
                 ],
               ),
             ),
@@ -265,6 +362,16 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildCheckoutSection(BuildContext context, CartLoaded state, double totalAmount) {
+    // Tính tổng tiền vỏ (nếu có)
+    double shellTotalAmount = 0;
+    for (var item in state.cartItems) {
+      if (_buyShellMap[item.productId] == true) {
+        shellTotalAmount += _shellPrice * (_shellQuantityMap[item.productId] ?? 0);
+      }
+    }
+    
+    double finalTotalAmount = totalAmount + shellTotalAmount;
+    
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -284,6 +391,54 @@ class _CartScreenState extends State<CartScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
+                'Tạm tính:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                '${_formatCurrency(totalAmount)} VNĐ',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          
+          // Hiển thị phần tiền vỏ nếu có chọn mua vỏ
+          if (shellTotalAmount > 0) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Tiền vỏ:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '${_formatCurrency(shellTotalAmount)} VNĐ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+          
+          const SizedBox(height: 12),
+          const Divider(),
+          const SizedBox(height: 12),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
                 'Tổng thanh toán:',
                 style: TextStyle(
                   fontSize: 16,
@@ -291,7 +446,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               Text(
-                '${_formatCurrency(totalAmount)} VNĐ',
+                '${_formatCurrency(finalTotalAmount)} VNĐ',
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -318,6 +473,8 @@ class _CartScreenState extends State<CartScreen> {
                   );
                   return;
                 }
+                
+                // Truyền thêm thông tin về mua vỏ qua màn hình thanh toán
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -325,6 +482,9 @@ class _CartScreenState extends State<CartScreen> {
                       items: state.cartItems,
                       accountId: accountId,
                       deliveryAddress: deliveryAddress,
+                      buyShellMap: _buyShellMap,
+                      shellQuantityMap: _shellQuantityMap,
+                      shellPrice: _shellPrice,
                     ),
                   ),
                 );
@@ -448,5 +608,16 @@ class _CartScreenState extends State<CartScreen> {
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]}.',
     );
+  }
+
+  // Phương thức kiểm tra sản phẩm có thuộc loại gas (maLoai = 1) hay không
+  Future<bool> _isGasProduct(int productId) async {
+    // Trong dự án thực tế, bạn sẽ gọi API hoặc repository để lấy thông tin sản phẩm
+    // Tuy nhiên, để demo, chúng ta giả định rằng:
+    // - Nếu productId chia hết cho 2, thì đó là sản phẩm gas (maLoai = 1)
+    // - Nếu không, thì đó là sản phẩm khác
+    
+    // Lưu ý: Đây chỉ là demo, trong thực tế bạn cần truy vấn thông tin chi tiết sản phẩm
+    return Future.value(productId == 1 || productId == 2);
   }
 }
