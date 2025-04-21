@@ -6,6 +6,7 @@ import '../../blocs/cart/cart_state.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
 import 'PaymentScreen.dart';
+import '../../blocs/product/product_bloc.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -612,12 +613,17 @@ class _CartScreenState extends State<CartScreen> {
 
   // Phương thức kiểm tra sản phẩm có thuộc loại gas (maLoai = 1) hay không
   Future<bool> _isGasProduct(int productId) async {
-    // Trong dự án thực tế, bạn sẽ gọi API hoặc repository để lấy thông tin sản phẩm
-    // Tuy nhiên, để demo, chúng ta giả định rằng:
-    // - Nếu productId chia hết cho 2, thì đó là sản phẩm gas (maLoai = 1)
-    // - Nếu không, thì đó là sản phẩm khác
-    
-    // Lưu ý: Đây chỉ là demo, trong thực tế bạn cần truy vấn thông tin chi tiết sản phẩm
-    return Future.value(productId == 1 || productId == 2);
+    try {
+      // Sử dụng GetProductByIdUsecase để lấy thông tin sản phẩm (bao gồm categoryId)
+      final productRepository = context.read<ProductBloc>().getProductByIdUsecase.repository;
+      final productModel = await productRepository.getProductById(productId);
+      
+      // Kiểm tra nếu sản phẩm thuộc loại gas (maLoai = 1)
+      return productModel.maLoai == 1 || productModel.maLoai == 2;
+    } catch (e) {
+      // Nếu có lỗi, ghi log và trả về false
+      print('Lỗi khi kiểm tra loại sản phẩm: $e');
+      return false;
+    }
   }
 }
