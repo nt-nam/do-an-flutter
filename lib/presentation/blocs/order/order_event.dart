@@ -15,20 +15,22 @@ class FetchOrdersEvent extends OrderEvent {
 
 class CreateOrderEvent extends OrderEvent {
   final int accountId;
-  final int? cartId;
   final List<CartDetail> items;
   final String deliveryAddress;
+  final int? cartId;
+  final double deliveryFee;
   final String? offerId;
-  final double deliveryFee; // Thêm phí vận chuyển
+  final Map<String, dynamic>? additionalData;
 
   const CreateOrderEvent(
-      this.accountId,
-      this.items,
-      this.deliveryAddress, {
-        this.offerId,
-        this.cartId,
-        this.deliveryFee = 15000, // Giá trị mặc định là 15.000
-      });
+    this.accountId, 
+    this.items, 
+    this.deliveryAddress, 
+    {this.cartId, 
+    this.deliveryFee = 0,
+    this.offerId,
+    this.additionalData}
+  );
 }
 
 class UpdateOrderStatusEvent extends OrderEvent {

@@ -6,17 +6,24 @@ import '../../blocs/order/order_bloc.dart';
 import '../../blocs/order/order_event.dart';
 import '../../blocs/order/order_state.dart';
 import '../../../domain/entities/cart_detail.dart';
+import '../../blocs/product/product_bloc.dart';
 
 class PaymentScreen extends StatefulWidget {
   final List<CartDetail> items;
   final int accountId;
   final String deliveryAddress;
+  final Map<int, bool>? buyShellMap;
+  final Map<int, int>? shellQuantityMap;
+  final double? shellPrice;
 
   const PaymentScreen({
     super.key,
     required this.items,
     required this.accountId,
     required this.deliveryAddress,
+    this.buyShellMap,
+    this.shellQuantityMap,
+    this.shellPrice,
   });
 
   @override
@@ -25,6 +32,9 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   late List<CartDetail> _items;
+  late Map<int, bool> _buyShellMap;
+  late Map<int, int> _shellQuantityMap;
+  late double _shellPrice;
 
   // Định nghĩa bảng màu mới
   final Color primaryColor = Colors.teal;
@@ -49,44 +59,108 @@ class _PaymentScreenState extends State<PaymentScreen> {
       productPrice: item.productPrice,
       productImage: item.productImage,
     )).toList();
+    
+    // Khởi tạo các map
+    _buyShellMap = widget.buyShellMap ?? {};
+    _shellQuantityMap = widget.shellQuantityMap ?? {};
+    _shellPrice = widget.shellPrice ?? 300000; // Giá mặc định nếu không được truyền vào
+    
+    // Kiểm tra lại sản phẩm loại gas
+    _verifyGasProducts();
+  }
+  
+  // Phương thức kiểm tra sản phẩm có thuộc loại gas (maLoai = 1) hay không
+  Future<bool> _isGasProduct(int productId) async {
+    try {
+      // Sử dụng GetProductByIdUsecase để lấy thông tin sản phẩm (bao gồm categoryId)
+      final productRepository = context.read<ProductBloc>().getProductByIdUsecase.repository;
+      final productModel = await productRepository.getProductById(productId);
+      
+      // Kiểm tra nếu sản phẩm thuộc loại gas (maLoai = 1)
+      return productModel.maLoai == 1 || productModel.maLoai == 2;
+    } catch (e) {
+      // Nếu có lỗi, ghi log và trả về false
+      print('Lỗi khi kiểm tra loại sản phẩm: $e');
+      return false;
+    }
+  }
+  
+  // Kiểm tra và cập nhật trạng thái các sản phẩm gas
+  void _verifyGasProducts() async {
+    for (var item in _items) {
+      bool isGas = await _isGasProduct(item.productId);
+      if (!isGas && _buyShellMap[item.productId] == true) {
+        setState(() {
+          _buyShellMap[item.productId] = false;
+        });
+      }
+    }
   }
 
   void _incrementQuantity(int index) {
     setState(() {
+      final newQuantity = _items[index].quantity + 1;
       _items[index] = CartDetail(
         cartDetailId: _items[index].cartDetailId,
         cartId: _items[index].cartId,
         accountId: widget.accountId,
         productId: _items[index].productId,
-        quantity: _items[index].quantity + 1,
+        quantity: newQuantity,
         createdDate: _items[index].createdDate,
         productName: _items[index].productName,
         productPrice: _items[index].productPrice,
         productImage: _items[index].productImage,
       );
+      
+      // Cập nhật số lượng vỏ tối đa nếu cần
+      final productId = _items[index].productId;
+      if (_buyShellMap[productId] == true) {
+        if (_shellQuantityMap[productId]! > newQuantity) {
+          _shellQuantityMap[productId] = newQuantity;
+        }
+      }
     });
   }
 
   void _decrementQuantity(int index) {
+    if (_items[index].quantity <= 1) return;
+    
     setState(() {
-      if (_items[index].quantity > 1) {
-        _items[index] = CartDetail(
-          cartDetailId: _items[index].cartDetailId,
-          cartId: _items[index].cartId,
-          accountId: widget.accountId,
-          productId: _items[index].productId,
-          quantity: _items[index].quantity - 1,
-          createdDate: _items[index].createdDate,
-          productName: _items[index].productName,
-          productPrice: _items[index].productPrice,
-          productImage: _items[index].productImage,
-        );
+      final newQuantity = _items[index].quantity - 1;
+      _items[index] = CartDetail(
+        cartDetailId: _items[index].cartDetailId,
+        cartId: _items[index].cartId,
+        accountId: widget.accountId,
+        productId: _items[index].productId,
+        quantity: newQuantity,
+        createdDate: _items[index].createdDate,
+        productName: _items[index].productName,
+        productPrice: _items[index].productPrice,
+        productImage: _items[index].productImage,
+      );
+      
+      // Cập nhật số lượng vỏ tối đa nếu cần
+      final productId = _items[index].productId;
+      if (_buyShellMap[productId] == true) {
+        if (_shellQuantityMap[productId]! > newQuantity) {
+          _shellQuantityMap[productId] = newQuantity;
+        }
       }
     });
   }
 
   double _calculateTotalAmount() {
     return _items.fold(0.0, (sum, item) => sum + (item.productPrice ?? 0) * item.quantity);
+  }
+
+  double _calculateShellAmount() {
+    double total = 0;
+    for (var item in _items) {
+      if (_buyShellMap[item.productId] == true) {
+        total += _shellPrice * (_shellQuantityMap[item.productId] ?? 0);
+      }
+    }
+    return total;
   }
 
   String _formatCurrency(double amount) {
@@ -99,7 +173,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final double deliveryFee = 15000; // Phí giao hàng cố định
-    final double totalWithDelivery = _calculateTotalAmount() + deliveryFee;
+    final double productAmount = _calculateTotalAmount();
+    final double shellAmount = _calculateShellAmount();
+    final double totalWithDelivery = productAmount + shellAmount + deliveryFee;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -365,6 +441,85 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                         );
                       }).toList(),
+                      // Hiển thị thông tin vỏ cho các sản phẩm - sử dụng kiểm tra riêng biệt
+                      ...List.generate(_items.length, (index) {
+                        final item = _items[index];
+                        // Chỉ tiếp tục nếu sản phẩm được chọn mua vỏ
+                        if (_buyShellMap[item.productId] != true) {
+                          return const SizedBox.shrink();
+                        }
+                        
+                        return FutureBuilder<bool>(
+                          future: _isGasProduct(item.productId),
+                          builder: (context, snapshot) {
+                            // Nếu chưa có dữ liệu hoặc không phải gas, không hiển thị
+                            if (!snapshot.hasData || snapshot.data != true) {
+                              return const SizedBox.shrink();
+                            }
+                            
+                            // Hiển thị vỏ gas
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 8, left: 16),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.grey[100],
+                                border: Border.all(color: Colors.grey.shade300),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.add_circle_outline, color: Colors.teal, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Vỏ gas',
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey.shade400),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: DropdownButton<int>(
+                                      value: _shellQuantityMap[item.productId],
+                                      underline: const SizedBox(),
+                                      isDense: true,
+                                      items: List.generate(
+                                        item.quantity,
+                                        (index) => DropdownMenuItem(
+                                          value: index + 1,
+                                          child: Text('${index + 1}', style: const TextStyle(fontSize: 12)),
+                                        ),
+                                      ),
+                                      onChanged: (value) {
+                                        if (value != null) {
+                                          setState(() {
+                                            _shellQuantityMap[item.productId] = value;
+                                          });
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${_formatCurrency(_shellPrice * (_shellQuantityMap[item.productId] ?? 0))} VNĐ',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: primaryColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      }),
                     ],
                   ),
                 ),
@@ -462,11 +617,27 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         children: [
                           Text('Tạm tính', style: TextStyle(color: textSecondaryColor)),
                           Text(
-                            '${_formatCurrency(_calculateTotalAmount())} VNĐ',
+                            '${_formatCurrency(productAmount)} VNĐ',
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
+                      
+                      // Hiển thị tiền vỏ nếu có
+                      if (shellAmount > 0) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Tiền vỏ gas', style: TextStyle(color: textSecondaryColor)),
+                            Text(
+                              '${_formatCurrency(shellAmount)} VNĐ',
+                              style: const TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ],
+                      
                       const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -512,7 +683,31 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      // Lọc chỉ lấy thông tin vỏ của những sản phẩm là gas
+                      Map<int, bool> validShellMap = {};
+                      Map<int, int> validShellQuantityMap = {};
+                      double validShellAmount = 0;
+                      
+                      for (var item in _items) {
+                        if (_buyShellMap[item.productId] == true) {
+                          bool isGas = await _isGasProduct(item.productId);
+                          if (isGas) {
+                            validShellMap[item.productId] = true;
+                            validShellQuantityMap[item.productId] = _shellQuantityMap[item.productId] ?? 0;
+                            validShellAmount += _shellPrice * validShellQuantityMap[item.productId]!;
+                          }
+                        }
+                      }
+                      
+                      // Tạo đối tượng chứa thông tin vỏ đã được kiểm tra
+                      final shellData = {
+                        'buyShell': validShellMap,
+                        'shellQuantity': validShellQuantityMap,
+                        'shellPrice': _shellPrice,
+                        'totalShellAmount': validShellAmount
+                      };
+                      
                       context.read<OrderBloc>().add(
                         CreateOrderEvent(
                           widget.accountId,
@@ -520,6 +715,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           widget.deliveryAddress,
                           cartId: _items.isNotEmpty ? _items.first.cartId : null,
                           deliveryFee: deliveryFee,
+                          additionalData: shellData, // Thêm thông tin vỏ gas
                         ),
                       );
                     },
