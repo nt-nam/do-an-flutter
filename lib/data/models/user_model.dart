@@ -5,6 +5,7 @@ class UserModel {
   final String? sdt;
   final String? diaChi;
   final String? email;
+  final int? capDo;
 
   UserModel({
     required this.maND,
@@ -13,6 +14,7 @@ class UserModel {
     this.sdt,
     this.diaChi,
     this.email,
+    this.capDo,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class UserModel {
       sdt: json['SDT'],
       diaChi: json['DiaChi'],
       email: json['Email'],
+      capDo: json['CapDo'] ?? 1,
     );
   }
 
@@ -41,6 +44,7 @@ class UserModel {
       'SDT': sdt,
       'DiaChi': diaChi,
       'Email': email,
+      'CapDo': capDo,
     };
   }
 }

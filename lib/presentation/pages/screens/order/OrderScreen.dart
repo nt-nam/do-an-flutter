@@ -613,8 +613,29 @@ class _OrderScreenState extends State<OrderScreen>
                       const SizedBox(height: 10),
                       _infoRow('Mã đơn hàng:', '#${order.id ?? 'N/A'}'),
                       _infoRow('Ngày đặt:', formatDate(order.orderDate)),
-                      _infoRow('Tổng tiền:',
-                          '${order.totalAmount.toStringAsFixed(0)} VNĐ'),
+                      
+                      // Hiển thị thông tin chi tiết đơn hàng với giảm giá (nếu có)
+                      FutureBuilder<List<dynamic>>(
+                        future: context.read<OrderBloc>().getOrderDetailsUseCase(int.parse(order.id.toString())),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          
+                          if (snapshot.hasError || !snapshot.hasData) {
+                            return _infoRow('Tổng tiền:', '${_formatCurrency(order.totalAmount)} VNĐ');
+                          }
+                          
+                          // Hiển thị chi tiết đơn hàng nếu cần
+                          return Column(
+                            children: [
+                              // Chi tiết đơn hàng sẽ được hiển thị ở đây nếu cần
+                              _infoRow('Tổng tiền:', '${_formatCurrency(order.totalAmount)} VNĐ'),
+                            ],
+                          );
+                        },
+                      ),
+                      
                       const SizedBox(height: 20),
 
                       // Địa chỉ giao hàng

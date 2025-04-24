@@ -49,8 +49,24 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         0.0,
             (sum, item) => sum + (item.productPrice ?? 0) * item.quantity,
       );
-      // Tổng tiền bao gồm phí vận chuyển
-      final double totalAmount = itemsTotal + event.deliveryFee;
+      
+      // Lấy thông tin giảm giá từ additionalData nếu có
+      double discountAmount = 0.0;
+      if (event.additionalData != null && event.additionalData!.containsKey('discountAmount')) {
+        discountAmount = event.additionalData!['discountAmount'] as double;
+      }
+      
+      // Lấy thông tin tiền vỏ gas từ additionalData nếu có
+      double shellAmount = 0.0;
+      if (event.additionalData != null && event.additionalData!.containsKey('totalShellAmount')) {
+        shellAmount = event.additionalData!['totalShellAmount'] as double;
+      }
+      
+      // Tổng tiền sau khi giảm giá
+      final double subtotalAmount = itemsTotal - discountAmount;
+      
+      // Tổng tiền bao gồm phí vận chuyển và tiền vỏ gas (nếu có)
+      final double totalAmount = subtotalAmount + shellAmount + event.deliveryFee;
 
       final order = await createOrderUseCase(
         event.accountId,
@@ -58,14 +74,14 @@ class OrderBloc extends Bloc<OrderEvent, OrderState> {
         event.deliveryAddress,
         offerId: event.offerId,
         cartId: event.cartId,
-        totalAmount: totalAmount, // Truyền tổng tiền
+        totalAmount: totalAmount, // Truyền tổng tiền đã tính giảm giá
       );
       emit(OrderCreated(order));
       final orders = await getOrdersUseCase(event.accountId);
       emit(OrderLoaded(orders));
     } catch (e) {
       String errorMessage = e.toString();
-      if (errorMessage.contains('Exception: Failed to create order: Exception: Failed to create order: Exception: Bad request:')) {
+      if (errorMessage.contains('Exception: Failed to create order: Exception: Bad request:')) {
         errorMessage = errorMessage.split('Exception: Bad request: ')[1];
       } else if (errorMessage.contains('Exception: Failed to create order: Exception: Failed to create order:')) {
         errorMessage = errorMessage.split('Exception: Failed to create order: Exception: Failed to create order: ')[1];

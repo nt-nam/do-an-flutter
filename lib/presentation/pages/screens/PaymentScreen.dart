@@ -15,6 +15,8 @@ class PaymentScreen extends StatefulWidget {
   final Map<int, bool>? buyShellMap;
   final Map<int, int>? shellQuantityMap;
   final double? shellPrice;
+  final double? discountAmount;
+  final int? userLevel;
 
   const PaymentScreen({
     super.key,
@@ -24,6 +26,8 @@ class PaymentScreen extends StatefulWidget {
     this.buyShellMap,
     this.shellQuantityMap,
     this.shellPrice,
+    this.discountAmount,
+    this.userLevel,
   });
 
   @override
@@ -175,7 +179,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final double deliveryFee = 15000; // Phí giao hàng cố định
     final double productAmount = _calculateTotalAmount();
     final double shellAmount = _calculateShellAmount();
-    final double totalWithDelivery = productAmount + shellAmount + deliveryFee;
+    final double discountAmount = widget.discountAmount ?? 0;
+    final double subtotalAmount = productAmount - discountAmount;
+    final double totalWithDelivery = subtotalAmount + shellAmount + deliveryFee;
+
+    // Tạo mô tả chiết khấu dựa trên cấp độ người dùng
+    String discountDescription = '';
+    final int userLevel = widget.userLevel ?? 1;
+    final int totalItems = _items.fold(0, (sum, item) => sum + item.quantity);
+
+    if (userLevel == 1 && totalItems >= 10) {
+      discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9 (Giảm 10%)';
+    } else if (userLevel == 2) {
+      if (totalItems >= 10) {
+        discountDescription = 'Khách hàng cấp 2: Mua 10 tính tiền 8 (Giảm 20%)';
+      } else if (totalItems >= 7) {
+        discountDescription = 'Khách hàng cấp 2: Mua 7 tính tiền 6 (Giảm 14.3%)';
+      }
+    } else if (userLevel == 3) {
+      discountDescription = 'Khách hàng cấp 3: Giảm 30% tổng đơn hàng';
+    }
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -623,6 +646,44 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         ],
                       ),
                       
+                      // Hiển thị chiết khấu nếu có
+                      if (discountAmount > 0) ...[
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Giảm giá ($discountDescription):',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.green,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              '-${_formatCurrency(discountAmount)} VNĐ',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Sau giảm giá', style: TextStyle(color: textSecondaryColor)),
+                            Text(
+                              '${_formatCurrency(subtotalAmount)} VNĐ',
+                              style: const TextStyle(fontWeight: FontWeight.w500),
+                            ),
+                          ],
+                        ),
+                      ],
+                      
                       // Hiển thị tiền vỏ nếu có
                       if (shellAmount > 0) ...[
                         const SizedBox(height: 8),
@@ -708,6 +769,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         'totalShellAmount': validShellAmount
                       };
                       
+                      // Tạo đối tượng chứa thông tin giảm giá
+                      final discountData = {
+                        'discountAmount': discountAmount,
+                        'userLevel': userLevel,
+                        'discountDescription': discountDescription,
+                      };
+                      
+                      // Gộp thông tin bổ sung
+                      final additionalData = {
+                        ...shellData,
+                        ...discountData,
+                      };
+                      
                       context.read<OrderBloc>().add(
                         CreateOrderEvent(
                           widget.accountId,
@@ -715,7 +789,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           widget.deliveryAddress,
                           cartId: _items.isNotEmpty ? _items.first.cartId : null,
                           deliveryFee: deliveryFee,
-                          additionalData: shellData, // Thêm thông tin vỏ gas
+                          additionalData: additionalData, // Thêm thông tin vỏ gas và giảm giá
                         ),
                       );
                     },

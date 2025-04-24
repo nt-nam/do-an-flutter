@@ -19,10 +19,10 @@ class _CartScreenState extends State<CartScreen> {
   // Thêm biến để lưu trữ trạng thái "mua vỏ" và số lượng vỏ cho từng sản phẩm
   Map<int, bool> _buyShellMap = {};  // productId -> có mua vỏ hay không
   Map<int, int> _shellQuantityMap = {};  // productId -> số lượng vỏ
-  
+
   // Giả định giá vỏ gas 300,000 VNĐ - trong thực tế có thể lấy từ API hoặc cấu hình
   final double _shellPrice = 300000;
-  
+
   @override
   void initState() {
     super.initState();
@@ -116,10 +116,45 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildLoadedCart(BuildContext context, CartLoaded state) {
+    // Lấy thông tin cấp độ khách hàng từ AccountBloc
+    final accountState = context.read<AccountBloc>().state;
+    int userLevel = 1; // Mặc định là cấp độ 1
+
+    if (accountState is AccountLoggedIn && accountState.user != null) {
+      userLevel = accountState.user!.capDo ?? 1;
+    }
+
     double totalAmount = 0;
+    int totalItems = 0;
+
     for (var item in state.cartItems) {
       double itemPrice = item.productPrice ?? 0;
       totalAmount += itemPrice * item.quantity;
+      totalItems += item.quantity;
+    }
+
+    // Tính toán chiết khấu dựa trên cấp độ khách hàng
+    double discountAmount = 0;
+    String discountDescription = '';
+
+    if (userLevel == 1 && totalItems >= 10) {
+      // Cấp 1: mua 10 tính tiền 9 (giảm 10%)
+      discountAmount = totalAmount * 0.1;
+      discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9 (Giảm 10%)';
+    } else if (userLevel == 2) {
+      if (totalItems >= 10) {
+        // Cấp 2: mua 10 tính tiền 8 (giảm 20%)
+        discountAmount = totalAmount * 0.2;
+        discountDescription = 'Khách hàng cấp 2: Mua 10 tính tiền 8 (Giảm 20%)';
+      } else if (totalItems >= 7) {
+        // Cấp 2: mua 7 tính tiền 6 (giảm 14.3%)
+        discountAmount = totalAmount * 0.143;
+        discountDescription = 'Khách hàng cấp 2: Mua 7 tính tiền 6 (Giảm 14.3%)';
+      }
+    } else if (userLevel == 3) {
+      // Cấp 3: giảm 30% tổng đơn hàng
+      discountAmount = totalAmount * 0.3;
+      discountDescription = 'Khách hàng cấp 3: Giảm 30% tổng đơn hàng';
     }
 
     return Column(
@@ -134,7 +169,7 @@ class _CartScreenState extends State<CartScreen> {
             },
           ),
         ),
-        _buildCheckoutSection(context, state, totalAmount),
+        _buildCheckoutSection(context, state, totalAmount, discountAmount, discountDescription),
       ],
     );
   }
@@ -147,7 +182,7 @@ class _CartScreenState extends State<CartScreen> {
     if (!_shellQuantityMap.containsKey(item.productId)) {
       _shellQuantityMap[item.productId] = 1;
     }
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
@@ -213,7 +248,7 @@ class _CartScreenState extends State<CartScreen> {
                                 item.quantity - 1,
                               ),
                             );
-                            
+
                             // Cập nhật số lượng vỏ tối đa nếu mua vỏ
                             if (_buyShellMap[item.productId] == true) {
                               setState(() {
@@ -258,7 +293,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ],
                   ),
-                  
+
                   // Thêm phần tùy chọn mua vỏ cho sản phẩm loại gas (maLoai = 1)
                   FutureBuilder<bool>(
                     future: _isGasProduct(item.productId),
@@ -287,7 +322,7 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ],
                             ),
-                            
+
                             // Hiển thị dropdown chọn số lượng vỏ nếu checkbox được chọn
                             if (_buyShellMap[item.productId] == true)
                               Padding(
@@ -310,7 +345,7 @@ class _CartScreenState extends State<CartScreen> {
                                         underline: const SizedBox(),
                                         items: List.generate(
                                           item.quantity,
-                                          (index) => DropdownMenuItem(
+                                              (index) => DropdownMenuItem(
                                             value: index + 1,
                                             child: Text('${index + 1}'),
                                           ),
@@ -362,7 +397,13 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  Widget _buildCheckoutSection(BuildContext context, CartLoaded state, double totalAmount) {
+  Widget _buildCheckoutSection(
+      BuildContext context,
+      CartLoaded state,
+      double totalAmount,
+      double discountAmount,
+      String discountDescription
+      ) {
     // Tính tổng tiền vỏ (nếu có)
     double shellTotalAmount = 0;
     for (var item in state.cartItems) {
@@ -370,9 +411,10 @@ class _CartScreenState extends State<CartScreen> {
         shellTotalAmount += _shellPrice * (_shellQuantityMap[item.productId] ?? 0);
       }
     }
-    
-    double finalTotalAmount = totalAmount + shellTotalAmount;
-    
+
+    double subtotalAmount = totalAmount - discountAmount;
+    double finalTotalAmount = subtotalAmount + shellTotalAmount;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -407,7 +449,56 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ],
           ),
-          
+
+          // Hiển thị phần giảm giá nếu có
+          if (discountAmount > 0) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    'Giảm giá ($discountDescription):',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.green,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  '-${_formatCurrency(discountAmount)} VNĐ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Sau giảm giá:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '${_formatCurrency(subtotalAmount)} VNĐ',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ],
+
           // Hiển thị phần tiền vỏ nếu có chọn mua vỏ
           if (shellTotalAmount > 0) ...[
             const SizedBox(height: 8),
@@ -431,11 +522,11 @@ class _CartScreenState extends State<CartScreen> {
               ],
             ),
           ],
-          
+
           const SizedBox(height: 12),
           const Divider(),
           const SizedBox(height: 12),
-          
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -462,6 +553,7 @@ class _CartScreenState extends State<CartScreen> {
               final accountState = context.read<AccountBloc>().state;
               if (accountState is AccountLoggedIn) {
                 final accountId = accountState.account.id;
+                final userLevel = accountState.user?.capDo ?? 1;
                 String deliveryAddress = '123 Main St';
                 if (accountState.user != null) {
                   deliveryAddress = accountState.user!.diaChi ?? '123 Main St';
@@ -474,8 +566,8 @@ class _CartScreenState extends State<CartScreen> {
                   );
                   return;
                 }
-                
-                // Truyền thêm thông tin về mua vỏ qua màn hình thanh toán
+
+                // Truyền thêm thông tin về mua vỏ và giảm giá qua màn hình thanh toán
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -486,6 +578,8 @@ class _CartScreenState extends State<CartScreen> {
                       buyShellMap: _buyShellMap,
                       shellQuantityMap: _shellQuantityMap,
                       shellPrice: _shellPrice,
+                      discountAmount: discountAmount,
+                      userLevel: userLevel,
                     ),
                   ),
                 );
@@ -617,7 +711,7 @@ class _CartScreenState extends State<CartScreen> {
       // Sử dụng GetProductByIdUsecase để lấy thông tin sản phẩm (bao gồm categoryId)
       final productRepository = context.read<ProductBloc>().getProductByIdUsecase.repository;
       final productModel = await productRepository.getProductById(productId);
-      
+
       // Kiểm tra nếu sản phẩm thuộc loại gas (maLoai = 1)
       return productModel.maLoai == 1 || productModel.maLoai == 2;
     } catch (e) {
