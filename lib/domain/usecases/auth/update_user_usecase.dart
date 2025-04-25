@@ -16,6 +16,7 @@ class UpdateUserUseCase {
         sdt: user.phoneNumber,
         diaChi: user.address,
         email: user.email,
+        capDo: user.level,
       );
       final updatedModel = await repository.updateUser(modelUser);
       return User(
@@ -25,6 +26,7 @@ class UpdateUserUseCase {
         phoneNumber: updatedModel.sdt,
         address: updatedModel.diaChi,
         email: updatedModel.email,
+        level: updatedModel.capDo,
       );
     } catch (e) {
       throw Exception('Failed to update user: $e');

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:developer' as developer;
 import '../../blocs/cart/cart_bloc.dart';
 import '../../blocs/cart/cart_event.dart';
 import '../../blocs/cart/cart_state.dart';
 import '../../blocs/account/account_bloc.dart';
 import '../../blocs/account/account_state.dart';
+import '../../blocs/account/account_event.dart';
+import '../../blocs/user/user_bloc.dart';
+import '../../blocs/user/user_event.dart';
+import '../../blocs/user/user_state.dart';
 import 'PaymentScreen.dart';
 import '../../blocs/product/product_bloc.dart';
 
@@ -19,6 +24,7 @@ class _CartScreenState extends State<CartScreen> {
   // Thêm biến để lưu trữ trạng thái "mua vỏ" và số lượng vỏ cho từng sản phẩm
   Map<int, bool> _buyShellMap = {};  // productId -> có mua vỏ hay không
   Map<int, int> _shellQuantityMap = {};  // productId -> số lượng vỏ
+  int _currentUserLevel = 1; // Theo dõi cấp độ người dùng hiện tại
 
   // Giả định giá vỏ gas 300,000 VNĐ - trong thực tế có thể lấy từ API hoặc cấu hình
   final double _shellPrice = 300000;
@@ -28,15 +34,53 @@ class _CartScreenState extends State<CartScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCartData();
+      _refreshUserData();
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Kiểm tra cấp độ người dùng hiện tại
+    final accountState = context.read<AccountBloc>().state;
+    if (accountState is AccountLoggedIn && accountState.user != null) {
+      final userLevel = accountState.user!.capDo ?? 1;
+      if (_currentUserLevel != userLevel) {
+        _currentUserLevel = userLevel;
+        // Nếu cấp độ đã thay đổi, làm mới giỏ hàng
+        _loadCartData();
+      }
+    }
+
+    // Lắng nghe sự thay đổi từ UserBloc
+    final userState = context.watch<UserBloc>().state;
+    if (userState is UserLoaded) {
+      final userLevel = userState.user.level ?? 1;
+      if (_currentUserLevel != userLevel) {
+        _currentUserLevel = userLevel;
+        // Nếu cấp độ đã thay đổi, làm mới giỏ hàng
+        _loadCartData();
+      }
+    }
+  }
+
   void _loadCartData() {
+    developer.log('🛒 Đang làm mới dữ liệu giỏ hàng');
     final accountState = context.read<AccountBloc>().state;
     if (accountState is AccountLoggedIn) {
       context.read<CartBloc>().add(
         FetchCartEvent(accountState.account.id),
       );
+    }
+  }
+
+  // Làm mới thông tin người dùng
+  void _refreshUserData() {
+    developer.log('🛒 Đang làm mới thông tin người dùng');
+    final accountState = context.read<AccountBloc>().state;
+    if (accountState is AccountLoggedIn) {
+      // Tải lại thông tin người dùng
+      context.read<UserBloc>().add(LoadUserByAccountId(accountState.account.id));
     }
   }
 
@@ -57,36 +101,57 @@ class _CartScreenState extends State<CartScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: _loadCartData,
+            onPressed: () {
+              _refreshUserData(); // Làm mới thông tin người dùng
+              _loadCartData(); // Làm mới giỏ hàng
+            },
           ),
         ],
       ),
-      body: BlocConsumer<CartBloc, CartState>(
-        listener: (context, state) {
-          if (state is CartError) {
-            _showSnackBar(context, state.message, isError: true);
-          } else if (state is CartItemRemoved) {
-            _showSnackBar(context, 'Đã xóa sản phẩm khỏi giỏ hàng');
-            _loadCartData(); // Chỉ reload khi xóa sản phẩm
-          } else if (state is CartItemUpdated) {
-            // _showSnackBar(context, 'Đã cập nhật số lượng');
-          }
-        },
-        builder: (context, state) {
-          if (state is CartLoading) {
-            return const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-              ),
-            );
-          } else if (state is CartLoaded) {
-            if (state.cartItems.isEmpty) {
-              return _buildEmptyCart();
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<CartBloc, CartState>(
+            listener: (context, state) {
+              if (state is CartError) {
+                _showSnackBar(context, state.message, isError: true);
+              } else if (state is CartItemRemoved) {
+                _showSnackBar(context, 'Đã xóa sản phẩm khỏi giỏ hàng');
+                _loadCartData(); // Chỉ reload khi xóa sản phẩm
+              } else if (state is CartItemUpdated) {
+                // _showSnackBar(context, 'Đã cập nhật số lượng');
+              }
+            },
+          ),
+          BlocListener<UserBloc, UserState>(
+            listener: (context, state) {
+              if (state is UserLoaded) {
+                final userLevel = state.user.level ?? 1;
+                if (_currentUserLevel != userLevel) {
+                  _currentUserLevel = userLevel;
+                  setState(() {}); // Cập nhật UI
+                  developer.log('🛒 Cấp độ người dùng đã thay đổi: $_currentUserLevel');
+                }
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<CartBloc, CartState>(
+          builder: (context, state) {
+            if (state is CartLoading) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                ),
+              );
+            } else if (state is CartLoaded) {
+              if (state.cartItems.isEmpty) {
+                return _buildEmptyCart();
+              }
+              return _buildLoadedCart(context, state);
             }
-            return _buildLoadedCart(context, state);
-          }
-          return _buildLoginPrompt();
-        },
+            return _buildLoginPrompt();
+          },
+        ),
       ),
     );
   }
@@ -116,12 +181,28 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   Widget _buildLoadedCart(BuildContext context, CartLoaded state) {
-    // Lấy thông tin cấp độ khách hàng từ AccountBloc
+    // Lấy thông tin cấp độ khách hàng từ AccountBloc và UserBloc
+    int userLevel = _currentUserLevel; // Sử dụng cấp độ đã được theo dõi
+    
+    // Double check với dữ liệu mới nhất
     final accountState = context.read<AccountBloc>().state;
-    int userLevel = 1; // Mặc định là cấp độ 1
-
     if (accountState is AccountLoggedIn && accountState.user != null) {
-      userLevel = accountState.user!.capDo ?? 1;
+      final newLevel = accountState.user!.capDo ?? 1;
+      if (userLevel != newLevel) {
+        userLevel = newLevel;
+        _currentUserLevel = newLevel;
+        developer.log('🛒 Cập nhật cấp độ từ AccountBloc: $userLevel');
+      }
+    }
+    
+    final userState = context.read<UserBloc>().state;
+    if (userState is UserLoaded) {
+      final newLevel = userState.user.level ?? 1;
+      if (userLevel != newLevel) {
+        userLevel = newLevel;
+        _currentUserLevel = newLevel;
+        developer.log('🛒 Cập nhật cấp độ từ UserBloc: $userLevel');
+      }
     }
 
     double totalAmount = 0;
@@ -138,27 +219,29 @@ class _CartScreenState extends State<CartScreen> {
     String discountDescription = '';
 
     if (userLevel == 1 && totalItems >= 10) {
-      // Cấp 1: mua 10 tính tiền 9 (giảm 10%)
       discountAmount = totalAmount * 0.1;
       discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9 (Giảm 10%)';
     } else if (userLevel == 2) {
       if (totalItems >= 10) {
-        // Cấp 2: mua 10 tính tiền 8 (giảm 20%)
         discountAmount = totalAmount * 0.2;
-        discountDescription = 'Khách hàng cấp 2: Mua 10 tính tiền 8 (Giảm 20%)';
+        discountDescription = 'Khách hàng cấp 2: Mua 10 tính tiền 8';
       } else if (totalItems >= 7) {
-        // Cấp 2: mua 7 tính tiền 6 (giảm 14.3%)
         discountAmount = totalAmount * 0.143;
-        discountDescription = 'Khách hàng cấp 2: Mua 7 tính tiền 6 (Giảm 14.3%)';
+        discountDescription = 'Khách hàng cấp 2: Mua 7 tính tiền 6';
       }
     } else if (userLevel == 3) {
-      // Cấp 3: giảm 30% tổng đơn hàng
       discountAmount = totalAmount * 0.3;
       discountDescription = 'Khách hàng cấp 3: Giảm 30% tổng đơn hàng';
     }
+    
+    developer.log('🛒 Hiển thị giỏ hàng với cấp độ: $userLevel, chiết khấu: $discountAmount');
 
     return Column(
       children: [
+        // Thêm thông báo về cấp độ người dùng
+        if (accountState is AccountLoggedIn)
+          _buildUserLevelInfo(context, userLevel),
+        
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(12),
@@ -719,5 +802,79 @@ class _CartScreenState extends State<CartScreen> {
       print('Lỗi khi kiểm tra loại sản phẩm: $e');
       return false;
     }
+  }
+
+  // Thêm widget hiển thị thông tin cấp độ người dùng
+  Widget _buildUserLevelInfo(BuildContext context, int userLevel) {
+    String levelText = '';
+    String nextLevelText = '';
+    Color levelColor = Colors.teal;
+    
+    switch (userLevel) {
+      case 1:
+        levelText = 'Khách hàng cấp 1';
+        nextLevelText = 'Hoàn thành đơn hàng để lên cấp 2 và nhận ưu đãi lớn hơn';
+        levelColor = Colors.teal;
+        break;
+      case 2:
+        levelText = 'Khách hàng cấp 2';
+        nextLevelText = 'Hoàn thành đơn hàng để lên cấp 3 và nhận ưu đãi lớn hơn';
+        levelColor = Colors.deepPurple;
+        break;
+      case 3:
+        levelText = 'Khách hàng cấp 3 - Cao cấp';
+        nextLevelText = 'Bạn đã đạt cấp độ cao nhất và được hưởng ưu đãi tối đa';
+        levelColor = Colors.deepOrange;
+        break;
+      default:
+        levelText = 'Khách hàng cấp 1';
+        nextLevelText = 'Hoàn thành đơn hàng để lên cấp và nhận ưu đãi lớn hơn';
+        levelColor = Colors.teal;
+    }
+    
+    return Container(
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: levelColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: levelColor.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.stars, color: levelColor),
+              const SizedBox(width: 8),
+              Text(
+                levelText,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: levelColor,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            nextLevelText,
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 13,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Cấp 1: Giảm 10% cho đơn từ 10 sản phẩm\nCấp 2: Giảm 14.3% cho đơn từ 7 sản phẩm, 20% cho đơn từ 10 sản phẩm\nCấp 3: Giảm 30% cho tất cả đơn hàng',
+            style: TextStyle(
+              color: Colors.grey.shade700,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

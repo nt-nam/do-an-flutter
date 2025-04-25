@@ -24,6 +24,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
       phoneNumber: model.sdt,
       address: model.diaChi,
       email: model.email,
+      level: model.capDo,
     );
   }
 

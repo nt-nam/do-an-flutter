@@ -6,6 +6,7 @@ import 'package:gas_store/domain/usecases/notification/delete_notification_useca
 import 'package:gas_store/domain/usecases/notification/get_active_notifications_count_usecase.dart';
 import 'package:gas_store/domain/usecases/notification/get_system_notifications_usecase.dart';
 import 'package:gas_store/domain/usecases/notification/update_notification_usecase.dart';
+import 'package:gas_store/domain/usecases/user/update_user_level_usecase.dart';
 import '../presentation/blocs/offer/offer_bloc.dart';
 import '../presentation/blocs/user/user_bloc.dart';
 import '../presentation/blocs/account/account_bloc.dart';
@@ -106,7 +107,12 @@ class MyApp extends StatelessWidget {
     );
     final updateOrderStatusUseCase = UpdateOrderStatusUseCase(orderRepository);
     final getOrderDetailsUseCase = GetOrderDetailsUseCase(orderRepository);
-
+    
+    // Thêm UseCase để cập nhật cấp độ người dùng
+    final updateUserLevelUseCase = UpdateUserLevelUseCase(
+      userRepository: userRepository,
+      orderRepository: orderRepository,
+    );
 
     // Offer-related dependencies - Thêm mới
     final offerRepository = OfferRepositoryImpl(apiService, authService);
@@ -166,6 +172,7 @@ class MyApp extends StatelessWidget {
             createOrderUseCase: createOrderUseCase,
             updateOrderStatusUseCase: updateOrderStatusUseCase,
             getOrderDetailsUseCase: getOrderDetailsUseCase,
+            updateUserLevelUseCase: updateUserLevelUseCase,
           ),
         ),
         BlocProvider(

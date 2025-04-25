@@ -5,6 +5,7 @@ class User {
   final String? phoneNumber;
   final String? address;
   final String? email;
+  final int? level;
 
   User({
     required this.id,
@@ -13,5 +14,6 @@ class User {
     this.phoneNumber,
     this.address,
     this.email,
+    this.level,
   });
 }
