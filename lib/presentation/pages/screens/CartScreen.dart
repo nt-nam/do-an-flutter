@@ -220,7 +220,7 @@ class _CartScreenState extends State<CartScreen> {
 
     if (userLevel == 1 && totalItems >= 10) {
       discountAmount = totalAmount * 0.1;
-      discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9 (Giảm 10%)';
+      discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9';
     } else if (userLevel == 2) {
       if (totalItems >= 10) {
         discountAmount = totalAmount * 0.2;

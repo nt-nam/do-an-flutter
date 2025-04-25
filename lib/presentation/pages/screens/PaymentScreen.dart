@@ -189,12 +189,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final int totalItems = _items.fold(0, (sum, item) => sum + item.quantity);
 
     if (userLevel == 1 && totalItems >= 10) {
-      discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9 (Giảm 10%)';
+      discountDescription = 'Khách hàng cấp 1: Mua 10 tính tiền 9';
     } else if (userLevel == 2) {
       if (totalItems >= 10) {
-        discountDescription = 'Khách hàng cấp 2: Mua 10 tính tiền 8 (Giảm 20%)';
+        discountDescription = 'Khách hàng cấp 2: Mua 10 tính tiền 8 ';
       } else if (totalItems >= 7) {
-        discountDescription = 'Khách hàng cấp 2: Mua 7 tính tiền 6 (Giảm 14.3%)';
+        discountDescription = 'Khách hàng cấp 2: Mua 7 tính tiền 6 ';
       }
     } else if (userLevel == 3) {
       discountDescription = 'Khách hàng cấp 3: Giảm 30% tổng đơn hàng';

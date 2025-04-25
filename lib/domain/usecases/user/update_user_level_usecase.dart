@@ -33,7 +33,7 @@ class UpdateUserLevelUseCase {
         }
       }
       
-      // Đếm tất cả đơn hàng không phân biệt trạng thái
+      // Đếm đơn hàng
       final int orderCount = orders.length;
       
       // Xác định cấp độ mới dựa trên số lượng đơn hàng
